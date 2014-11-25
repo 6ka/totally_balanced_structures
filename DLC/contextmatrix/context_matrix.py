@@ -114,7 +114,6 @@ class ContextMatrix(object):
 
         return ContextMatrix(matrix, self.attributes, self.elements)
 
-
     def submatrix_elements(self, elements):
         """Submatrix with only selected elements
 
