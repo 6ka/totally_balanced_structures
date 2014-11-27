@@ -2,10 +2,12 @@ __author__ = 'fbrucker'
 
 import unittest
 
-from clusters.clusters import cluster_matrix, column_difference_matrix, rafine_same_clusters, \
-    cluster_matrix_from_O1_matrix, boxes_clusters
-from clusters.to_string import clusters_to_string
-from contextmatrix import ContextMatrix
+from DLC.clusters.clusters import cluster_matrix, column_difference_matrix, refine_same_clusters, \
+    cluster_matrix_from_O1_matrix, boxes_clusters, atom_clusters_correspondence
+
+from DLC.clusters.to_string import clusters_to_string
+from DLC.contextmatrix import ContextMatrix
+
 
 class TestMatrixCluster(unittest.TestCase):
     def test_only_column(self):
@@ -45,22 +47,42 @@ class TestMatrixCluster(unittest.TestCase):
         self.assertEqual([[6, None, None], [6, None, None], [5, 5, 5]], clusters)
 
 
-class TestMaxtrixClusterBoxes(unittest.TestCase):
-    def setUp(self):
-        self.matrix = [[0, 0, 1],
-                       [0, 1, 1],
-                       [1, 1, 1]]
+class TestMatrixClusterBoxes(unittest.TestCase):
 
-    def test_rafine_clusters_propagate(self):
+    def setUp(self):
+        self.matrix = [[1, 1, 0, 0],
+                       [1, 1, 0, 1],
+                       [0, 0, 1, 1]]
+
+    def test_clusters(self):
         clusters = cluster_matrix(self.matrix)
-        rafine_same_clusters(self.matrix, clusters)
-        self.assertEqual([[None, None, 3], [None, 4, 4], [5, 5, 5]], clusters)
+        self.assertEqual([[9, 7, None, None], [8, 4, None, 3], [None, None, 6, 3]], clusters)
+
+    def test_refine(self):
+        clusters = cluster_matrix(self.matrix)
+        refine_same_clusters(self.matrix, clusters)
+        self.assertEqual([[9, 9, None, None], [8, 8, None, 3], [None, None, 6, 6]], clusters)
 
     def test_boxes(self):
         clusters = cluster_matrix_from_O1_matrix(self.matrix)
         boxes_i, boxes_j = boxes_clusters(clusters)
-        self.assertEqual({3: (0, 0), 4: (1, 1), 5: (2, 2)}, boxes_i)
-        self.assertEqual({3: (2, 2), 4: (1, 2), 5: (0, 2)}, boxes_j)
+        self.assertEqual({8: (1, 1), 9: (0, 0), 3: (1, 1), 6: (2, 2)}, boxes_i)
+        self.assertEqual({8: (0, 1), 9: (0, 1), 3: (3, 3), 6: (2, 3)}, boxes_j)
+
+
+class TestAtomClusters(unittest.TestCase):
+    def setUp(self):
+        self.clusters = [[None, None, 3], [None, 4, 4], [5, 5, 5]]
+
+    def test_atom_clusters(self):
+        number_to_cluster, cluster_to_number = atom_clusters_correspondence(self.clusters)
+        self.assertEqual({3: frozenset({0, 1, 2}), 4: frozenset({1, 2}), 5: frozenset({2})}, number_to_cluster)
+        self.assertEqual({frozenset({1, 2}): 4, frozenset({0, 1, 2}): 3, frozenset({2}): 5}, cluster_to_number)
+
+    def test_atom_clusters_with_rename(self):
+        number_to_cluster, cluster_to_number = atom_clusters_correspondence(self.clusters, ["a", "b", "c"])
+        self.assertEqual({3: frozenset({"a", "b", "c"}), 4: frozenset({"b", "c"}), 5: frozenset({"c"})}, number_to_cluster)
+        self.assertEqual({frozenset({"b", "c"}): 4, frozenset({"a", "b", "c"}): 3, frozenset({"c"}): 5}, cluster_to_number)
 
 
 class TestToString(unittest.TestCase):

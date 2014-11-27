@@ -1,0 +1,19 @@
+{  
+    "directed": true, 
+    "multigraph": false,
+    "graph": [], 
+    "nodes": [
+        {"id": "un"}, 
+        {"id": "deux"}, 
+        {"id": "trois"}, 
+        {"id": "quatre"}, 
+        {"id": "cinq"}
+    ], 
+    "adjacency": [
+        [{"attr": 42, "id": "cinq"}], 
+        [{"id": "trois"}], 
+        [], 
+        [{"id": "cinq"}], 
+        []
+    ]
+}

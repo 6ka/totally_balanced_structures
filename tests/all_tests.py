@@ -4,7 +4,8 @@ import unittest
 
 import os
 import sys
-sys.path.append(os.path.dirname('../DLC/'))
+
+sys.path.append(os.path.dirname('../'))
 
 test_loader = unittest.TestLoader()
 all_suites = unittest.TestSuite()

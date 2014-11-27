@@ -1,6 +1,7 @@
 __author__ = 'francois'
 
-import doubly_lexical_order
+from DLC import doubly_lexical_order
+from DLC.lattice import inf_irreducible, sup_irreducible
 
 
 class ContextMatrix(object):
@@ -23,6 +24,59 @@ class ContextMatrix(object):
         self.matrix = [list(line) for line in matrix]
         self._elements = elements and tuple(elements) or tuple(range(len(self.matrix)))
         self._attributes = attributes and tuple(attributes) or tuple(range(len(self.matrix[0])))
+
+    @staticmethod
+    def from_cover_graph(lattice_cover_graph, inf=None, sup=None):
+        """ Context matrix from lattice cover graph.
+
+        the elements are the sup-irreducibles elements
+        the attributes the inf-irreducibles elements
+
+        :param lattice_cover_graph: cover graph of some lattice.
+        :type lattice_cover_graph: directed :class:`CTK.graph.Graph`
+
+        :param inf: inf-irreducible order
+        :type inf: tuple
+
+        :param sup: sup-irreducible order
+        :type sup: tuple
+
+        """
+        if inf is None:
+            inf = list(inf_irreducible(lattice_cover_graph))
+        else:
+            inf = list(inf)
+        inf_indices = {x: i for i, x in enumerate(inf)}
+        if sup is None:
+            sup = list(sup_irreducible(lattice_cover_graph))
+        else:
+            sup = list(sup)
+        sup_indices = {x: i for i, x in enumerate(sup)}
+
+        matrix = []
+        for i in range(len(sup)):
+            matrix.append([0] * len(inf))
+
+        def get_attribute_action_for_sup(sup_irreducible_element):
+            """
+            :param sup_irreducible_element: lattice element.
+            :return: :func:
+            """
+            sup_index = sup_indices[sup_irreducible_element]
+
+            def action(lattice_element):
+                """
+                :param lattice_element: lattice element
+                """
+                if lattice_element in inf_indices:
+                    matrix[sup_index][inf_indices[lattice_element]] = 1
+
+            return action
+
+        for vertex in sup:
+            lattice_cover_graph.dfs(vertex, get_attribute_action_for_sup(vertex))
+
+        return ContextMatrix(matrix, sup, inf)
 
     def __str__(self):
         from .to_string import to_string

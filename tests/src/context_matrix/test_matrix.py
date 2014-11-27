@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from contextmatrix import ContextMatrix
+from DLC.contextmatrix import ContextMatrix
+from DLC.graph import Graph
+import DLC.lattice
 
 
 class TestMatrixCreate(unittest.TestCase):
@@ -91,3 +93,49 @@ class TestDoublyLexicalOrdering(unittest.TestCase):
         self.assertEqual([[0, 1], [1, 1]], context_matrix.matrix)
         self.assertEqual((1, 0), context_matrix.elements)
         self.assertEqual((1, 0), context_matrix.attributes)
+
+
+class TestFromCoverGraph(unittest.TestCase):
+    def new_lattice(self):
+        lattice = Graph(directed=True)
+        lattice.update([("bottom", 1),
+                        ("bottom", 2),
+                        ("bottom", 3),
+                        ("bottom", 4),
+                        (1, 5),
+                        (2, 5),
+                        (2, 6),
+                        (2, 7),
+                        (3, 6),
+                        (4, 7),
+                        (5, 8),
+                        (6, 8),
+                        (7, 9),
+                        (8, "top"),
+                        (9, "top")])
+        return lattice
+
+    def setUp(self):
+        self.lattice = self.new_lattice()
+
+    def test_inf_sup(self):
+        context_matrix = ContextMatrix.from_cover_graph(self.lattice)
+
+        self.assertEqual(frozenset(context_matrix.attributes), frozenset(DLC.lattice.inf_irreducible(self.lattice)))
+        self.assertEqual(frozenset(context_matrix.elements), frozenset(DLC.lattice.sup_irreducible(self.lattice)))
+
+    def test_matrix(self):
+        context_matrix = ContextMatrix.from_cover_graph(self.lattice)
+        self.assertEqual(len(context_matrix.elements), len(context_matrix.matrix))
+
+        check = [(context_matrix.elements.index(1), (1, 5, 8)),
+                 (context_matrix.elements.index(2), (5, 6, 7, 8, 9)),
+                 (context_matrix.elements.index(3), (3, 6, 8)),
+                 (context_matrix.elements.index(4), (4, 7, 9))]
+        for line, columns in check:
+            for index in range(len(context_matrix.matrix[line])):
+                self.assertEqual(len(context_matrix.attributes), len(context_matrix.matrix[line]))
+                if context_matrix.attributes[index] in columns:
+                    self.assertEqual(1, context_matrix.matrix[line][index])
+                else:
+                    self.assertEqual(0, context_matrix.matrix[line][index])

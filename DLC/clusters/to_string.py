@@ -5,7 +5,11 @@ import math
 from .clusters import boxes_clusters
 
 
-def clusters_to_string(clusters, line_labels, column_labels):
+def clusters_to_string(clusters, line_labels=None, column_labels=None):
+    if line_labels is None:
+        line_labels = list(range(len(clusters)))
+    if column_labels is None:
+        column_labels = list(range(len(clusters[0])))
     return DecompositionToString(clusters, False, line_labels, column_labels).run()
 
 
