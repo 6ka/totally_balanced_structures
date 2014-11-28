@@ -30,10 +30,10 @@ class TestCoverGraph(unittest.TestCase):
         self.lattice = self.new_lattice()
 
     def test_filter(self):
-        filter = DLC.lattice.sup_filter(self.lattice, "bottom")
-        self.assertEqual(frozenset(self.lattice), filter)
-        filter = DLC.lattice.sup_filter(self.lattice, "top")
-        self.assertEqual(frozenset(["top"]), filter)
+        sup_filter = DLC.lattice.sup_filter(self.lattice, "bottom")
+        self.assertEqual(frozenset(self.lattice), sup_filter)
+        sup_filter = DLC.lattice.sup_filter(self.lattice, "top")
+        self.assertEqual(frozenset(["top"]), sup_filter)
 
     def test_isa_lattice(self):
         self.assertTrue(DLC.lattice.isa_lattice_cover_graph(self.lattice))
