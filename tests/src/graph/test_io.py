@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import os
 from DLC.graph import Graph
 import DLC.graph.file_io
 
@@ -55,3 +56,4 @@ class TestIo(unittest.TestCase):
         g = DLC.graph.file_io.load(f)
         f.close()
         self.assertEqual(g, self.g)
+        os.remove("resources/test_write.mat")

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+import os
 from DLC.contextmatrix import file_io, to_string
 
 
@@ -22,6 +23,7 @@ class TestImport(unittest.TestCase):
         self.assertEqual(tuple(range(4)), reloaded_context_matrix.attributes)
         self.assertEqual(tuple(range(3)), reloaded_context_matrix.elements)
         f.close()
+        os.remove("resources/test_table_write.txt")
 
     def test_write_labels(self):
         context_matrix = file_io.load(open("resources/test_table.txt"))

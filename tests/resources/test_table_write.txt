@@ -1,3 +1,0 @@
- X + X + X + X 
- X + X +nothing_here+ X 
-nothing_here+ X + X + X 
