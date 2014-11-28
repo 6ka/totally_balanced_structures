@@ -13,7 +13,7 @@ Module content
 
 """
 
-__all__ = ["cluster_matrix_from_O1_matrix", "atom_clusters_correspondence", "cover_graph_from_clusters",
-           "cluster_cover_graph_correspondence"]
-from .clusters import cluster_matrix_from_O1_matrix, atom_clusters_correspondence
-from .cover_graph import cover_graph_from_clusters, cluster_cover_graph_correspondence
+__all__ = ["cluster_matrix_from_O1_matrix", "atom_clusters_correspondence", "cover_graph_from_matrix",
+           "ClusterLineFromMatrix"]
+from .clusters import cluster_matrix_from_O1_matrix, atom_clusters_correspondence, ClusterLineFromMatrix
+from .cover_graph import cover_graph_from_matrix

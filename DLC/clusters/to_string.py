@@ -2,15 +2,28 @@ __author__ = 'francois'
 
 import math
 
-from .clusters import boxes_clusters
-
-
 def clusters_to_string(clusters, line_labels=None, column_labels=None):
     if line_labels is None:
         line_labels = list(range(len(clusters)))
     if column_labels is None:
         column_labels = list(range(len(clusters[0])))
     return DecompositionToString(clusters, False, line_labels, column_labels).run()
+
+
+def boxes_clusters(clusters):
+    boxes_cluster_line = dict()
+    boxes_cluster_columns = dict()
+    for i in range(len(clusters)):
+        for j in range(len(clusters[i])):
+            if clusters[i][j] is None:
+                continue
+            elem = clusters[i][j]
+            min_current_line, max_current_line = boxes_cluster_line.get(elem, (i, i))
+            min_current_column, max_current_column = boxes_cluster_columns.get(elem, (j, j))
+            boxes_cluster_line[elem] = (min(i, min_current_line), max(i, max_current_line))
+            boxes_cluster_columns[elem] = (min(j, min_current_column), max(j, max_current_column))
+
+    return boxes_cluster_line, boxes_cluster_columns
 
 
 class DecompositionToString(object):

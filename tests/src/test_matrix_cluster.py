@@ -2,52 +2,35 @@ __author__ = 'fbrucker'
 
 import unittest
 
-from DLC.clusters.clusters import cluster_matrix, column_difference_matrix, refine_same_clusters, \
-    cluster_matrix_from_O1_matrix, boxes_clusters, atom_clusters_correspondence
+from DLC.clusters.clusters import cluster_matrix_from_O1_matrix, cluster_matrix_and_boxes_from_O1_matrix, \
+    atom_clusters_correspondence, ClusterLineFromMatrix
 
 from DLC.clusters.to_string import clusters_to_string
 from DLC.contextmatrix import ContextMatrix
 
 
-class TestMatrixCluster(unittest.TestCase):
-    def test_only_column(self):
-        matrix = [[1, 0, 0],
-                  [0, 1, 0],
-                  [0, 0, 1]]
-        clusters = cluster_matrix(matrix)
-        self.assertEqual([[5, None, None], [None, 4, None], [None, None, 3]], clusters)
-
-    def test_several_for_one_column(self):
-        matrix = [[1, 0],
-                  [0, 1],
-                  [1, 0]]
-        clusters = cluster_matrix(matrix)
-        self.assertEqual([[4, None], [None, 3], [5, None]], clusters)
-
-    def test_intersection(self):
-        matrix = [[1, 0, 0],
-                  [1, 1, 0],
-                  [1, 1, 1]]
-        clusters = cluster_matrix(matrix)
-        self.assertEqual([[7, None, None], [6, 5, None], [6, 4, 3]], clusters)
-
-
-class TestMatrixCluster(unittest.TestCase):
+class TestMatrixClusterBase(unittest.TestCase):
     def setUp(self):
         self.matrix = [[1, 0, 0],
                        [1, 0, 0],
                        [1, 1, 1]]
 
     def test_differences(self):
-        column_difference = column_difference_matrix(self.matrix)
-        self.assertEqual([1, -1, -1], column_difference)
+        cluster_line = ClusterLineFromMatrix(self.matrix)
+        self.assertEqual([1, -1, -1], cluster_line.column_difference)
 
     def test_whole_method(self):
         clusters = cluster_matrix_from_O1_matrix(self.matrix)
-        self.assertEqual([[6, None, None], [6, None, None], [5, 5, 5]], clusters)
+        c1 = clusters[0][0]
+        self.assertIsNotNone(c1)
+        c2 = clusters[2][0]
+        self.assertIsNotNone(c2)
+        self.assertNotEqual(c1, c2)
+
+        self.assertEqual([[c1, None, None], [c1, None, None], [c2, c2, c2]], clusters)
 
 
-class TestMatrixClusterBoxes(unittest.TestCase):
+class TestMatrixClusterAndBoxes(unittest.TestCase):
 
     def setUp(self):
         self.matrix = [[1, 1, 0, 0],
@@ -55,19 +38,26 @@ class TestMatrixClusterBoxes(unittest.TestCase):
                        [0, 0, 1, 1]]
 
     def test_clusters(self):
-        clusters = cluster_matrix(self.matrix)
-        self.assertEqual([[9, 7, None, None], [8, 4, None, 3], [None, None, 6, 3]], clusters)
-
-    def test_refine(self):
-        clusters = cluster_matrix(self.matrix)
-        refine_same_clusters(self.matrix, clusters)
-        self.assertEqual([[9, 9, None, None], [8, 8, None, 3], [None, None, 6, 6]], clusters)
+        clusters = cluster_matrix_from_O1_matrix(self.matrix)
+        c1 = clusters[0][0]
+        self.assertIsNotNone(c1)
+        c2 = clusters[1][0]
+        self.assertIsNotNone(c2)
+        c3 = clusters[1][3]
+        self.assertIsNotNone(c3)
+        c4 = clusters[2][3]
+        self.assertEqual(4, len({c1, c2, c3, c4}))
+        self.assertEqual([[c1, c1, None, None], [c2, c2, None, c3], [None, None, c4, c4]], clusters)
 
     def test_boxes(self):
-        clusters = cluster_matrix_from_O1_matrix(self.matrix)
-        boxes_i, boxes_j = boxes_clusters(clusters)
-        self.assertEqual({8: (1, 1), 9: (0, 0), 3: (1, 1), 6: (2, 2)}, boxes_i)
-        self.assertEqual({8: (0, 1), 9: (0, 1), 3: (3, 3), 6: (2, 3)}, boxes_j)
+        clusters, boxes_i, boxes_j = cluster_matrix_and_boxes_from_O1_matrix(self.matrix)
+        c1 = clusters[0][0]
+        c2 = clusters[1][0]
+        c3 = clusters[1][3]
+        c4 = clusters[2][3]
+
+        self.assertEqual({c1: (0, 0), c2: (1, 1), c3: (1, 1), c4: (2, 2)}, boxes_i)
+        self.assertEqual({c1: (0, 1), c2: (0, 1), c3: (3, 3), c4: (2, 3)}, boxes_j)
 
 
 class TestAtomClusters(unittest.TestCase):
