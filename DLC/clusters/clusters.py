@@ -49,8 +49,8 @@ class ClusterLineFromMatrix(object):
                     self.number_cluster += 1
 
             for column in range(len(self.matrix[0]) - 1):
-                if self.matrix[line][column] == self.matrix[line][column + 1] == 1 and line > self.column_difference[
-                    column]:
+                if self.matrix[line][column] == self.matrix[line][column + 1] == 1 \
+                        and line > self.column_difference[column]:
                     self.current_line[column + 1] = self.current_line[column]
 
             yield self.current_line

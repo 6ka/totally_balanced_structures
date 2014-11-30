@@ -193,10 +193,10 @@ class ContextMatrix(object):
         return ContextMatrix(submatrix, submatrix_elements, self.attributes)
 
     def reorder_doubly_lexical_order(self):
-        line, columns = doubly_lexical_order.doubly_lexical_order(self.matrix)
+        lines, columns = doubly_lexical_order.doubly_lexical_order(self.matrix)
 
         line_permutation = [0] * len(self.matrix)
-        for i, index in enumerate(line):
+        for i, index in enumerate(lines):
             line_permutation[index] = i
 
         column_permutation = [0] * len(self.matrix[0])
@@ -204,3 +204,4 @@ class ContextMatrix(object):
             column_permutation[index] = i
 
         self.reorder(line_permutation, column_permutation)
+        return lines, columns

@@ -1,5 +1,35 @@
 __author__ = 'fbrucker'
 
+__all__ = ["doubly_lexical_order", "is_doubly_lexical_ordered",
+           "gamma_free_matrix", "gamma_free_matrix_bottom_up",
+           "gamma_free_matrix_top_down",
+           "context_matrix_approximation"]
+
+
+def context_matrix_approximation(context_matrix, approximation_method):
+    """ return a new context_matrix DL ordered and gamma free and the line and column permutation
+    new_context_matrix[i][j] == context_matrix[line_order[i]][column_order[j]]
+
+    :param context_matrix:
+    :param approximation_method: gamma_free_matrix_*
+    :return:
+    """
+
+    approximation = context_matrix.copy()
+    approximation.reorder_doubly_lexical_order()
+    import DLC.graphics
+
+    # if_merdouille = DLC.graphics.raw_matrix(approximation.matrix)
+    approximation_method(approximation.matrix, True)
+
+    # if not gamma_free_matrix(approximation.matrix):
+    #     print("--BIG MERDOUILLE---")
+    #     print(if_merdouille)
+    #     print("--------")
+    approximation.reorder_doubly_lexical_order()
+
+    return approximation
+
 
 def is_doubly_lexical_ordered(matrix):
     """Test if the matrix is doubly lexically ordered.
@@ -36,6 +66,17 @@ def is_doubly_lexical_ordered(matrix):
 
 
 def gamma_free_matrix(matrix, transform_to_gamma_free=False):
+    return gamma_free_matrix_top_down(matrix, transform_to_gamma_free)
+
+
+def gamma_free_matrix_top_down(matrix, transform_to_gamma_free=False):
+    """ adds 1
+
+    :param matrix:
+    :param transform_to_gamma_free:
+    :return:
+    """
+    was_gamma_free = True
     for i in range(len(matrix)):
         for j in range(len(matrix[i])):
             if matrix[i][j] == 1:
@@ -52,11 +93,58 @@ def gamma_free_matrix(matrix, transform_to_gamma_free=False):
                     continue
 
                 if matrix[i_next][j_next] == 0:
+                    was_gamma_free = False
                     if transform_to_gamma_free:
                         matrix[i_next][j_next] = 1
                     else:
-                        return False
-    return True
+                        return was_gamma_free
+
+    return was_gamma_free
+
+
+def gamma_free_matrix_bottom_up(matrix, transform_to_gamma_free=False):
+    """ adds 0
+
+    :param matrix:
+    :param transform_to_gamma_free:
+    :return:
+    """
+    was_gamma_free = True
+    for i in range(len(matrix) - 1, -1, -1):
+        j = 0
+        while j < len(matrix[i]):
+            if matrix[i][j] == 0:
+                j += 1
+                continue
+
+            i_next = i + 1
+            while i_next < len(matrix) and matrix[i_next][j] == 0:
+                i_next += 1
+
+            if i_next == len(matrix):
+                j += 1
+                continue
+
+            j_next = j + 1
+            while j_next < len(matrix[i]):
+                while j_next < len(matrix[i]) and matrix[i][j_next] == 0:
+                    j_next += 1
+
+                if j_next == len(matrix[i]):
+                    j_next = j + 1
+                    break
+
+                if matrix[i_next][j_next] == 0:
+                    was_gamma_free = False
+                    if transform_to_gamma_free:
+                        matrix[i][j_next] = 0
+                    else:
+                        return was_gamma_free
+                else:
+                    break
+
+            j = j_next
+    return was_gamma_free
 
 
 def doubly_lexical_order(matrix):

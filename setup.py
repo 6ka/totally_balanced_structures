@@ -7,7 +7,7 @@ setup(
     author="Francois Brucker",
     author_email="francois.brucker@gmail.com",
     description="Tools for classification and data analysis",
-    keywords="classification dissimilarity classification",
+    keywords="classification dissimilarity lattice",
     packages=find_packages(),
     long_description=open('README.txt').read(),
     classifiers=[
@@ -17,5 +17,5 @@ setup(
         "Programming Language :: Python :: 3",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    # requires=['mockito-without-hardcoded-distribute-version', 'matplotlib'],
+    requires=['pillow', 'colorama'],  # , 'matplotlib'],
 )

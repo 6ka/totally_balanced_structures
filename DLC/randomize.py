@@ -72,7 +72,7 @@ def random_dismantable_lattice(number_of_elements, bottom="BOTTOM", top="TOP"):
     all_elements = [bottom]
     for current_element in range(number_of_elements):
         u = random.sample(all_elements, 1)[0]
-        v = random.sample(sup_filter(crown_free, u) - set([u]), 1)[0]
+        v = random.sample(sup_filter(crown_free, u) - {u}, 1)[0]
         crown_free.update([(u, current_element), (current_element, v)])
         all_elements.append(current_element)
 
@@ -81,3 +81,30 @@ def random_dismantable_lattice(number_of_elements, bottom="BOTTOM", top="TOP"):
         if not crown_free.path(u, v):
             crown_free.update([(u, v)])
     return crown_free
+
+
+def random_01_matrix(number_lines, number_column, probability_of_1=.5):
+    return [[random.random() < probability_of_1 and 1 or 0 for j in range(number_column)] for i in range(number_lines)]
+
+
+def shuffle_line_and_column_from_context_matrix(context_matrix):
+    """
+    line_order[i] = original line of index i
+    column_order[j] = original column of index j
+    :param context_matrix:
+    :return: line_order, column_order
+    """
+    new_line_order = list(range(len(context_matrix.elements)))
+    random.shuffle(new_line_order)
+    new_column_order = list(range(len(context_matrix.attributes)))
+    random.shuffle(new_column_order)
+    context_matrix.reorder(new_line_order, new_column_order)
+    line_order = [0] * len(new_line_order)
+    for i, x in enumerate(new_line_order):
+        line_order[x] = i
+
+    column_order = [0] * len(new_column_order)
+    for j, x in enumerate(new_column_order):
+        column_order[x] = j
+
+    return line_order, column_order

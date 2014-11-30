@@ -4,8 +4,6 @@ import unittest
 
 from DLC.clusters.clusters import cluster_matrix_from_O1_matrix, cluster_matrix_and_boxes_from_O1_matrix, \
     atom_clusters_correspondence, ClusterLineFromMatrix
-
-from DLC.clusters.to_string import clusters_to_string
 from DLC.contextmatrix import ContextMatrix
 
 
@@ -73,19 +71,3 @@ class TestAtomClusters(unittest.TestCase):
         number_to_cluster, cluster_to_number = atom_clusters_correspondence(self.clusters, ["a", "b", "c"])
         self.assertEqual({3: frozenset({"a", "b", "c"}), 4: frozenset({"b", "c"}), 5: frozenset({"c"})}, number_to_cluster)
         self.assertEqual({frozenset({"b", "c"}): 4, frozenset({"a", "b", "c"}): 3, frozenset({"c"}): 5}, cluster_to_number)
-
-
-class TestToString(unittest.TestCase):
-    def setUp(self):
-        matrix = [[1, 0, 0, 0, 1],
-                  [1, 1, 1, 1, 1],
-                  [0, 1, 0, 0, 1],
-                  [0, 0, 1, 1, 0],
-                  [0, 0, 0, 1, 0]]
-        self.context_matrix = ContextMatrix(matrix)
-        self.context_matrix.reorder_doubly_lexical_order()
-
-    # def test_to_string(self):
-    #
-    #     clusters = cluster_matrix_from_O1_matrix(self.context_matrix.matrix)
-    #     print(clusters_to_string(clusters, self.context_matrix.elements, self.context_matrix.attributes))

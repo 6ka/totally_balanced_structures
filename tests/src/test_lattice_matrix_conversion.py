@@ -74,10 +74,10 @@ class TestLatticeMatrixConversion(unittest.TestCase):
 
             # should (hopefully) not happen
             if lattice != matrix_lattice:
-                from DLC.clusters.to_string import clusters_to_string
+                from graphics.lattice_string import from_context_matrix
                 print("The random test failed")
                 print("The matrix:")
-                print(clusters_to_string(clusters, context_matrix.elements, context_matrix.attributes))
+                print(from_context_matrix(context_matrix))
                 print("the original graph:")
                 print(lattice)
             self.assertEqual(lattice, matrix_lattice)

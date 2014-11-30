@@ -4,12 +4,23 @@ from DLC.graph import Graph
 from .clusters import ClusterLineFromMatrix
 
 
-def cover_graph_from_matrix(matrix, bottom="BOTTOM", top="TOP"):
+def cover_graph_and_boxes_from_matrix(matrix, bottom="BOTTOM", top="TOP"):
     cover_graph = Graph(directed=True)
+    boxes_cluster_line = dict()
+    boxes_cluster_columns = dict()
+
     last_line = last_line_not_0_for_matrix(matrix)
     last_clusters = [None] * len(matrix[0])
     line_iterator = ClusterLineFromMatrix(matrix)
     for i, current_line in enumerate(line_iterator):
+        for j, elem in enumerate(current_line):
+            if elem is None:
+                continue
+            min_current_line, max_current_line = boxes_cluster_line.get(elem, (i, i))
+            min_current_column, max_current_column = boxes_cluster_columns.get(elem, (j, j))
+            boxes_cluster_line[elem] = (min(i, min_current_line), max(i, max_current_line))
+            boxes_cluster_columns[elem] = (min(j, min_current_column), max(j, max_current_column))
+
         j = len(current_line) - 1
         while j >= 0:
             if current_line[j] is None or current_line[j] in cover_graph:
@@ -37,7 +48,7 @@ def cover_graph_from_matrix(matrix, bottom="BOTTOM", top="TOP"):
 
             # successor before line
             while j >= 0 and current_line[j] == current_cluster:
-                if last_clusters[j] is not None:
+                if last_clusters[j] is not None and last_clusters[j] != current_cluster:
                     cover_graph.update([(current_cluster, last_clusters[j])])
                     successor = last_clusters[j]
                     while j >= 0 and last_clusters[j] == successor:
@@ -53,7 +64,11 @@ def cover_graph_from_matrix(matrix, bottom="BOTTOM", top="TOP"):
     for vertex in set(x for x in cover_graph if cover_graph.degree(x) == 0):
         cover_graph.update([(vertex, top)])
 
-    return cover_graph
+    return cover_graph, boxes_cluster_line, boxes_cluster_columns
+
+
+def cover_graph_from_matrix(matrix, bottom="BOTTOM", top="TOP"):
+    return cover_graph_and_boxes_from_matrix(matrix, bottom, top)[0]
 
 
 def last_line_not_0_for_matrix(matrix):

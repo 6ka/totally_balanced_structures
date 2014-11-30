@@ -2,7 +2,11 @@ __author__ = 'fbrucker'
 
 import unittest
 from DLC.doubly_lexical_order import Node, ColumnBlock, RowBlock, row_ordering_from_last_row_block, \
-    column_ordering_from_last_column_block, doubly_lexical_order, is_doubly_lexical_ordered, gamma_free_matrix
+    column_ordering_from_last_column_block, doubly_lexical_order, is_doubly_lexical_ordered, gamma_free_matrix_top_down, \
+    gamma_free_matrix_bottom_up, context_matrix_approximation
+
+from DLC.contextmatrix import ContextMatrix
+
 
 class TestNode(unittest.TestCase):
     def test_add_node_pred(self):
@@ -101,18 +105,8 @@ class TestDoublyLinkedOrdering(unittest.TestCase):
 
     def test_run(self):
         line_ordering, column_ordering = doubly_lexical_order(self.matrix)
-        # for i in range(len(self.matrix)):
-        #     for j in range(len(self.matrix[i])):
-        #         print(self.matrix[i][j], end=" ")
-        #     print()
-        # print(line_ordering, column_ordering)
-
-        reordered_matrix = [[self.matrix[line_ordering[i]][column_ordering[j]] for j in range(len(self.matrix[i]))] for i in range(len(self.matrix))]
-        # for i in range(len(reordered_matrix)):
-        #     for j in range(len(reordered_matrix[i])):
-        #         print(reordered_matrix[i][j], end=" ")
-        #     print()
-
+        reordered_matrix = [[self.matrix[line_ordering[i]][column_ordering[j]] for j in range(len(self.matrix[i]))] for
+                            i in range(len(self.matrix))]
         self.assertEqual(True, is_doubly_lexical_ordered(reordered_matrix))
 
     def test_run_no_gamma(self):
@@ -131,14 +125,46 @@ class TestIsaDoublyLexicallyOrdered(unittest.TestCase):
         matrix = [[0, 1], [1, 0]]
         self.assertEqual(False, is_doubly_lexical_ordered(matrix))
 
+
 class TestIsGammaFree(unittest.TestCase):
     def setUp(self):
-        self.matrix = [[1, 1], [1, 0]]
+        self.matrix = [[0, 1, 1, 0], [0, 1, 0, 1], [0, 0, 1, 1]]
 
-    def test_isa(self):
-        self.assertFalse(gamma_free_matrix(self.matrix))
+    def test_isa_false(self):
+        self.assertFalse(gamma_free_matrix_top_down(self.matrix))
+        self.assertFalse(gamma_free_matrix_bottom_up(self.matrix))
+
+    def test_isa_true(self):
+        self.matrix[1][2] = 1
+        self.assertTrue(gamma_free_matrix_top_down(self.matrix))
+        self.assertTrue(gamma_free_matrix_bottom_up(self.matrix))
 
     def test_transform(self):
-        gamma_free_matrix(self.matrix, True)
-        self.assertTrue(gamma_free_matrix(self.matrix))
-        self.assertEqual([[1, 1], [1, 1]], self.matrix)
+        gamma_free_matrix_top_down(self.matrix, True)
+        self.assertTrue(gamma_free_matrix_top_down(self.matrix))
+        self.assertEqual([[0, 1, 1, 0], [0, 1, 1, 1], [0, 0, 1, 1]], self.matrix)
+
+    def test_transform_bottom_up_delete_right(self):
+        gamma_free_matrix_bottom_up(self.matrix, True)
+        self.assertTrue(gamma_free_matrix_bottom_up(self.matrix))
+        self.assertEqual([[0, 1, 0, 0], [0, 1, 0, 1], [0, 0, 1, 1]], self.matrix)
+
+
+class TestLimitCaseBottomUp(unittest.TestCase):
+    def test_0_and_propagate(self):
+        matrix = [[1, 1, 0, 1, 0],
+                  [1, 0, 1, 0, 1],
+                  [0, 0, 0, 1, 1]]
+        self.assertFalse(gamma_free_matrix_bottom_up(matrix))
+        gamma_free_matrix_bottom_up(matrix, True)
+        self.assertTrue(gamma_free_matrix_bottom_up(matrix))
+
+
+class TestContextMatrixApproximation(unittest.TestCase):
+    def setUp(self):
+        matrix = [[1, 1, 0], [1, 0, 1], [0, 1, 1]]
+        self.context_matrix = ContextMatrix(matrix, ["a", "b", "c"], ["x", "y", "z"])
+
+    def test_context_matrix_approximation(self):
+        new_matrix = context_matrix_approximation(self.context_matrix, gamma_free_matrix_top_down)
+        self.assertTrue(gamma_free_matrix_top_down(new_matrix.matrix))

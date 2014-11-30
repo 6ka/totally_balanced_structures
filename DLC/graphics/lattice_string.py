@@ -2,7 +2,16 @@ __author__ = 'francois'
 
 import math
 
-def clusters_to_string(clusters, line_labels=None, column_labels=None):
+from DLC.clusters.cover_graph import cover_graph_and_boxes_from_matrix
+from DLC.lattice import get_top
+
+
+def from_context_matrix(context_matrix):
+    lattice, boxes_i, boxes_j = cover_graph_and_boxes_from_matrix(context_matrix.matrix)
+    return DecompositionToString(boxes_j, boxes_i, context_matrix.elements, context_matrix.attributes, lattice).run()
+
+
+def from_cluster_matrix(clusters, line_labels=None, column_labels=None):
     if line_labels is None:
         line_labels = list(range(len(clusters)))
     if column_labels is None:
@@ -27,11 +36,11 @@ def boxes_clusters(clusters):
 
 
 class DecompositionToString(object):
-    def __init__(self, clusters, draw_edges, line_order, column_order):
+    def __init__(self, box_x, box_y, line_order, column_order, lattice=None):
 
-        self.draw_edges = draw_edges
+        self.draw_edges = lattice
 
-        self.box_y, self.box_x = boxes_clusters(clusters)
+        self.box_y, self.box_x = box_y, box_x
         self.clusters = self.box_x.keys()
         self.column_length = self.compute_length(line_order, column_order)
         self.ascii_matrix = AsciiMatrix(self.column_length, line_order, column_order)
@@ -69,7 +78,8 @@ class DecompositionToString(object):
             border[i + 1][column_label + 1] = AsciiCharacter.edge_up(border[i + 1][column_label + 1])
 
     def run(self):
-
+        if self.draw_edges:
+            lattice_top = get_top(self.draw_edges)
         for vertex in self.clusters:
 
             min_x, max_x = self.box_x[vertex]
@@ -78,8 +88,8 @@ class DecompositionToString(object):
             self.draw_box(min_x, max_x, min_y, max_y, str(vertex))
 
             if self.draw_edges:
-                for neighbor in self.clusters["lattice"][vertex]:
-                    if neighbor == self.clusters["top"]:
+                for neighbor in self.draw_edges[vertex]:
+                    if neighbor == lattice_top:
                         continue
 
                     neighbor_min_x, neighbor_max_x = self.box_x[neighbor]
@@ -268,4 +278,4 @@ class AsciiMatrix(object):
                 line.append(self.border_bottom[i][j])
                 line.append(self.border_corner[i][j])
             final_matrix.append(line)
-        return "".join(["".join(line + ["\n"]) for line in final_matrix])
+        return "\n".join(["".join(line) for line in final_matrix])
