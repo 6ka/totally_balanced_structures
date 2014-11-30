@@ -13,7 +13,6 @@ from DLC.contextmatrix import ContextMatrix
 
 from random_matrix_approximation import approximate, print_result_matrices
 
-
 def csv_file():
     TITANIC_FILE = "resources/titanic.csv"
     TITANIC_URL = 'http://vincentarelbundock.github.io/Rdatasets/csv/datasets/Titanic.csv'

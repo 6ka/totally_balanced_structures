@@ -58,6 +58,7 @@ if __name__ == "__main__":
     print("percentage of differences", min_diff,
           min_diff / (len(context_matrix_original.elements) * len(context_matrix_original.attributes)))
 
+
     pruned_matrix = [context_matrix_original.matrix[0]]
     pruned_elements = [context_matrix_original.elements[0]]
     number = {pruned_elements[-1]: 1}
@@ -73,6 +74,7 @@ if __name__ == "__main__":
     print(DLC.graphics.from_context_matrix(pruned_context_matrix))
     for element in pruned_context_matrix.elements:
         print(element, number[element])
+
 
     transpose = pruned_context_matrix.transpose()
     transpose.reorder_doubly_lexical_order()

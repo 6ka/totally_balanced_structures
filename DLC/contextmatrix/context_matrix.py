@@ -7,7 +7,7 @@ from DLC.lattice import inf_irreducible, sup_irreducible
 class ContextMatrix(object):
     """Context matrix."""
 
-    def __init__(self, matrix, elements=tuple(), attributes=tuple()):
+    def __init__(self, matrix, elements=tuple(), attributes=tuple(), copy_matrix=True):
         """Context matrix
 
         :param matrix: 2-dimensional 0/1-matrix whose lines are objects_name and columns attributes_name.
@@ -18,10 +18,14 @@ class ContextMatrix(object):
 
         :param attributes: Attributes name. Must coincide with the *matrix* number of columns or be empty
         :type attributes: :class:`list` of :class:`str`.
-
+        :param copy_matrix: if False link the matrix, copy it otherwise
+        :type copy_matrix: :class:`bool`
         """
 
-        self.matrix = [list(line) for line in matrix]
+        if copy_matrix:
+            self.matrix = [list(line) for line in matrix]
+        else:
+            self.matrix = matrix
         self._elements = elements and tuple(elements) or tuple(range(len(self.matrix)))
         self._attributes = attributes and tuple(attributes) or tuple(range(len(self.matrix[0])))
 
