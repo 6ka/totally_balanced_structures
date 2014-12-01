@@ -5,6 +5,7 @@ import DLC.lattice
 
 
 def hierarchical_height_from_lattice(dismantable_lattice, bottom=None):
+    #there is a bug....
     if bottom is None:
         bottom = DLC.lattice.get_bottom(dismantable_lattice)
     atoms = set(DLC.lattice.sup_irreducible(dismantable_lattice))

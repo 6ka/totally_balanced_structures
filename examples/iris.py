@@ -53,8 +53,9 @@ if __name__ == "__main__":
     context_matrix_original = compute_context_matrix()
     min_context_matrix, min_lines, min_columns, min_diff = approximate(context_matrix_original)
     context_matrix_original.reorder(min_lines, min_columns)
-    print_result_matrices(context_matrix_original, min_context_matrix)
+    # print_result_matrices(context_matrix_original, min_context_matrix)
     print(DLC.graphics.from_context_matrix(min_context_matrix))
+
     print("percentage of differences", min_diff,
           min_diff / (len(context_matrix_original.elements) * len(context_matrix_original.attributes)))
 
@@ -72,10 +73,13 @@ if __name__ == "__main__":
 
     pruned_context_matrix = ContextMatrix(pruned_matrix, pruned_elements, context_matrix_original.attributes)
     print(DLC.graphics.from_context_matrix(pruned_context_matrix))
-    for element in pruned_context_matrix.elements:
-        print(element, number[element])
+    image = DLC.graphics.create_image_from_matrix(pruned_context_matrix.matrix)
+    image.save("iris.png")
 
-
-    transpose = pruned_context_matrix.transpose()
-    transpose.reorder_doubly_lexical_order()
-    print(DLC.graphics.from_context_matrix(transpose))
+# for element in pruned_context_matrix.elements:
+    #     print(element, number[element])
+    #
+    #
+    # transpose = pruned_context_matrix.transpose()
+    # transpose.reorder_doubly_lexical_order()
+    # print(DLC.graphics.from_context_matrix(transpose))
