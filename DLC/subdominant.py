@@ -52,9 +52,9 @@ def subdominant(diss):
                     if not (not (q.get_by_pos(a, b) >= max(q.get_by_pos(a, u), q.get_by_pos(b, u)) and
                                          q.get_by_pos(u, v) > max(q.get_by_pos(a, b), q.get_by_pos(a, v),
                                                                   q.get_by_pos(b, v))) and not (
-                            q.get_by_pos(a, b) >= max(q.get_by_pos(a, v), q.get_by_pos(b, v)) and
-                            q.get_by_pos(u, v) > max(q.get_by_pos(a, b), q(a, u),
-                                                     q.get_by_pos(b, u)))):
+                                    q.get_by_pos(a, b) >= max(q.get_by_pos(a, v), q.get_by_pos(b, v)) and
+                                    q.get_by_pos(u, v) > max(q.get_by_pos(a, b), q.get_by_pos(a, u),
+                                                             q.get_by_pos(b, u)))):
                         q.set_by_pos(u, v, q.get_by_pos(vertex_x, vertex_y))
 
     def min_edges():
@@ -81,19 +81,15 @@ def subdominant(diss):
     total_number = len(remaining_edges)
     percent = 1
     while remaining_edges:
-        if len(remaining_edges) / total_number < percent:
-            print("{0:.2f}%".format(1-len(remaining_edges) / total_number), datetime.datetime.now(), file=sys.stderr)
-            percent -= .1
+        # if len(remaining_edges) / total_number < percent:
+        #     print("{0:2.0f}%".format(100 * (1 - len(remaining_edges) / total_number)), datetime.datetime.now(), file=sys.stderr)
+        #     percent -= .01
         xy = min_edges()
         remaining_edges.remove(xy)
         x, y = xy
-        threshold_graph_prim = threshold_graph.copy()
-        to_del = threshold_graph[y]
-        for z in threshold_graph[x]:
-            if z in to_del:
-                threshold_graph_prim.remove(z)
 
-        path = threshold_graph_prim.path(x, y)
+        path = threshold_graph.path(x, y,
+                                      forbidden_vertices=set(threshold_graph[y]).intersection(set(threshold_graph[x])))
         threshold_graph.update([(x, y)])
         for z in path:
             if z in (x, y):

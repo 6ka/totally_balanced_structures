@@ -47,12 +47,18 @@ def create_dissimilarity_between_movies(zip_file):
             if rating >= 3:
                 movie_user[movie][1].add(user)
     print("done", file=sys.stderr)
+
+    keep_movies = list(range(1, number_movie + 1))
+    keep_movies.sort(key=lambda x: len(movie_user[x][0]))
+    keep_movies.reverse()
+    keep_movies = list(keep_movies[:6])
     print("update dissimilarity values", datetime.datetime.now(), file=sys.stderr)
-    dissimilarity = Diss(range(1, number_movie + 1))
-    for i in range(number_movie):
-        for j in range(i + 1, number_movie):
-            same_user = movie_user[i + 1][0] - movie_user[j + 1][0]
-            both_liked = movie_user[i + 1][1] - movie_user[j + 1][1]
+    dissimilarity = Diss(keep_movies)
+    for i in range(len(keep_movies)):
+        for j in range(i + 1, len(keep_movies)):
+            same_user = movie_user[keep_movies[i]][0] - movie_user[keep_movies[j]][0]
+            both_liked = (movie_user[keep_movies[i]][1] - movie_user[keep_movies[j]][1]) - same_user
+
             if len(same_user) == 0:
                 dissimilarity.set_by_pos(i, j, 1)
             else:
@@ -62,48 +68,43 @@ def create_dissimilarity_between_movies(zip_file):
 
 
 def create_context_matrix_movie_movie(zip_file):
-    base_directory = os.path.splitext(os.path.basename(zip_file))[0]
-    number_users, number_movie, number_ratings = get_info(zip_file, base_directory)
+    print("create dissimilarity", datetime.datetime.now(), file=sys.stderr)
+    dissimilarity = create_dissimilarity_between_movies(zip_file)
+    print("done", file=sys.stderr)
+    print("approximation", datetime.datetime.now(), file=sys.stderr)
+    approximation = subdominant(dissimilarity)
+    print(approximation)
+    print("done", file=sys.stderr)
 
-    if not os.path.isfile("dissimilarity_2_balls.csv"):
-        print("create dissimilarity", datetime.datetime.now(), file=sys.stderr)
-        dissimilarity = create_dissimilarity_between_movies(zip_file)
-        print("done", file=sys.stderr)
-        print("approximation", datetime.datetime.now(), file=sys.stderr)
-        # approximation = subdominant(dissimilarity)
-        approximation = dissimilarity
-        print("done", file=sys.stderr)
-        # print("save", datetime.datetime.now(), file=sys.stderr)
-        # file_io.save(approximation, open("approximation_dissimilarity.mat", "w"))
-        # print("done", file=sys.stderr)
-        two_balls = set()
-        print("create clusters", datetime.datetime.now(), file=sys.stderr)
-        f = open("dissimilarity_2_balls.csv", "w")
-        for i in range(len(approximation)):
-            print("   ", i, len(approximation), file=sys.stderr)
-            for j in range(i + 1, len(approximation)):
+    print("save", datetime.datetime.now(), file=sys.stderr)
+    file_io.save(approximation, open("approximation_dissimilarity.mat", "w"))
+    print("done", file=sys.stderr)
+    print("create clusters", datetime.datetime.now(), file=sys.stderr)
+    f = open("dissimilarity_2_balls.csv", "w")
+    for i in range(len(approximation)):
+        print("   ", i, len(approximation), file=sys.stderr)
+        for j in range(i + 1, len(approximation)):
 
-                two_ball = frozenset({z for z in range(len(approximation)) if
-                               approximation.get_by_pos(i, j) >= max(approximation.get_by_pos(i, z),
-                                                                     approximation.get_by_pos(j, z))})
-                f.write(",".join([str(x) for x in two_ball]))
-                f.write("\n")
-        f.close()
-        print("done", file=sys.stderr)
+            two_ball = frozenset({z for z in range(len(approximation)) if
+                           approximation.get_by_pos(i, j) >= max(approximation.get_by_pos(i, z),
+                                                                 approximation.get_by_pos(j, z))})
+            f.write(",".join([str(x) for x in two_ball]))
+            f.write("\n")
+    f.close()
+    print("done", file=sys.stderr)
     print("create context matrix", datetime.datetime.now(), file=sys.stderr)
-    matrix = [[] for i in range(number_movie)]
+    matrix = [[] for i in range(len(approximation))]
     f = open("dissimilarity_2_balls.csv")
     for two_ball_line in f:
-        if not two_ball_line.strip():
-            continue
+
         for line in matrix:
             line.append(0)
-
-        two_ball = [int(x) for x in two_ball_line.strip().split(",")]
+        two_ball = [int(x) for x in two_ball_line.split(",")]
         for z in two_ball:
             matrix[z][-1] = 1
     print("done", file=sys.stderr)
-    return ContextMatrix(matrix, elements=list(range(1, number_movie + 1)), copy_matrix=False)
+    print(matrix)
+    return ContextMatrix(matrix, elements=list(approximation), copy_matrix=False)
 
 
 def create_context_matrix_rating_vs_all_movies(zip_file):

@@ -12,10 +12,10 @@ class TestDissModification(unittest.TestCase):
         for x in d:
             for y in d:
                 if x == y:
-                    self.assertEqual(d(x,y), 0)
+                    self.assertEqual(d(x, y), 0)
                 else:
-                    self.assertEqual(d(x,y), 5)
-        d.update(lambda x,y: 3, True)
+                    self.assertEqual(d(x, y), 5)
+        d.update(lambda x, y: 3, True)
         for x in d:
             for y in d:
                 self.assertEqual(d(x, y), 3)

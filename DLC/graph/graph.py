@@ -406,7 +406,41 @@ class Graph(object):
         else:
             return nb / 2
 
-    def path(self, x, y, f=lambda x: 1):
+    def a_path(self, x, y, forbidden_vertices=frozenset()):
+        """A path from *x* to *y*.
+
+        :param x: a vertex.
+        :param y: a vertex.
+
+        :raises: :exc:`ValueError` if either *x* or *y* is not a vertex.
+
+        :return: a path from *x* to *y* or an empty list if *x* and *y* are
+                 not connected.
+        :rtype: :class:`list`
+        """
+
+        if x not in self._neighborhood or y not in self._neighborhood:
+            raise ValueError("Not a vertex")
+
+        if x == y:
+            return [x]
+
+        father, dist = self.paths_from(x, forbidden_vertices=forbidden_vertices, stop_if_vertex=y)
+
+        if y not in father:
+            return []
+        the_path = [y]
+        z = father[y]
+        while z != x:
+            the_path.append(z)
+            z = father[z]
+
+        the_path.append(x)
+        the_path.reverse()
+
+        return the_path
+
+    def path(self, x, y, f=lambda x: 1, forbidden_vertices=frozenset()):
         """A minimal path (according to f) from *x* to *y*.
 
         :param x: a vertex.
@@ -429,7 +463,7 @@ class Graph(object):
         if x == y:
             return [x]
 
-        father, dist = self.paths_from(x, f)
+        father, dist = self.paths_from(x, f, forbidden_vertices)
 
         if y not in father:
             return []
@@ -444,7 +478,7 @@ class Graph(object):
 
         return the_path
 
-    def paths_from(self, root, f=lambda x: 1):
+    def paths_from(self, root, f=lambda x: 1, forbidden_vertices=frozenset(), stop_if_vertex=None):
         """Shortest paths (Bellman-Ford algorithm).
 
         Find a shortest path (according to f) between vertex *root*
@@ -474,9 +508,13 @@ class Graph(object):
             k += 1
             for x in self:
                 for y in self[x]:
+                    if y in forbidden_vertices:
+                        continue
                     if x in dist and (y not in dist or dist[y] > dist[x] + f(self(x, y))):
                         dist[y] = dist[x] + f(self(x, y))
                         father[y] = x
+                        if y == stop_if_vertex:
+                            return father, dist
                         change = True
 
         if change:

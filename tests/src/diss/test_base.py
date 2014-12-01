@@ -9,12 +9,14 @@ class TestDissBase(unittest.TestCase):
     def test_init(self):
         """Initialization, setting and getting attributes."""
         
-        d = Diss(range(5))
+        d = Diss(range(1, 6))
         d.update(lambda x, y: 5)
         self.d = d 
         self.assertEqual(len(self.d._vertex), 5)
+        self.assertEqual(len(self.d._vertex_correspondence), 5)
         for i, x in enumerate(self.d):
             self.assertEqual(x, self.d._vertex[i])
+            self.assertEqual(i, self.d._vertex_correspondence[x])
         self.assertEqual(len(self.d), 5)
         self.assertEqual(len(self.d._d), 5)
         
@@ -23,24 +25,24 @@ class TestDissBase(unittest.TestCase):
         for x in self.d:
             for y in self.d:
                 if x == y:
-                    self.assertEqual(self.d(x,y), 0)
+                    self.assertEqual(self.d(x, y), 0)
                 else:
-                    self.assertEqual(self.d(x,y), 5)
+                    self.assertEqual(self.d(x, y), 5)
         self.d._d[1][1] = 2
-        self.assertEqual(self.d(1, 2), 2)
-        self.d[1, 2] = 6
+        self.assertEqual(self.d(2, 3), 2)
+        self.d[2, 3] = 6
         self.assertEqual(self.d._d[1][1], 6)
-        self.d[2, 1] = 19
-        self.assertEqual(self.d(1, 2), 19)
+        self.d[3, 2] = 19
+        self.assertEqual(self.d(2, 3), 19)
         self.d._d[4][0] = 12
-        self.assertEqual(self.d(4, 4), 12)
+        self.assertEqual(self.d(5, 5), 12)
         
         
         d = Diss(reversed(range(5)), value=None)
         
         for x in d:
             for y in d:
-                self.assertEqual(d(x,y), None)
+                self.assertEqual(d(x, y), None)
         
         
         d = Diss(range(5))
