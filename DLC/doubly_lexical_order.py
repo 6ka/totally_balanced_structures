@@ -147,7 +147,7 @@ def gamma_free_matrix_bottom_up(matrix, transform_to_gamma_free=False):
     return was_gamma_free
 
 
-def doubly_lexical_order(matrix):
+def doubly_lexical_order(matrix, order=None):
     """Return a doubly lexical order.
 
     :param matrix: O/1 matrix
@@ -158,8 +158,17 @@ def doubly_lexical_order(matrix):
     :rtype: couple of line and column permutation
     """
     column_partition = ColumnBlock(range(len(matrix[0])))
-    row_partition = RowBlock(range(len(matrix)), column_partition)
-
+    if order is None:
+        row_partition = RowBlock(range(len(matrix)), column_partition)
+    else:
+        pred = None
+        for x in order:
+            row_partition = RowBlock([x], column_partition)
+            if pred is None:
+                pred = row_partition
+            else:
+                pred.add_next(row_partition)
+                pred = row_partition
     current_row_block = row_partition
     while current_row_block:
         current_column_block = current_row_block.columns_block

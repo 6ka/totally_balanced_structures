@@ -22,3 +22,5 @@ class TestSubdominant(unittest.TestCase):
         print(self.qu_diss)
         print("---")
         print(subdominant(self.qu_diss))
+        print("---")
+        print(subdominant(subdominant(self.qu_diss)))

@@ -47,12 +47,13 @@ def create_dissimilarity_between_movies(zip_file):
             if rating >= 3:
                 movie_user[movie][1].add(user)
     print("done", file=sys.stderr)
+
     print("update dissimilarity values", datetime.datetime.now(), file=sys.stderr)
     dissimilarity = Diss(range(1, number_movie + 1))
     for i in range(number_movie):
         for j in range(i + 1, number_movie):
             same_user = movie_user[i + 1][0] - movie_user[j + 1][0]
-            both_liked = movie_user[i + 1][1] - movie_user[j + 1][1]
+            both_liked = (movie_user[i + 1][1] - movie_user[j + 1][1]) - same_user
             if len(same_user) == 0:
                 dissimilarity.set_by_pos(i, j, 1)
             else:
@@ -70,8 +71,7 @@ def create_context_matrix_movie_movie(zip_file):
         dissimilarity = create_dissimilarity_between_movies(zip_file)
         print("done", file=sys.stderr)
         print("approximation", datetime.datetime.now(), file=sys.stderr)
-        # approximation = subdominant(dissimilarity)
-        approximation = dissimilarity
+        approximation = subdominant(dissimilarity)
         print("done", file=sys.stderr)
         # print("save", datetime.datetime.now(), file=sys.stderr)
         # file_io.save(approximation, open("approximation_dissimilarity.mat", "w"))

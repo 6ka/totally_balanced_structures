@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import sys
 import datetime
+import sys
 from DLC.graph import Graph
 
 
@@ -49,13 +49,11 @@ def subdominant(diss):
                     quartet.remove(v)
                     a, b = quartet.pop(), quartet.pop()
 
-                    if not (not (q.get_by_pos(a, b) >= max(q.get_by_pos(a, u), q.get_by_pos(b, u)) and
-                                         q.get_by_pos(u, v) > max(q.get_by_pos(a, b), q.get_by_pos(a, v),
-                                                                  q.get_by_pos(b, v))) and not (
-                                    q.get_by_pos(a, b) >= max(q.get_by_pos(a, v), q.get_by_pos(b, v)) and
-                                    q.get_by_pos(u, v) > max(q.get_by_pos(a, b), q.get_by_pos(a, u),
-                                                             q.get_by_pos(b, u)))):
-                        q.set_by_pos(u, v, q.get_by_pos(vertex_x, vertex_y))
+                    if not (not (q(a, b) >= max(q(a, u), q(b, u)) and
+                                 q(u, v) > max(q(a, b), q(a, v), q(b, v))) and not (q(a, b) >= max(q(a, v), q(b, v)) and
+                                                                                    q(u, v) > max(q(a, b), q(a, u),
+                                                                                    q(b, u)))):
+                        q[u, v] = q(vertex_x, vertex_y)
 
     def min_edges():
         minuv = None
@@ -65,39 +63,42 @@ def subdominant(diss):
                 minuv = edge
             else:
                 u, v = minuv
-                if q.get_by_pos(edge_x, edge_y) < q.get_by_pos(u, v):
+                if q(edge_x, edge_y) < q(u, v):
                     minuv = edge
         return minuv
 
+
     q = diss.copy()
-    elems = list(range(len(q)))
-    threshold_graph = Graph(elems)
+    elems = list(q)
+    threshold_graph = Graph(diss)
     remaining_edges = set()
     for i, x in enumerate(elems):
         for y in elems[i + 1:]:
             if x != y:
                 remaining_edges.add((x, y))
-    examined_edges = set()
+
     total_number = len(remaining_edges)
+    examined_edges = set()
     percent = 1
     while remaining_edges:
-        # if len(remaining_edges) / total_number < percent:
-        #     print("{0:2.0f}%".format(100 * (1 - len(remaining_edges) / total_number)), datetime.datetime.now(), file=sys.stderr)
-        #     percent -= .01
+        if len(remaining_edges) / total_number < percent:
+            print("{0:2.0f}%".format(100 * (1 - len(remaining_edges) / total_number)), datetime.datetime.now(), file=sys.stderr)
+            percent -= 0.01
         xy = min_edges()
         remaining_edges.remove(xy)
         x, y = xy
 
-        path = threshold_graph.path(x, y,
+        path = threshold_graph.a_path(x, y,
                                       forbidden_vertices=set(threshold_graph[y]).intersection(set(threshold_graph[x])))
+
         threshold_graph.update([(x, y)])
         for z in path:
             if z in (x, y):
                 continue
             if (x, z) not in examined_edges and (z, x) not in examined_edges:
-                q.set_by_pos(x, z, q.get_by_pos(x, y))
+                q[x, z] = q[x, y]
             if (y, z) not in examined_edges and (z, y) not in examined_edges:
-                q.set_by_pos(y, z, q.get_by_pos(x, y))
+                q[y, z] = q[x, y]
         ordering_quartet(x, y)
         examined_edges.add(xy)
 
