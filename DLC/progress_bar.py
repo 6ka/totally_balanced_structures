@@ -66,8 +66,8 @@ class ProgressBar(ProgressBarPlaceholder):
             status = ""
         to_print = "{0:3.0f}%".format(self.percent_completion) + status + str(datetime.datetime.now())
         if self.one_line:
+            print(ESC + str(len(to_print)) + "D", end="", flush=True, file=self.outfile)
             print(ESC + "2K", end="", flush=True, file=self.outfile)
-            print(ESC + str(len(to_print) + 4) + "D", end="", flush=True, file=self.outfile)
             print(to_print, end="", flush=True, file=self.outfile)
 
         else:
