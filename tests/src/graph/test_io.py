@@ -18,7 +18,7 @@ class TestIo(unittest.TestCase):
         f = open("resources/graph_1.gr")
         g = DLC.graph.file_io.load(f)
         self.assertEqual(g, self.g)
-        self.g.update([(str(3), str(4), str(2)), (str(0), str(4), str(3))])
+        self.g._update([(str(3), str(4), str(2)), (str(0), str(4), str(3))])
         f = open("resources/graph_1.gr")
         g = DLC.graph.file_io.load(f, number=False)
         self.assertEqual(g, self.g)
@@ -29,14 +29,14 @@ class TestIo(unittest.TestCase):
         self.assertEqual(g, self.g)
         
         self.g.remove(str(5))
-        self.g.update([(str(3), str(4), None), (str(0), str(4), None)])
+        self.g._update([(str(3), str(4), None), (str(0), str(4), None)])
         f = open("resources/graph_3.gr")
         g = DLC.graph.file_io.load(f, "dotBasic")
         self.assertEqual(g, self.g)
         
         self.g.directed = True
         self.g.add(str(5))
-        self.g.update([(str(2), str(1)), (str(4), str(3)), (str(0), str(4))])
+        self.g._update([(str(2), str(1)), (str(4), str(3)), (str(0), str(4))])
         f = open("resources/graph_4.gr")
         g = DLC.graph.file_io.load(f, "dotBasic")
         self.assertEqual(g, self.g)

@@ -53,10 +53,10 @@ def randomize_edges(graph, probability_of_remaining_an_edge=0.5, probability_of_
 
             if graph.isa_edge(x, y):
                 if random.random() > probability_of_remaining_an_edge:
-                    result.update([(x, y)])
+                    result._update([(x, y)])
             else:
                 if random.random() < probability_of_being_an_edge:
-                    result.update([(x, y)])
+                    result._update([(x, y)])
     return result
 
 

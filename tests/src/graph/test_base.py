@@ -143,7 +143,7 @@ class TestGraphBase(unittest.TestCase):
         self.assertEqual(g.nb_edges(), 3)
         g2 = g.copy()
         self.assertEqual(g2, g)
-        g2.update([(1, 2)])
+        g2._update([(1, 2)])
         self.assertNotEqual(g2, g)
         g3 = g.restriction([2, 3, 4])
         self.assertEqual(len(g3), 3)

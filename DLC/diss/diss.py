@@ -24,8 +24,8 @@ class Diss(object):
         for index, element in enumerate(elements):
             self._vertex.append(element)
             self._vertex_correspondence[element] = index
-        n = len(self._vertex)
 
+        n = len(self._vertex)
         #list [[d(0,0)..d(n,n)],[d(1,1)..d(n,n)],...,[d(n,n)]]
         if n:
             self._d = [[value] * (n - i) for i in range(n)]

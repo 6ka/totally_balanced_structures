@@ -1,8 +1,19 @@
 # -*- coding: utf-8 -*-
 
-import datetime
-import sys
 from DLC.graph import Graph
+
+from DLC import progress_status
+
+
+def subdominant_number_step(diss):
+    n2 = len(diss) * len(diss) / 2
+    copy_diss = n2
+    add_edges = n2
+    find_path = n2
+    update_quartet = n2
+    find_min = n2
+    number_step = n2
+    return copy_diss + add_edges + number_step * (find_min + find_path + update_quartet)
 
 
 def subdominant(diss):
@@ -67,31 +78,34 @@ def subdominant(diss):
                     minuv = edge
         return minuv
 
-
+    n2 = len(diss) * (len(diss) - 1) / 2
+    progress_status.update_status("copy dissimilarity")
     q = diss.copy()
+    progress_status.add(n2, "dissimilarity copied")
     elems = list(q)
     threshold_graph = Graph(diss)
     remaining_edges = set()
+    progress_status.update_status("add edges")
     for i, x in enumerate(elems):
         for y in elems[i + 1:]:
             if x != y:
                 remaining_edges.add((x, y))
 
-    total_number = len(remaining_edges)
+    progress_status.add(n2, "edges added")
     examined_edges = set()
-    percent = 1
     while remaining_edges:
-        if len(remaining_edges) / total_number < percent:
-            print("{0:2.0f}%".format(100 * (1 - len(remaining_edges) / total_number)), datetime.datetime.now(), file=sys.stderr)
-            percent -= 0.01
+        progress_status.update_status("find minimum for next step")
         xy = min_edges()
         remaining_edges.remove(xy)
         x, y = xy
-
+        progress_status.add(n2, "minimum found")
+        progress_status.update_status("find path in threshold graph")
         path = threshold_graph.a_path(x, y,
                                       forbidden_vertices=set(threshold_graph[y]).intersection(set(threshold_graph[x])))
-
+        progress_status.add(n2, "path found")
+        progress_status.update_status("update dissimilarity according to path")
         threshold_graph.update([(x, y)])
+
         for z in path:
             if z in (x, y):
                 continue
@@ -99,7 +113,9 @@ def subdominant(diss):
                 q[x, z] = q[x, y]
             if (y, z) not in examined_edges and (z, y) not in examined_edges:
                 q[y, z] = q[x, y]
+        progress_status.update_status("update quartets")
         ordering_quartet(x, y)
         examined_edges.add(xy)
+        progress_status.add(n2, "quartet updated")
 
     return q

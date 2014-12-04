@@ -15,9 +15,9 @@ from DLC.doubly_lexical_order import doubly_lexical_order, gamma_free_matrix_top
 from DLC.contextmatrix import ContextMatrix
 from random_matrix_approximation import approximate, differences, approximate_one_try, print_result_matrices
 import DLC.graphics
-from DLC.triangle import elimination_order_matrix
 from DLC.diss import Diss
 from DLC.subdominant import subdominant
+
 
 def download_file_if_not_present(file_name, url):
     if not os.path.isfile(file_name):
@@ -189,36 +189,6 @@ def get_info(zip_file, base_directory):
 
     return info['users'], info['items'], info['ratings']
 
-
-def approximate_from_triangle(context_matrix):
-    order = elimination_order_matrix(context_matrix.matrix)
-    lines, columns = doubly_lexical_order(context_matrix.matrix, order)
-    min_diff = None
-    min_context_matrix = None
-    approximation = context_matrix.copy()
-    line_permutation = [0] * len(approximation.matrix)
-    for i, index in enumerate(lines):
-        line_permutation[index] = i
-
-    column_permutation = [0] * len(approximation.matrix[0])
-    for i, index in enumerate(columns):
-        column_permutation[index] = i
-
-    approximation.reorder(line_permutation, column_permutation)
-
-    for strategy in (gamma_free_matrix_bottom_up, gamma_free_matrix_top_down):
-        test_context_matrix = approximation.copy()
-        strategy(test_context_matrix.matrix, True)
-        diff = differences(test_context_matrix, approximation)
-        if min_diff is None or (min_diff > diff):
-            min_diff = diff
-            min_context_matrix = test_context_matrix
-        print("        ", strategy.__name__, diff, file=sys.stderr)
-        if min_diff == 0:
-            break
-    print("        ", "min:", min_diff, file=sys.stderr)
-
-    return min_context_matrix, min_diff
 
 
 def create_dissimilarity_between_movies(zip_file, number_keep):
