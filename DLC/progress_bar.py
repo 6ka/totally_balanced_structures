@@ -35,7 +35,6 @@ class ProgressBar(ProgressBarPlaceholder):
         self.percent_completion = 0
         self.outfile = outfile
         self.one_line = one_line
-        self._former_len = 0
 
     def add(self, number, status=None):
         self.current += number
@@ -66,16 +65,13 @@ class ProgressBar(ProgressBarPlaceholder):
         else:
             status = ""
         to_print = "{0:3.0f}%".format(self.percent_completion) + status + str(datetime.datetime.now())
-        if self.one_line and self._former_len:
-            self._former_len = len(to_print)
-            to_print = "".join((to_print, " " * (self._former_len - len(to_print))))
-        else:
-            self._former_len = len(to_print)
-        print(to_print, end="", flush=True, file=self.outfile)
         if self.one_line:
-            print(ESC + str(len(to_print)) + "D", end="", file=self.outfile)
+            print(ESC + "2K", end="", flush=True, file=self.outfile)
+            print(ESC + str(len(to_print) + 4) + "D", end="", flush=True, file=self.outfile)
+            print(to_print, end="", flush=True, file=self.outfile)
+
         else:
-            print(file=self.outfile)
+            print(to_print, end="", flush=True, file=self.outfile)
 
     def stop(self):
         if self.one_line:

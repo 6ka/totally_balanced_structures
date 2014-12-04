@@ -5,8 +5,6 @@ import os
 
 sys.path.append(os.path.dirname('../'))
 
-import datetime
-
 import DLC
 from DLC.progress_bar import ProgressBar
 
