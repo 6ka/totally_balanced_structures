@@ -6,196 +6,25 @@ import os
 sys.path.append(os.path.dirname('../'))
 import io
 
-import urllib.request
-import shutil
 from zipfile import ZipFile
 import datetime
 
-from DLC.doubly_lexical_order import doubly_lexical_order, gamma_free_matrix_top_down, gamma_free_matrix_bottom_up
+import DLC
+from DLC.progress_bar import ProgressBar
+from movie_rating import download_file_if_not_present, get_info
 from DLC.contextmatrix import ContextMatrix
-from random_matrix_approximation import approximate, differences, approximate_one_try, print_result_matrices
 import DLC.graphics
-from DLC.diss import Diss
-from DLC.subdominant import subdominant
+from DLC.diss import Diss, file_io
 
-
-def download_file_if_not_present(file_name, url):
-    if not os.path.isfile(file_name):
-        print("download file from:", url, datetime.datetime.now(), file=sys.stderr)
-        print("save it in:", file_name, file=sys.stderr)
-
-        with urllib.request.urlopen(url) as response, open(file_name, 'wb') as out_file:
-            shutil.copyfileobj(response, out_file)
-        print("data saved.", file=sys.stderr)
-
-
-def create_context_matrix_between_most_seen_movies(zip_file, number_keep):
-    base_directory = os.path.splitext(os.path.basename(zip_file))[0]
-    number_users, number_movie, number_ratings = get_info(zip_file, base_directory)
-    movie_user = dict()
-    print("read file u.data", datetime.datetime.now(), file=sys.stderr)
-    with ZipFile(zip_file) as myzip:
-        file = io.TextIOWrapper(myzip.open(os.path.join(base_directory, "u.data")))
-        for line in file:
-            line = line.strip().split()
-            user = int(line[0])
-            movie = int(line[1])
-            rating = int(line[2])
-            if movie not in movie_user:
-                movie_user[movie] = (set(), set())
-            movie_user[movie][0].add(user)
-            if rating >= 3:
-                movie_user[movie][1].add(user)
-    print("done", file=sys.stderr)
-
-    keep_movies = list(range(1, number_movie + 1))
-    keep_movies.sort(key=lambda x: len(movie_user[x][0]))
-    keep_movies.reverse()
-
-    keep_movies = list(keep_movies[:number_keep])
-    keep_movies_dict = {x: i for i, x in enumerate(keep_movies[:number_keep])}
-    print("read file u.data", datetime.datetime.now(), file=sys.stderr)
-    number_movie = len(keep_movies)
-    number_one = 0
-    matrix = [[0] * 2 * number_movie for i in range(number_users)]
-
-    with ZipFile(zip_file) as myzip:
-        file = io.TextIOWrapper(myzip.open(os.path.join(base_directory, "u.data")))
-        for line in file:
-            line = line.strip().split()
-            user = int(line[0]) - 1
-            movie = int(line[1])
-            rating = int(line[2])
-
-            if movie not in keep_movies_dict:
-                continue
-            else:
-                movie = keep_movies_dict[movie]
-            matrix[user][2 * movie] = 1
-            number_one += 1
-            matrix[user][2 * movie + 1] = rating >= 3 and 1 or 0
-            if matrix[user][2 * movie + 1] == 1:
-                number_one += 1
-
-    percent = number_one / (number_ratings * 2 * number_movie)
-    print("done.", "(number 1 =", str(number_one) + ",", "percent=", str(percent) + ")", file=sys.stderr)
-    print("create context matrix", datetime.datetime.now(), file=sys.stderr)
-    attributes = []
-    for number in keep_movies:
-        attributes.extend((number, str(number) + "_like"))
-
-    context_matrix = ContextMatrix(matrix, attributes=attributes, copy_matrix=False)
-    print("done.", file=sys.stderr)
-    return context_matrix
-
-
-def create_context_matrix_rating_vs_all_movies(zip_file):
-    base_directory = os.path.splitext(os.path.basename(zip_file))[0]
-    number_users, number_movie, number_ratings = get_info(zip_file, base_directory)
-    matrix = []
-    print("read file u.data", datetime.datetime.now(), file=sys.stderr)
-    number_one = 0
-    with ZipFile(zip_file) as myzip:
-        file = io.TextIOWrapper(myzip.open(os.path.join(base_directory, "u.data")))
-        for line in file:
-            matrix_line = [0] * number_movie * 2
-            line = line.strip().split()
-            movie = int(line[1]) - 1
-            rating = int(line[2])
-            matrix_line[2 * movie] = 1
-            number_one += 1
-            matrix_line[2 * movie + 1] = rating >= 3 and 1 or 0
-            if matrix_line[2 * movie + 1] == 1:
-                number_one += 1
-
-            matrix.append(matrix_line)
-
-    percent = number_one / (number_ratings * 2 * number_movie)
-    print("done.", "(number 1 =", str(number_one) + ",", "percent=", str(percent) + ")", file=sys.stderr)
-    print("create context matrix", datetime.datetime.now(), file=sys.stderr)
-    attributes = []
-    for number in range(1, number_movie + 1):
-        attributes.extend((number, str(number) + "_like"))
-    context_matrix = ContextMatrix(matrix, attributes=attributes, copy_matrix=False)
-    print("done.", file=sys.stderr)
-    return context_matrix
-
-
-def create_context_matrix_users_vs_all_movies(zip_file):
-    base_directory = os.path.splitext(os.path.basename(zip_file))[0]
-    number_users, number_movie, number_ratings = get_info(zip_file, base_directory)
-    matrix = [[0] * 2 * number_movie for i in range(number_users)]
-    print("read file u.data", datetime.datetime.now(), file=sys.stderr)
-    number_one = 0
-
-    with ZipFile(zip_file) as myzip:
-        file = io.TextIOWrapper(myzip.open(os.path.join(base_directory, "u.data")))
-        for line in file:
-            line = line.strip().split()
-            user = int(line[0]) - 1
-            movie = int(line[1]) - 1
-            rating = int(line[2])
-
-            matrix[user][2 * movie] = 1
-            number_one += 1
-            matrix[user][2 * movie + 1] = rating >= 3 and 1 or 0
-            if matrix[user][2 * movie + 1] == 1:
-                number_one += 1
-
-    percent = number_one / (len(matrix) * len(matrix[0]))
-    print("done.", "(number 1 =", str(number_one) + ",", "percent=", str(percent) + ")", file=sys.stderr)
-    print("create context matrix", datetime.datetime.now(), file=sys.stderr)
-    attributes = []
-    for number in range(1, number_movie + 1):
-        attributes.extend((number, str(number) + "_like"))
-    context_matrix = ContextMatrix(matrix, attributes=attributes, copy_matrix=False)
-    print("done.", file=sys.stderr)
-    return context_matrix
-
-
-def create_context_matrix_users_vs_seen_movies(zip_file):
-    base_directory = os.path.splitext(os.path.basename(zip_file))[0]
-    number_users, number_movie, number_ratings = get_info(zip_file, base_directory)
-    matrix = [[0] * number_movie for i in range(number_users)]
-    print("read file u.data", datetime.datetime.now(), file=sys.stderr)
-    number_one = 0
-
-    with ZipFile(zip_file) as myzip:
-        file = io.TextIOWrapper(myzip.open(os.path.join(base_directory, "u.data")))
-        for line in file:
-            line = line.strip().split()
-            user = int(line[0]) - 1
-            movie = int(line[1]) - 1
-            rating = int(line[2])
-
-            matrix[user][movie] = 1
-            number_one += 1
-
-    percent = number_one / (len(matrix) * len(matrix[0]))
-    print("done.", "(number 1 =", str(number_one) + ",", "percent=", str(percent) + ")", file=sys.stderr)
-    print("create context matrix", datetime.datetime.now(), file=sys.stderr)
-    context_matrix = ContextMatrix(matrix, copy_matrix=False)
-    print("done.", file=sys.stderr)
-    return context_matrix
-
-
-def get_info(zip_file, base_directory):
-    info = dict()
-    with ZipFile(zip_file) as myzip:
-        file = io.TextIOWrapper(myzip.open(os.path.join(base_directory, "u.info")))
-        for line in file:
-            line = line.strip().split()
-            info[line[1]] = int(line[0])
-
-    return info['users'], info['items'], info['ratings']
-
+from DLC.subdominant import subdominant, subdominant_number_step
 
 
 def create_dissimilarity_between_movies(zip_file, number_keep):
     base_directory = os.path.splitext(os.path.basename(zip_file))[0]
-    number_users, number_movie, number_ratings = get_info(zip_file, base_directory)
+    number_users, number_movie, number_ratings = get_info(zip_file)
     movie_user = dict()
-    print("read file u.data", datetime.datetime.now(), file=sys.stderr)
+    DLC.progress_status.update_status("read data file")
+
     with ZipFile(zip_file) as myzip:
         file = io.TextIOWrapper(myzip.open(os.path.join(base_directory, "u.data")))
         for line in file:
@@ -208,15 +37,18 @@ def create_dissimilarity_between_movies(zip_file, number_keep):
             movie_user[movie][0].add(user)
             if rating >= 3:
                 movie_user[movie][1].add(user)
-    print("done", file=sys.stderr)
+            DLC.progress_status.add(1)
+    DLC.progress_status.update_status("data read.")
+
+    DLC.progress_status.update_status("select movies to keep")
     keep_movies = list(range(1, number_movie + 1))
     keep_movies.sort(key=lambda x: len(movie_user[x][0]))
     keep_movies.reverse()
 
     keep_movies = list(keep_movies[:number_keep])
-    keep_movies_dict = {x: i for i, x in enumerate(keep_movies[:number_keep])}
+    DLC.progress_status.add(number_keep * number_keep, "movies selected")
 
-    print("update dissimilarity values", datetime.datetime.now(), file=sys.stderr)
+    DLC.progress_status.update_status("create dissimilarity")
     dissimilarity = Diss(keep_movies)
     for i in range(number_keep):
         for j in range(i + 1, number_keep):
@@ -226,30 +58,25 @@ def create_dissimilarity_between_movies(zip_file, number_keep):
                 dissimilarity.set_by_pos(i, j, 1)
             else:
                 dissimilarity.set_by_pos(i, j, 1 - len(both_liked) / len(same_user))
-    print("done", file=sys.stderr)
+    DLC.progress_status.add(number_keep * number_keep, "dissimilarity created")
     return dissimilarity
 
 
 def create_context_matrix_movie_movie(zip_file, number_keep):
-    base_directory = os.path.splitext(os.path.basename(zip_file))[0]
-    number_users, number_movie, number_ratings = get_info(zip_file, base_directory)
-
-    print("create dissimilarity", datetime.datetime.now(), file=sys.stderr)
     dissimilarity = create_dissimilarity_between_movies(zip_file, number_keep)
-    print("done", file=sys.stderr)
-    print("approximation", datetime.datetime.now(), file=sys.stderr)
+    DLC.progress_status.stop()
+    DLC.progress_status = ProgressBar()
+    DLC.progress_status.add_max(NUMBER_MOVIES_TO_KEEP * NUMBER_MOVIES_TO_KEEP * (NUMBER_MOVIES_TO_KEEP - 1) / 2)
+    DLC.progress_status.add_max(subdominant_number_step(NUMBER_MOVIES_TO_KEEP))
+
+    DLC.progress_status.update_status("approximate dissimilarity")
     approximation = subdominant(dissimilarity)
-    compare(dissimilarity, approximation)
-    print("done", file=sys.stderr)
-    # print("save", datetime.datetime.now(), file=sys.stderr)
-    # file_io.save(approximation, open("approximation_dissimilarity.mat", "w"))
-    # print("done", file=sys.stderr)
-    two_balls = set()
-    print("create clusters", datetime.datetime.now(), file=sys.stderr)
+    DLC.progress_status.update_status("approximation done")
+
+    DLC.progress_status.update_status("create clusters")
     matrix = [[] for i in range(number_keep)]
     known_two_balls = set()
     for i in range(len(approximation)):
-        print("   ", i, len(approximation), file=sys.stderr)
         for j in range(i + 1, len(approximation)):
 
             two_ball = frozenset({z for z in range(len(approximation)) if
@@ -261,9 +88,9 @@ def create_context_matrix_movie_movie(zip_file, number_keep):
                 line.append(0)
             for z in two_ball:
                 matrix[z][-1] = 1
+            DLC.progress_status.add(number_keep * number_keep * (number_keep - 1) / 2)
 
-    print("done", file=sys.stderr)
-    return ContextMatrix(matrix, elements=list(approximation), copy_matrix=False)
+    return ContextMatrix(matrix, elements=list(approximation), copy_matrix=False), dissimilarity, approximation
 
 
 def compare(original_diss, approximated_diss):
@@ -272,40 +99,51 @@ def compare(original_diss, approximated_diss):
     print(len(original_diss.values()), len(approximated_diss.values()))
     print("||approximated_diss - original_diss||_1")
     abs_difference = abs(difference)
-    norm = sum(abs_difference .values())
+    norm = sum(abs_difference.values())
     norm_normalized = 2.0 * norm / (len(difference) * (len(difference) - 1))
     print("raw       :", norm)
     print("normalized:", norm_normalized)
     print()
 
+
 if __name__ == "__main__":
     DATA_FILE_NAME = "resources/ml-100k.zip"
     DATA_URL = 'http://files.grouplens.org/datasets/movielens/ml-100k.zip'
 
+    NUMBER_MOVIES_TO_KEEP = 50
+    OUTPUT_FILE_NAME = "movie_rating_dissimilarity.png"
+
     download_file_if_not_present(DATA_FILE_NAME, DATA_URL)
-    # context_matrix_original = create_context_matrix_rating_vs_all_movies(DATA_FILE_NAME)
-    # context_matrix_original = create_context_matrix_users_vs_all_movies(DATA_FILE_NAME)
-    # context_matrix_original = create_context_matrix_between_most_seen_movies(DATA_FILE_NAME, 100).transpose()
-    # print(len(context_matrix_original.elements), len(context_matrix_original.attributes))
-    # order_context_matrix, order_diff = approximate_from_triangle(context_matrix_original)
-    # context_matrix_original = create_context_matrix_users_vs_seen_movies(DATA_FILE_NAME)
-    context_matrix_original = create_context_matrix_movie_movie(DATA_FILE_NAME, 200)
-    # print(context_matrix_original)
-    print("Approximation start", datetime.datetime.now(), file=sys.stderr)
-    min_context_matrix, min_lines, min_columns, min_diff = approximate(context_matrix_original, number_try=4)
-    print("done.", file=sys.stderr)
-    print("reorder", datetime.datetime.now(), file=sys.stderr)
-    context_matrix_original.reorder(min_lines, min_columns)
-    print("done.", file=sys.stderr)
-    # print_result_matrices(context_matrix_original, min_context_matrix)
+    number_users, number_movie, number_ratings = get_info(DATA_FILE_NAME)
 
-    print("number of changes", min_diff, "percent",
-          100 * min_diff / (len(context_matrix_original.elements) * len(context_matrix_original.attributes)), "%")
+    DLC.progress_status = ProgressBar()
+    DLC.progress_status.add_max(number_ratings)
+    DLC.progress_status.add_max(2 * NUMBER_MOVIES_TO_KEEP * NUMBER_MOVIES_TO_KEEP)
+    context_matrix_original, original_dissimilarity, approximation = create_context_matrix_movie_movie(DATA_FILE_NAME,
+                                                                                                       NUMBER_MOVIES_TO_KEEP)
+    DLC.progress_status.update_status("context matrix created")
+    DLC.progress_status.stop()
+    compare(original_dissimilarity, approximation)
+    DLC.progress_status = ProgressBar()
+    matrix_size = len(context_matrix_original.elements) * len(context_matrix_original.attributes)
+    DLC.progress_status.add_max(matrix_size)
+    DLC.progress_status.update_status("reorder context matrix")
+    context_matrix_original.reorder_doubly_lexical_order()
+    DLC.progress_status.add(matrix_size, "matrix reordered.")
+    DLC.progress_status.stop()
+    compare(original_dissimilarity, approximation)
+    DLC.progress_status = ProgressBar()
 
+    DLC.progress_status.add_max(3 * matrix_size)
+    DLC.progress_status.update_status("prune matrix")
     pruned_matrix = [[line[0]] for line in context_matrix_original.matrix]
     pruned_attributes = [context_matrix_original.attributes[0]]
+
     number = {pruned_attributes[-1]: 1}
-    for column, element in zip(range(1, len(context_matrix_original.matrix[0])), context_matrix_original.attributes[1:]):
+    DLC.progress_status.add(matrix_size)
+    deleted_columns = 0
+    for column, element in zip(range(1, len(context_matrix_original.matrix[0])),
+                               context_matrix_original.attributes[1:]):
         same = True
         for i in range(len(context_matrix_original.matrix)):
             if context_matrix_original.matrix[i][column] != pruned_matrix[i][-1]:
@@ -313,16 +151,21 @@ if __name__ == "__main__":
                 continue
         if same:
             number[pruned_attributes[-1]] += 1
+            deleted_columns += 1
             continue
 
         for i in range(len(context_matrix_original.matrix)):
             pruned_matrix[i].append(context_matrix_original.matrix[i][column])
         pruned_attributes.append(element)
         number[element] = 1
+        DLC.progress_status.add(len(context_matrix_original.elements))
 
-    print(number)
-    pruned_context_matrix = ContextMatrix(pruned_matrix, context_matrix_original.elements, pruned_attributes)
+    pruned_context_matrix = ContextMatrix(pruned_matrix, context_matrix_original.elements, pruned_attributes, False)
 
-    # image = DLC.graphics.create_image_from_matrix(min_context_matrix.matrix, context_matrix_original.matrix)
+    DLC.progress_status.update_status("save image")
     image = DLC.graphics.create_image_from_matrix(pruned_context_matrix.matrix)
-    image.save("movie_rating_diss.png")
+    image.save(OUTPUT_FILE_NAME)
+    DLC.progress_status.add(matrix_size, "image saved")
+    DLC.progress_status.stop()
+    print("number of pruned columns:", deleted_columns,
+          "{0: 3.0f}%".format(100 * deleted_columns / len(context_matrix_original.attributes)))

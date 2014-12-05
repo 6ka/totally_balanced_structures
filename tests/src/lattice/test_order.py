@@ -9,7 +9,7 @@ class TestOrder(unittest.TestCase):
 
     def generic_lattice(self):
         lattice = DLC.graph.Graph(directed=True)
-        lattice._update([("bottom", 1),
+        lattice.update([("bottom", 1),
                         ("bottom", 2),
                         ("bottom", 3),
                         ("bottom", 4),

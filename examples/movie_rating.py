@@ -4,6 +4,8 @@ import sys
 import os
 
 sys.path.append(os.path.dirname('../'))
+sys.path.append(os.path.dirname('./'))
+
 import io
 
 import urllib.request

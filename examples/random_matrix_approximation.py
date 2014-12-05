@@ -134,7 +134,7 @@ def diff_digit(compare_matrix):
 
 def print_result_matrices(original, approximation):
     colorama.init()
-    print(DLC.graphics.raw_matrix_indices(approximation.matrix, diff_digit(original.matrix)))
+    print(DLC.graphics.raw_matrix_indices(approximation, diff_digit(original)))
     print(colorama.Fore.RESET + colorama.Back.RESET + colorama.Style.RESET_ALL)
 
 
@@ -156,14 +156,14 @@ if __name__ == "__main__":
         DLC.randomize.random_01_matrix(CONTEXT_MATRIX_NUMBER_LINES, CONTEXT_MATRIX_NUMBER_COLUMNS,
                                        CONTEXT_MATRIX_PROBABILITY_OF_ONE))
     DLC.progress_status.add(matrix_size, "context matrix created")
-    min_context_matrix, min_lines, min_columns, min_diff = approximate(context_matrix_orig)
+    min_context_matrix, min_lines, min_columns, min_number_differences = approximate(context_matrix_orig)
     DLC.progress_status.update_status("doubly lexically order the matrix")
     context_matrix_orig.reorder(min_lines, min_columns)
     DLC.progress_status.add(matrix_size, "matrix reordered.")
     DLC.progress_status.stop()
     DLC.reset_progress_status()
-    print_result_matrices(context_matrix_orig, min_context_matrix)
-    print("number of changes", min_diff, "percent",
-          100 * min_diff / (len(context_matrix_orig.elements) * len(context_matrix_orig.attributes)))
+    print_result_matrices(context_matrix_orig.matrix, min_context_matrix.matrix)
+    print("number of changes", min_number_differences, "percent",
+          100 * min_number_differences / (len(context_matrix_orig.elements) * len(context_matrix_orig.attributes)))
 
 

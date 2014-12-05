@@ -25,7 +25,7 @@ class TestHierarchicalFromLattice(unittest.TestCase):
         self.assertEqual({1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 'top': 0}, vertex_height)
 
     def test_hierarchical_decomposition_from_non_atom_sup_irreducibe(self):
-        self.lattice._update([(2, 6)])
+        self.lattice.update([(2, 6)])
         self.lattice.remove(3)
         self.lattice.remove(4)
         vertex_height = hierarchical_height_from_lattice(self.lattice)

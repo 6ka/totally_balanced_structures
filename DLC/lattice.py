@@ -239,7 +239,7 @@ def delete_join_irreducible(lattice, join_irreducible):
 
     lattice.remove(join_irreducible)
     if not lattice.path(u, v):
-        lattice._update([(u, v)])
+        lattice.update([(u, v)])
 
 
 def isa_lattice_cover_graph(cover_graph):

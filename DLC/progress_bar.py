@@ -48,9 +48,11 @@ class ProgressBar(ProgressBarPlaceholder):
     def add_max(self, max_count):
         self.max_count += max_count
 
-    def update_status(self, status):
+    def update_status(self, status, return_line=False):
         self.status = status
         self._screen()
+        if return_line:
+            print("", file=self.outfile)
 
     def _update(self):
         if self.percent_completion >= self.next_step:
@@ -68,6 +70,7 @@ class ProgressBar(ProgressBarPlaceholder):
         if self.one_line:
             print(ESC + str(len(to_print)) + "D", end="", flush=True, file=self.outfile)
             print(ESC + "2K", end="", flush=True, file=self.outfile)
+            print(ESC + str(len(to_print)) + "D", end="", flush=True, file=self.outfile)
             print(to_print, end="", flush=True, file=self.outfile)
 
         else:

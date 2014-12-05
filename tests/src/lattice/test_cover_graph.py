@@ -9,7 +9,7 @@ class TestCoverGraph(unittest.TestCase):
 
     def new_lattice(self):
         lattice = DLC.graph.Graph(directed=True)
-        lattice._update([("bottom", 1),
+        lattice.update([("bottom", 1),
                         ("bottom", 2),
                         ("bottom", 3),
                         ("bottom", 4),
@@ -37,7 +37,7 @@ class TestCoverGraph(unittest.TestCase):
 
     def test_isa_lattice(self):
         self.assertTrue(DLC.lattice.isa_lattice_cover_graph(self.lattice))
-        not_a_lattice = DLC.graph.Graph(directed=True)._update([("bottom", 1),
+        not_a_lattice = DLC.graph.Graph(directed=True).update([("bottom", 1),
                                                                ("bottom", 2),
                                                                (1, 3),
                                                                (2, 3),
