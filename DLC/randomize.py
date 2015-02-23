@@ -61,7 +61,7 @@ def randomize_edges(graph, probability_of_remaining_an_edge=0.5, probability_of_
 
 
 def random_dismantable_lattice(number_of_elements, bottom="BOTTOM", top="TOP"):
-    """Random crown free lattice.
+    """Random dismantable lattice.
 
     :param number_of_elements: final number of elements
     :type number_of_elements: class:`int`

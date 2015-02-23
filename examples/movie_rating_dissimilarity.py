@@ -7,7 +7,6 @@ sys.path.append(os.path.dirname('../'))
 import io
 
 from zipfile import ZipFile
-import datetime
 
 import DLC
 from DLC.progress_bar import ProgressBar

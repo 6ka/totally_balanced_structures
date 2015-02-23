@@ -4,7 +4,6 @@ import unittest
 
 from DLC.clusters.clusters import cluster_matrix_from_O1_matrix, cluster_matrix_and_boxes_from_O1_matrix, \
     atom_clusters_correspondence, ClusterLineFromMatrix
-from DLC.contextmatrix import ContextMatrix
 
 
 class TestMatrixClusterBase(unittest.TestCase):

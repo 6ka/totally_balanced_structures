@@ -4,6 +4,34 @@ __all__ = ["hierarchical_height_from_lattice"]
 import DLC.lattice
 
 
+def unique_successor_decomposition(dismantable_lattice):
+    cover_graph = dismantable_lattice.copy()
+    dual_cover_graph = cover_graph.dual()
+
+    maxima = [DLC.lattice.get_top(cover_graph)]
+    current_height = 0
+    height = {maxima[0]: current_height}
+
+    while maxima:
+        new_maxima = []
+        for vertex in maxima:
+            pile = [vertex]
+            while pile:
+                father = pile.pop()
+                for current in dual_cover_graph[father]:
+                    if cover_graph.degree(current) == 1:
+                        height[current] = current_height
+                        cover_graph.update([(current, father)])
+                        dual_cover_graph.update([(father, current)])
+                        pile.append(current)
+                    elif cover_graph.degree(current) > 1:
+                        new_maxima.append(father)
+
+        current_height += 1
+        maxima = new_maxima
+
+    return height
+
 def hierarchical_height_from_lattice(dismantable_lattice):
 
     vertex_height = dict()
@@ -41,40 +69,4 @@ def hierarchical_height_from_lattice(dismantable_lattice):
         current_height += 1
 
         sup_irreducibles.difference_update(deleted_sup_irreducibles)
-    return vertex_height
-
-
-def hierarchical_height_from_lattice_old(dismantable_lattice, bottom=None):
-    #there is a bug....
-    if bottom is None:
-        bottom = DLC.lattice.get_bottom(dismantable_lattice)
-    atoms = set(DLC.lattice.sup_irreducible(dismantable_lattice))
-    current_graph = dismantable_lattice.copy()
-    current_graph.remove(bottom)
-    vertex_height = dict()
-    current_height = 0
-    while atoms:
-        current_chains = set()
-        current_atoms = set(atoms)
-        while current_atoms:
-            vertex = current_atoms.pop()
-            possible_chain = set()
-            current = vertex
-            if vertex in current_chains:
-                atoms.remove(vertex)
-                continue
-            while current_graph.degree(current) <= 1:
-                possible_chain.add(current)
-                if current_graph.degree(current) == 0 or current in current_chains:
-                    current_chains.update(possible_chain)
-                    if vertex in atoms:
-                        atoms.remove(vertex)
-                    break
-                else:
-                    current = current_graph[current][0]
-        for x in current_chains:
-            vertex_height[x] = current_height
-            current_graph.remove(x)
-        current_height += 1
-
     return vertex_height
