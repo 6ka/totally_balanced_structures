@@ -161,6 +161,10 @@ def point_transformation_3d_len(max_y, clusters):
     return lambda line, column: (len(clusters[(line, column)]), max_y - line - len(clusters[(line, column)]), len(clusters[(line, column)]))
 
 
+def point_transformation_column_tree(max_y, max_z, column_abcisse):
+    # return lambda line, column: (len(clusters[(line, column)]), max_y - line - ((max_y - 1)/ 2) * (len(clusters[(line, column)]) - 1) / (max_y - 1), len(clusters[(line, column)]))
+    return lambda line, column: (column_abcisse[column], max_y - column, max_z - line)
+
 def draw3d(plot3d, cover_graph, representant, point_transformation, colors):
     objects = sup_irreducible(cover_graph)
     attributes = inf_irreducible(cover_graph)
@@ -184,6 +188,65 @@ def draw3d(plot3d, cover_graph, representant, point_transformation, colors):
                 continue
             x2, y2, z2 = point_transformation(*representant[neighbor])
             plot3d.plot([x, x2], [y, y2], [z, z2], zorder=0, color=colors[z])
+
+
+def column_tree(matrix):
+    ordered_leaves = list()
+    father = dict()
+    last_line = dict()
+    not_a_leaf = set()
+    for column in range(len(matrix[0])):
+        last_not_empty_line = len(matrix) - 1
+        while last_not_empty_line >= 0 and not matrix[last_not_empty_line][column]:
+            last_not_empty_line -= 1
+        if column not in last_line:
+            last_line[column] = last_not_empty_line
+        if last_not_empty_line < 0:
+            continue
+
+        next_not_empty_column = column + 1
+        while next_not_empty_column < len(matrix[0]) and not matrix[last_not_empty_line][next_not_empty_column]:
+            next_not_empty_column += 1
+
+        if next_not_empty_column >= len(matrix[0]):
+            continue
+
+        father[column] = next_not_empty_column
+        not_a_leaf.add(next_not_empty_column)
+        if column not in not_a_leaf:
+            ordered_leaves.append(column)
+
+    ordered_leaves.sort(key=lambda x: -last_line[x])
+    return father, ordered_leaves
+
+
+def column_position(tree, root, line_connection, matrix):
+    position_matrix = [[None] * len(matrix[0]) for i in range(len(matrix))]
+    next_vertex = [root]
+
+    current_position = 0
+
+    for i in range(len(matrix)):
+        position_matrix[root][i] = current_position
+    column_offset = {root: current_position}
+
+    positions = dict()
+    father = dict()
+    while next_vertex:
+        current_vertex = next_vertex.pop()
+        current_position += column_offset[current_vertex]
+        positions[current_vertex] = current_position
+        neighborhood = [x for x in tree[current_vertex] if x not in positions]
+        neighborhood.sort(key=lambda v: line_connection[v])
+        print(current_vertex, neighborhood)
+        next_vertex.extend(neighborhood)
+
+        for neighbor in neighborhood[:-1]:
+            column_offset[neighbor] = 1
+        if neighborhood:
+            column_offset[neighborhood[-1]] = 0
+
+    return positions
 
 if __name__ == "__main__":
     LATTICE_NUMBER_VERTICES = 12
@@ -228,22 +291,31 @@ if __name__ == "__main__":
 
     context_matrix = context_matrix_from_sets(set(dissimilarity), clusters)
     print(DLC.graphics.from_context_matrix(context_matrix))
-
-
-    representant_cluster, representant, cover_graph = clusters_from_context_matrix(context_matrix)
-    n = len(context_matrix.matrix)
-    print(n)
-    colors = matplotlib.cm.rainbow([0. + 1.0 * x / (n) for x in range(n + 1)])
-    plot2d = pyplot.subplot2grid((2, 1), (0, 0))
-    point_transformation3d = point_transformation_3d(len(context_matrix.matrix), {value: representant_cluster[key] for key, value in representant.items()})
-    point_transformation = point_transformation_square(len(context_matrix.matrix))
-    draw(plot2d, cover_graph, representant, point_transformation3d, colors)
-
-    from mpl_toolkits.mplot3d import Axes3D
+    column_mst_father, ordered_leaves = column_tree(context_matrix.matrix)
+    print(column_mst_father, ordered_leaves)
+    # positions_mst = column_position(column_mst, len(context_matrix.matrix[0]) - 1, line_connection, context_matrix.matrix)
+    # print(positions_mst)
+    # representant_cluster, representant, cover_graph = clusters_from_context_matrix(context_matrix)
+    # n = len(context_matrix.matrix)
+    # print(n)
+    # colors = matplotlib.cm.rainbow([0. + 1.0 * x / (n) for x in range(n + 1)])
+    # plot2d = pyplot.subplot2grid((2, 1), (0, 0))
+    # point_transformation3d = point_transformation_3d(len(context_matrix.matrix), {value: representant_cluster[key] for key, value in representant.items()})
+    # point_transformation = point_transformation_square(len(context_matrix.matrix))
+    # draw(plot2d, cover_graph, representant, point_transformation3d, colors)
+    #
+    #
+    # plot2d2 = pyplot.subplot2grid((2, 1), (1, 0))
+    # # point_transformation3d2 = point_transformation_3d_len(len(context_matrix.matrix), {value: representant_cluster[key] for key, value in representant.items()})
+    #
+    # point_transformation = point_transformation_column_tree(len(context_matrix.matrix[0]) - 1,
+    #                                                         len(context_matrix.matrix) - 1,
+    #                                                         positions_mst)
+    # # draw(plot2d2, cover_graph, representant, point_transformation, colors)
+    #
+    #
+    # from mpl_toolkits.mplot3d import Axes3D
     # plot3d = pyplot.subplot2grid((2, 1), (1, 0), projection='3d')
-    # draw3d(plot3d, cover_graph, representant, point_transformation3d, colors)
-
-    plot2d2 = pyplot.subplot2grid((2, 1), (1, 0))
-    point_transformation3d2 = point_transformation_3d_len(len(context_matrix.matrix), {value: representant_cluster[key] for key, value in representant.items()})
-    draw(plot2d2, cover_graph, representant, point_transformation3d2, colors)
-    pyplot.show()
+    # draw3d(plot3d, cover_graph, representant, point_transformation, colors)
+    #
+    # pyplot.show()

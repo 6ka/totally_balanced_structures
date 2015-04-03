@@ -59,6 +59,7 @@ Module content
 
 __author__ = 'francois'
 
-__all__ = ["conversion", "file_io", "Graph", "randomize"]
+__all__ = ["conversion", "file_io", "Graph", "randomize", "mst_from_set"]
 
 from .graph import Graph, CircuitError
+from .mst import mst_from_set

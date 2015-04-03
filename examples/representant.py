@@ -161,8 +161,8 @@ def line_scale(cover_graph, hierarchical_edges, representant):
 
 if __name__ == "__main__":
     LATTICE_NUMBER_VERTICES = 50
-    # context_matrix = ContextMatrix.from_cover_graph(randomize.random_dismantable_lattice(LATTICE_NUMBER_VERTICES))
-    context_matrix = context_matrix_from_dissimilarity("resources/giraudoux.mat")
+    context_matrix = ContextMatrix.from_cover_graph(randomize.random_dismantable_lattice(LATTICE_NUMBER_VERTICES))
+    # context_matrix = context_matrix_from_dissimilarity("resources/giraudoux.mat")
     representant, cover_graph, = lattices_and_points(context_matrix)
     hierarchical_edges = hierarchical_height_from_lattice(cover_graph)
     print(hierarchical_edges)
