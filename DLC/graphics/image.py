@@ -13,7 +13,7 @@ def create_image_from_matrix(matrix, orig_matrix=None):
     height = hierarchical_height_from_lattice(cover_graph)
     height_colors = color_space(max(height.values()) + 1)
 
-    image_matrix = Image.new("RGB", (len(matrix[0]), len(matrix)), "black")
+    image_matrix = Image.new("RGB", (len(matrix[0]), len(matrix)), "white")
     bottom = DLC.lattice.get_bottom(cover_graph)
     top = DLC.lattice.get_top(cover_graph)
     for cluster in height:
@@ -23,7 +23,7 @@ def create_image_from_matrix(matrix, orig_matrix=None):
         min_i, max_i = boxes_i[cluster]
         min_j, max_j = boxes_j[cluster]
         color = height_colors[height[cluster]]
-
+        color = (0, 0, 0)
         for i in range(min_i, max_i + 1):
             for j in range(min_j, max_j + 1):
                 image_matrix.putpixel((j, i), color)
@@ -40,4 +40,5 @@ def color_space(number_colors):
 
     HSV_tuples = [(x * 1.0 / number_colors, 0.5, 0.5) for x in range(number_colors)]
     RGB_tuples = [tuple(int(255 * y) for y in colorsys.hsv_to_rgb(*x)) for x in HSV_tuples]
+    RGB_tuples = [(int(x * 255 / number_colors), ) * 3  for x in range(number_colors)]
     return RGB_tuples

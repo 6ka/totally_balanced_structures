@@ -1,9 +1,9 @@
 from matplotlib import pyplot
-import matplotlib.cm
+import matplotlib
+from mpl_toolkits.mplot3d import Axes3D
 
 from clusters.cover_graph import cover_graph_and_boxes_from_matrix
 from diss import Diss
-from graph import mst_from_set, Graph
 from lattice import sup_irreducible, sup_irreducible_clusters, inf_irreducible
 
 import randomize
@@ -21,7 +21,86 @@ import DLC.graphics.lattice_string
 import DLC.diss.file_io
 
 
-def context_matrix_from_dissimilarity(original_dissimilarity):
+class Chain_robinson_matrix:
+    UNMARKED = -1
+    INITIAL_HEIGHT = 0
+    EMPTY = None
+
+    def __init__(self, matrix):
+        self.number_lines = len(matrix)
+        self.number_columns = len(matrix[0])
+        self.current_height = self.INITIAL_HEIGHT
+        self.height_matrix = self.init_height_matrix(matrix)
+
+    def init_height_matrix(self, matrix):
+        height_matrix = [[matrix[i][j] and self.UNMARKED or self.EMPTY for j in range(self.number_columns)]
+                         for i in range(self.number_lines)]
+        return height_matrix
+
+    def run(self):
+
+        path = [(self.number_lines - 1, self.number_columns - 1)]
+
+        while path:
+
+            current_end_path = path[-1]
+
+
+            left = self.next_unmarked(current_end_path, (0, -1))
+            if left:
+                path.append(left)
+                continue
+            up = self.next_unmarked(current_end_path, (-1, 0))
+            if up:
+                path.append(up)
+                continue
+
+            current_line, current_column = current_end_path
+            if self.height_matrix[current_line][current_column] == self.UNMARKED:
+                self.propagate(current_end_path)
+                self.current_height += 1
+
+            path.pop()
+        return self
+
+    def next_unmarked(self, begin, increment):
+        current_line, current_column = begin
+        increment_line, increment_column = increment
+
+        current_line += increment_line
+        current_column += increment_column
+
+        while 0 <= current_line < self.number_lines and 0 <= current_column < self.number_columns:
+
+            if self.height_matrix[current_line][current_column] == self.UNMARKED:
+                return current_line, current_column
+
+            current_line += increment_line
+            current_column += increment_column
+
+        return tuple()
+
+    def propagate(self, begin):
+        current_line, current_column = begin
+        self.height_matrix[current_line][current_column] = self.current_height
+        elements_to_mark = [begin]
+        while elements_to_mark:
+            current = elements_to_mark.pop()
+            self.mark(current)
+            right = self.next_unmarked(current, (0, +1))
+            if right:
+                elements_to_mark.append(right)
+
+            bottom = self.next_unmarked(current, (+1, 0))
+            if bottom:
+                elements_to_mark.append(bottom)
+
+    def mark(self, element):
+        current_line, current_column = element
+        self.height_matrix[current_line][current_column] = self.current_height
+
+
+def context_matrix_from_qu_arbo(original_dissimilarity):
     approximation = subdominant(original_dissimilarity)
 
     matrix = [[] for i in range(len(approximation))]
@@ -44,27 +123,7 @@ def context_matrix_from_dissimilarity(original_dissimilarity):
     return context_matrix
 
 
-def context_matrix_from_sets(base_set, clusters):
-
-    matrix = [[] for i in range(len(base_set))]
-    line_corresp = {x: i for i, x in enumerate(base_set)}
-
-    for cluster in clusters:
-        for line in matrix:
-            line.append(0)
-        for x in cluster:
-            matrix[line_corresp[x]][-1] = 1
-
-    elements = [None] * len(base_set)
-    for x, index in line_corresp.items():
-        elements[index] = x
-
-    context_matrix = ContextMatrix(matrix, elements=elements, copy_matrix=False)
-    context_matrix.reorder_doubly_lexical_order()
-    return context_matrix
-
-
-def dissimilarity_from_cover_graph(dismantable_lattice):
+def dissimilarity_from_dismantlable_cover_graph(dismantable_lattice):
     clusters = sup_irreducible_clusters(dismantable_lattice)
     elements = list(sup_irreducible(dismantable_lattice))
     diss = Diss(elements)
@@ -82,58 +141,28 @@ def dissimilarity_from_cover_graph(dismantable_lattice):
     return diss
 
 
-class Vertex:
-    def __init__(self, x, y, father=None, mother=None):
-        self.parents = [father, mother]
-        self.generators = [x, y]
-        if father and mother:
-            self.set = father.set.union(mother.set)
-        else:
-            self.set = frozenset(self.generators)
-
-    def __repr__(self):
-        return str(self.set)
-
-    def __str__(self):
-        return repr(self)
-
-
-def dissimilarity_between_vertices(dissimilarity):
-
-    def diss(u, v):
-        u_x, u_y = u.generators
-        v_x, v_y = v.generators
-
-        return dissimilarity.max([u_x, u_y, v_x, v_y])
-
-    return diss
-
-
-def clusters_from_context_matrix(context_matrix):
+def lattices_and_points(context_matrix):
     cover_graph, boxes_cluster_line, boxes_cluster_columns = cover_graph_and_boxes_from_matrix(context_matrix.matrix)
     representant = dict()
     for elem in boxes_cluster_line:
-        representant[elem] = boxes_cluster_line[elem][0], boxes_cluster_columns[elem][0]
+        representant[elem] = .5 * sum(boxes_cluster_line[elem]), .5 * sum(boxes_cluster_columns[elem])
 
-    representant_cluster = dict()
-    for key, value in representant.items():
-        associated_cluster = frozenset(line for line in range(value[0], len(context_matrix.matrix)) if context_matrix.matrix[line][value[1]])
-        representant_cluster[key] = associated_cluster
-    return representant_cluster, representant, cover_graph
+    representant["BOTTOM"] = len(context_matrix.matrix), len(context_matrix.matrix[0])
+    representant["TOP"] = 0, len(context_matrix.matrix[0])
+
+    return representant, cover_graph
 
 
 def point_transformation_square(max_y):
     return lambda line, column: (column, max_y - line)
 
 
-def draw(plot2d, cover_graph, representant, point_transformation, colors):
+def draw(plot2d, cover_graph, point_transformation, representant, colors):
     objects = sup_irreducible(cover_graph)
     attributes = inf_irreducible(cover_graph)
 
     for elem in cover_graph:
-        if elem not in representant:
-            continue
-        x, y, z = point_transformation(*representant[elem])
+        x, y = point_transformation(*representant[elem])
         if elem in objects:
             type = "^"
         elif elem in attributes:
@@ -142,37 +171,50 @@ def draw(plot2d, cover_graph, representant, point_transformation, colors):
             type = "o"
         if elem in objects and elem in attributes:
             type = "d"
-        plot2d.scatter(x, y, marker=type, zorder=1, color=colors[z])
+        plot2d.scatter(x, y, marker=type, zorder=1, color=colors(*representant[elem]), edgecolors='black')
         # plot2d.annotate(str(elem), xy=(x, max_y - y), color="grey")
 
         for neighbor in cover_graph[elem]:
-            if neighbor not in representant:
+
+            x2, y2 = point_transformation(*representant[neighbor])
+            plot2d.plot([x, x2], [y, y2], color="black", zorder=0, linestyle="-")
+
+
+def draw_boxes(plot2d, matrix, point_transformation, colors):
+    for i in range(len(matrix)):
+        for j in range(len(matrix[0])):
+            if matrix[i][j] is None:
                 continue
-            x2, y2, z2 = point_transformation(*representant[neighbor])
-            plot2d.plot([x, x2], [y, y2], zorder=0, color=colors[z])
+            x, y = point_transformation(i, j)
+
+            plot2d.scatter(x, y, color=colors(i, j))
+
+def draw_2d_vertices(plot, rectangles):
+    from matplotlib.patches import Rectangle
+
+    for rectangle in rectangles.values():
+        plot.add_patch(rectangle)
 
 
-def point_transformation_3d(max_y, clusters):
-    return lambda line, column: (column, max_y - line, len(clusters[(line, column)]))
+def rect_matrices(boxes):
+
+    from matplotlib.patches import Rectangle
+    associaded_rect = {}
+    for elem in boxes:
+        (min_x, min_y), (max_x, max_y) = boxes[elem]
+        rect = Rectangle((min_x, min_y), max_x - min_x + 1, max_y - min_y + 1, picker=1)
+        associaded_rect[elem] = rect
+
+    return associaded_rect
 
 
-def point_transformation_3d_len(max_y, clusters):
-    # return lambda line, column: (len(clusters[(line, column)]), max_y - line - ((max_y - 1)/ 2) * (len(clusters[(line, column)]) - 1) / (max_y - 1), len(clusters[(line, column)]))
-    return lambda line, column: (len(clusters[(line, column)]), max_y - line - len(clusters[(line, column)]), len(clusters[(line, column)]))
-
-
-def point_transformation_column_tree(max_y, max_z, column_abcisse):
-    # return lambda line, column: (len(clusters[(line, column)]), max_y - line - ((max_y - 1)/ 2) * (len(clusters[(line, column)]) - 1) / (max_y - 1), len(clusters[(line, column)]))
-    return lambda line, column: (column_abcisse[column], max_y - column, max_z - line)
-
-def draw3d(plot3d, cover_graph, representant, point_transformation, colors):
+def draw3d(plot2d, cover_graph, point_transformation, representant, height, colors):
     objects = sup_irreducible(cover_graph)
     attributes = inf_irreducible(cover_graph)
 
     for elem in cover_graph:
-        if elem not in representant:
-            continue
-        x, y, z = point_transformation(*representant[elem])
+        x, y = point_transformation(*representant[elem])
+        z = height(*representant[elem])
         if elem in objects:
             type = "^"
         elif elem in attributes:
@@ -181,141 +223,64 @@ def draw3d(plot3d, cover_graph, representant, point_transformation, colors):
             type = "o"
         if elem in objects and elem in attributes:
             type = "d"
-        plot3d.scatter(x, y, z, marker=type, zorder=1, color=colors[z])
+
+        x, y, z = z, -x, y
+        plot2d.scatter(x, y, z, marker=type, zorder=1, color=colors(*representant[elem]), edgecolors='black')
+        # plot2d.annotate(str(elem), xy=(x, max_y - y), color="grey")
 
         for neighbor in cover_graph[elem]:
-            if neighbor not in representant:
-                continue
-            x2, y2, z2 = point_transformation(*representant[neighbor])
-            plot3d.plot([x, x2], [y, y2], [z, z2], zorder=0, color=colors[z])
 
-
-def column_tree(matrix):
-    ordered_leaves = list()
-    father = dict()
-    last_line = dict()
-    not_a_leaf = set()
-    for column in range(len(matrix[0])):
-        last_not_empty_line = len(matrix) - 1
-        while last_not_empty_line >= 0 and not matrix[last_not_empty_line][column]:
-            last_not_empty_line -= 1
-        if column not in last_line:
-            last_line[column] = last_not_empty_line
-        if last_not_empty_line < 0:
-            continue
-
-        next_not_empty_column = column + 1
-        while next_not_empty_column < len(matrix[0]) and not matrix[last_not_empty_line][next_not_empty_column]:
-            next_not_empty_column += 1
-
-        if next_not_empty_column >= len(matrix[0]):
-            continue
-
-        father[column] = next_not_empty_column
-        not_a_leaf.add(next_not_empty_column)
-        if column not in not_a_leaf:
-            ordered_leaves.append(column)
-
-    ordered_leaves.sort(key=lambda x: -last_line[x])
-    return father, ordered_leaves
-
-
-def column_position(tree, root, line_connection, matrix):
-    position_matrix = [[None] * len(matrix[0]) for i in range(len(matrix))]
-    next_vertex = [root]
-
-    current_position = 0
-
-    for i in range(len(matrix)):
-        position_matrix[root][i] = current_position
-    column_offset = {root: current_position}
-
-    positions = dict()
-    father = dict()
-    while next_vertex:
-        current_vertex = next_vertex.pop()
-        current_position += column_offset[current_vertex]
-        positions[current_vertex] = current_position
-        neighborhood = [x for x in tree[current_vertex] if x not in positions]
-        neighborhood.sort(key=lambda v: line_connection[v])
-        print(current_vertex, neighborhood)
-        next_vertex.extend(neighborhood)
-
-        for neighbor in neighborhood[:-1]:
-            column_offset[neighbor] = 1
-        if neighborhood:
-            column_offset[neighborhood[-1]] = 0
-
-    return positions
+            x2, y2 = point_transformation(*representant[neighbor])
+            z2 = height(*representant[neighbor])
+            if z2 > z:
+                color = colors(*representant[neighbor])
+            else:
+                color = colors(*representant[elem])
+            x2, y2, z2 = z2, -x2, y2
+            plot2d.plot([x, x2], [y, y2], [z, z2], color=color, zorder=0, linestyle="-")
 
 if __name__ == "__main__":
-    LATTICE_NUMBER_VERTICES = 12
-    DISSIMILARITY_FILENAME = "" #"resources/giraudoux.mat"
+    LATTICE_NUMBER_VERTICES = 13
+    DISSIMILARITY_FILENAME = "resources/giraudoux.mat"
     if DISSIMILARITY_FILENAME:
         dissimilarity = subdominant(DLC.diss.file_io.load(open(DISSIMILARITY_FILENAME)))
     else:
-        dissimilarity = dissimilarity_from_cover_graph(randomize.random_dismantable_lattice(LATTICE_NUMBER_VERTICES))
+        dissimilarity = dissimilarity_from_dismantlable_cover_graph(randomize.random_dismantable_lattice(LATTICE_NUMBER_VERTICES))
 
-    print(DLC.graphics.from_context_matrix(context_matrix_from_dissimilarity(dissimilarity)))
-    print(DLC.diss.conversion.to_string(dissimilarity))
-    diss_vertices_tree = dissimilarity_between_vertices(dissimilarity)
-    trees = [mst_from_set([Vertex(u, u) for u in dissimilarity], diss_vertices_tree)]
+    context_matrix = context_matrix_from_qu_arbo(dissimilarity)
 
-    clusters = set([x.set for x in trees[-1]])
-    for step in range(1, len(dissimilarity)):
-        vertices = []
-        sub_trees_vertices = dict()
-        for u, v in trees[-1].edges():
-            subset_diameter = []
-            subset_diameter.extend(u.generators)
-            subset_diameter.extend(v.generators)
-            new_indices = dissimilarity.max(subset_diameter, True)
-            vertex_from_edge = Vertex(new_indices['x'], new_indices['y'], u, v)
-            clusters.add(vertex_from_edge.set)
-            vertices.append(vertex_from_edge)
-            for vertex in (u, v):
-                if vertex not in sub_trees_vertices:
-                    sub_trees_vertices[vertex] = []
-                sub_trees_vertices[vertex].append(vertex_from_edge)
-
-
-        tree = Graph(vertices)
-        for sub_tree in sub_trees_vertices.values():
-            mst_sub_tree = mst_from_set(sub_tree, diss_vertices_tree)
-            tree.update(mst_sub_tree.edges(), delete=False)
-        trees.append(tree)
-
-    for tree in trees:
-        print(tree)
-        print("---")
-
-    context_matrix = context_matrix_from_sets(set(dissimilarity), clusters)
     print(DLC.graphics.from_context_matrix(context_matrix))
-    column_mst_father, ordered_leaves = column_tree(context_matrix.matrix)
-    print(column_mst_father, ordered_leaves)
-    # positions_mst = column_position(column_mst, len(context_matrix.matrix[0]) - 1, line_connection, context_matrix.matrix)
-    # print(positions_mst)
-    # representant_cluster, representant, cover_graph = clusters_from_context_matrix(context_matrix)
-    # n = len(context_matrix.matrix)
-    # print(n)
-    # colors = matplotlib.cm.rainbow([0. + 1.0 * x / (n) for x in range(n + 1)])
-    # plot2d = pyplot.subplot2grid((2, 1), (0, 0))
-    # point_transformation3d = point_transformation_3d(len(context_matrix.matrix), {value: representant_cluster[key] for key, value in representant.items()})
-    # point_transformation = point_transformation_square(len(context_matrix.matrix))
-    # draw(plot2d, cover_graph, representant, point_transformation3d, colors)
-    #
-    #
-    # plot2d2 = pyplot.subplot2grid((2, 1), (1, 0))
-    # # point_transformation3d2 = point_transformation_3d_len(len(context_matrix.matrix), {value: representant_cluster[key] for key, value in representant.items()})
-    #
-    # point_transformation = point_transformation_column_tree(len(context_matrix.matrix[0]) - 1,
-    #                                                         len(context_matrix.matrix) - 1,
-    #                                                         positions_mst)
-    # # draw(plot2d2, cover_graph, representant, point_transformation, colors)
-    #
-    #
-    # from mpl_toolkits.mplot3d import Axes3D
-    # plot3d = pyplot.subplot2grid((2, 1), (1, 0), projection='3d')
-    # draw3d(plot3d, cover_graph, representant, point_transformation, colors)
-    #
-    # pyplot.show()
+    chain_robinson = Chain_robinson_matrix(context_matrix.matrix).run()
+    height_matrix = chain_robinson.height_matrix
+    number_color = chain_robinson.current_height
+    print(number_color)
+    # for line in height_matrix:
+    #     print(line)
+
+
+    plot2d = pyplot.subplot2grid((2, 1), (0, 0))
+    point_transformation = point_transformation_square(len(context_matrix.matrix))
+    representant, cover_graph = lattices_and_points(context_matrix)
+    colors = matplotlib.cm.rainbow([0. + 1.0 * x / (number_color - 1) for x in range(number_color)])
+
+    def get_color(x, y):
+        x, y = int(x), int(y)
+        if x >= len(height_matrix) or y >= len(height_matrix[0]):
+            return colors[0]
+        else:
+            if height_matrix[x][y] == 0:
+                return "black"
+            return colors[height_matrix[x][y]]
+
+    # draw(plot2d, cover_graph, point_transformation, representant, get_color)
+    draw_boxes(plot2d, height_matrix, point_transformation, get_color)
+
+    def get_z(x, y):
+        if x >= len(height_matrix) or y >= len(height_matrix[0]):
+            return 0
+        return 10 * height_matrix[int(x)][int(y)]
+
+    plot3d = pyplot.subplot2grid((2, 1), (1, 0), projection='3d')
+    draw3d(plot3d, cover_graph, point_transformation, representant, get_z, get_color)
+
+    pyplot.show()
