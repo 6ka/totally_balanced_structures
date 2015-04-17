@@ -1,6 +1,7 @@
 from matplotlib import pyplot
 import matplotlib
 from mpl_toolkits.mplot3d import Axes3D
+from matplotlib.patches import Rectangle
 
 from clusters.cover_graph import cover_graph_and_boxes_from_matrix
 from diss import Diss
@@ -143,14 +144,15 @@ def dissimilarity_from_dismantlable_cover_graph(dismantable_lattice):
 
 def lattices_and_points(context_matrix):
     cover_graph, boxes_cluster_line, boxes_cluster_columns = cover_graph_and_boxes_from_matrix(context_matrix.matrix)
+    cluster_matrix = [[None] * len(context_matrix.matrix[0]) for i in range(len(context_matrix.matrix))]
     representant = dict()
     for elem in boxes_cluster_line:
-        representant[elem] = .5 * sum(boxes_cluster_line[elem]), .5 * sum(boxes_cluster_columns[elem])
+        representant[elem] = boxes_cluster_line[elem], boxes_cluster_columns[elem]
+        for i in range(boxes_cluster_line[elem][0], boxes_cluster_line[elem][1] + 1):
+            for j in range(boxes_cluster_columns[elem][0], boxes_cluster_columns[elem][1] + 1):
+                cluster_matrix[i][j] = elem
 
-    representant["BOTTOM"] = len(context_matrix.matrix), len(context_matrix.matrix[0])
-    representant["TOP"] = 0, len(context_matrix.matrix[0])
-
-    return representant, cover_graph
+    return representant, cover_graph, cluster_matrix
 
 
 def point_transformation_square(max_y):
@@ -180,6 +182,21 @@ def draw(plot2d, cover_graph, point_transformation, representant, colors):
             plot2d.plot([x, x2], [y, y2], color="black", zorder=0, linestyle="-")
 
 
+def draw_2D_boxes(plot2d, cover_graph, point_transformation, representant, colors):
+    for elem in cover_graph:
+        if elem not in representant:
+            continue
+
+        (min_line, max_line), (min_column, max_column) = representant[elem]
+        x, y = point_transformation(max_line, min_column)
+        color = colors(max_line, max_column)
+        rectangle = Rectangle((x, y), max_column - min_column + 1, max_line - min_line + 1, facecolor=color, edgecolor="black")
+        plot2d.add_patch(rectangle)
+        x_text, y_text = point_transformation(min_line, min_column)
+        plot2d.annotate(str(elem), xy=(x_text, y_text),
+                        color="grey", horizontalalignment='left', verticalalignment='bottom')
+
+
 def draw_boxes(plot2d, matrix, point_transformation, colors):
     for i in range(len(matrix)):
         for j in range(len(matrix[0])):
@@ -189,56 +206,41 @@ def draw_boxes(plot2d, matrix, point_transformation, colors):
 
             plot2d.scatter(x, y, color=colors(i, j))
 
-def draw_2d_vertices(plot, rectangles):
-    from matplotlib.patches import Rectangle
 
-    for rectangle in rectangles.values():
-        plot.add_patch(rectangle)
-
-
-def rect_matrices(boxes):
-
-    from matplotlib.patches import Rectangle
-    associaded_rect = {}
-    for elem in boxes:
-        (min_x, min_y), (max_x, max_y) = boxes[elem]
-        rect = Rectangle((min_x, min_y), max_x - min_x + 1, max_y - min_y + 1, picker=1)
-        associaded_rect[elem] = rect
-
-    return associaded_rect
-
-
-def draw3d(plot2d, cover_graph, point_transformation, representant, height, colors):
-    objects = sup_irreducible(cover_graph)
-    attributes = inf_irreducible(cover_graph)
+def draw3d(plot3d, cover_graph, box_representant, cluster_matrix):
+    elem_position = dict()
+    for i in range(len(cluster_matrix)):
+        current_cluster = None
+        for j in range(len(cluster_matrix[i])):
+            if cluster_matrix[i][j] is not None:
+                if current_cluster != cluster_matrix[i][j]:
+                    current_cluster = cluster_matrix[i][j]
+                    if i == 0 or cluster_matrix[i - 1][j] != cluster_matrix[i][j]:
+                        elem_position[cluster_matrix[i][j]] = (i, i, j)
+                        plot3d.scatter(i, i, j)
 
     for elem in cover_graph:
-        x, y = point_transformation(*representant[elem])
-        z = height(*representant[elem])
-        if elem in objects:
-            type = "^"
-        elif elem in attributes:
-            type = "v"
-        else:
-            type = "o"
-        if elem in objects and elem in attributes:
-            type = "d"
-
-        x, y, z = z, -x, y
-        plot2d.scatter(x, y, z, marker=type, zorder=1, color=colors(*representant[elem]), edgecolors='black')
-        # plot2d.annotate(str(elem), xy=(x, max_y - y), color="grey")
-
+        if elem not in representant:
+            continue
         for neighbor in cover_graph[elem]:
-
-            x2, y2 = point_transformation(*representant[neighbor])
-            z2 = height(*representant[neighbor])
-            if z2 > z:
-                color = colors(*representant[neighbor])
+            if neighbor not in representant:
+                continue
+            x, y, z = elem_position[elem]
+            x2, y2, z2 = elem_position[neighbor]
+            if representant[neighbor][1][0] <= representant[elem][1][1]:
+                if representant[neighbor][0][1] + 1 == representant[elem][0][0]:
+                    plot3d.plot([x, x2], [y, y2], [z, z2])
+                pass
+                # if x <= x2:
+                #     z_b, z_e = z, z2
+                # else:
+                #     z_b, z_e = z2, z
+                # plot3d.plot([min(x, x2), min(x, x2), max(x, x2)],
+                #             [min(y, y2), max(y, y2), max(y, y2)],
+                #             [z_b, z_b, z_e])
             else:
-                color = colors(*representant[elem])
-            x2, y2, z2 = z2, -x2, y2
-            plot2d.plot([x, x2], [y, y2], [z, z2], color=color, zorder=0, linestyle="-")
-
+                print(x, x2)
+                plot3d.plot([x, x2], [y, y2], [z, z2])
 if __name__ == "__main__":
     LATTICE_NUMBER_VERTICES = 13
     DISSIMILARITY_FILENAME = "resources/giraudoux.mat"
@@ -260,7 +262,7 @@ if __name__ == "__main__":
 
     plot2d = pyplot.subplot2grid((2, 1), (0, 0))
     point_transformation = point_transformation_square(len(context_matrix.matrix))
-    representant, cover_graph = lattices_and_points(context_matrix)
+    representant, cover_graph, cluster_matrix = lattices_and_points(context_matrix)
     colors = matplotlib.cm.rainbow([0. + 1.0 * x / (number_color - 1) for x in range(number_color)])
 
     def get_color(x, y):
@@ -268,19 +270,20 @@ if __name__ == "__main__":
         if x >= len(height_matrix) or y >= len(height_matrix[0]):
             return colors[0]
         else:
-            if height_matrix[x][y] == 0:
-                return "black"
             return colors[height_matrix[x][y]]
 
-    # draw(plot2d, cover_graph, point_transformation, representant, get_color)
-    draw_boxes(plot2d, height_matrix, point_transformation, get_color)
+    plot2d.set_xlim([0, len(context_matrix.matrix[0]) + 1])
+    plot2d.set_ylim([0, len(context_matrix.matrix) + 1])
+    draw_2D_boxes(plot2d, cover_graph, point_transformation, representant, get_color)
+
+    plot3d = pyplot.subplot2grid((2, 1), (1, 0), projection='3d')
 
     def get_z(x, y):
         if x >= len(height_matrix) or y >= len(height_matrix[0]):
             return 0
         return 10 * height_matrix[int(x)][int(y)]
 
-    plot3d = pyplot.subplot2grid((2, 1), (1, 0), projection='3d')
-    draw3d(plot3d, cover_graph, point_transformation, representant, get_z, get_color)
+
+    draw3d(plot3d, cover_graph,representant, cluster_matrix)
 
     pyplot.show()
