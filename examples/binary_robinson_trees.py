@@ -295,27 +295,27 @@ if __name__ == "__main__":
     print(column_mst_father, ordered_leaves)
     # positions_mst = column_position(column_mst, len(context_matrix.matrix[0]) - 1, line_connection, context_matrix.matrix)
     # print(positions_mst)
-    # representant_cluster, representant, cover_graph = clusters_from_context_matrix(context_matrix)
-    # n = len(context_matrix.matrix)
-    # print(n)
-    # colors = matplotlib.cm.rainbow([0. + 1.0 * x / (n) for x in range(n + 1)])
-    # plot2d = pyplot.subplot2grid((2, 1), (0, 0))
-    # point_transformation3d = point_transformation_3d(len(context_matrix.matrix), {value: representant_cluster[key] for key, value in representant.items()})
-    # point_transformation = point_transformation_square(len(context_matrix.matrix))
-    # draw(plot2d, cover_graph, representant, point_transformation3d, colors)
-    #
-    #
-    # plot2d2 = pyplot.subplot2grid((2, 1), (1, 0))
-    # # point_transformation3d2 = point_transformation_3d_len(len(context_matrix.matrix), {value: representant_cluster[key] for key, value in representant.items()})
-    #
+    representant_cluster, representant, cover_graph = clusters_from_context_matrix(context_matrix)
+    n = len(context_matrix.matrix)
+    print(n)
+    colors = matplotlib.cm.rainbow([0. + 1.0 * x / (n) for x in range(n + 1)])
+    plot2d = pyplot.subplot2grid((2, 1), (0, 0))
+    point_transformation3d = point_transformation_3d(len(context_matrix.matrix), {value: representant_cluster[key] for key, value in representant.items()})
+    point_transformation = point_transformation_square(len(context_matrix.matrix))
+    draw(plot2d, cover_graph, representant, point_transformation3d, colors)
+
+
+    plot2d2 = pyplot.subplot2grid((2, 1), (1, 0))
+    # point_transformation3d2 = point_transformation_3d_len(len(context_matrix.matrix), {value: representant_cluster[key] for key, value in representant.items()})
+
     # point_transformation = point_transformation_column_tree(len(context_matrix.matrix[0]) - 1,
     #                                                         len(context_matrix.matrix) - 1,
     #                                                         positions_mst)
-    # # draw(plot2d2, cover_graph, representant, point_transformation, colors)
+    draw(plot2d2, cover_graph, representant, point_transformation, colors)
     #
     #
     # from mpl_toolkits.mplot3d import Axes3D
     # plot3d = pyplot.subplot2grid((2, 1), (1, 0), projection='3d')
     # draw3d(plot3d, cover_graph, representant, point_transformation, colors)
     #
-    # pyplot.show()
+    pyplot.show()

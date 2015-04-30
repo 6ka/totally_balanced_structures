@@ -1,14 +1,14 @@
 from matplotlib import pyplot
 import matplotlib
-from mpl_toolkits.mplot3d import Axes3D
 from matplotlib.patches import Rectangle
 
 from clusters.cover_graph import cover_graph_and_boxes_from_matrix
 from diss import Diss
+from graph import Graph
 from lattice import sup_irreducible, sup_irreducible_clusters, inf_irreducible
-
 import randomize
 from subdominant import subdominant
+
 
 __author__ = 'fbrucker'
 
@@ -32,6 +32,7 @@ class Chain_robinson_matrix:
         self.number_columns = len(matrix[0])
         self.current_height = self.INITIAL_HEIGHT
         self.height_matrix = self.init_height_matrix(matrix)
+        self.generators = []
 
     def init_height_matrix(self, matrix):
         height_matrix = [[matrix[i][j] and self.UNMARKED or self.EMPTY for j in range(self.number_columns)]
@@ -46,7 +47,6 @@ class Chain_robinson_matrix:
 
             current_end_path = path[-1]
 
-
             left = self.next_unmarked(current_end_path, (0, -1))
             if left:
                 path.append(left)
@@ -58,6 +58,7 @@ class Chain_robinson_matrix:
 
             current_line, current_column = current_end_path
             if self.height_matrix[current_line][current_column] == self.UNMARKED:
+                self.generators.append(current_end_path)
                 self.propagate(current_end_path)
                 self.current_height += 1
 
@@ -100,6 +101,24 @@ class Chain_robinson_matrix:
         current_line, current_column = element
         self.height_matrix[current_line][current_column] = self.current_height
 
+    def get_height(self, box):
+        (min_line, max_line), (min_column, max_column) = box
+        return self.height_matrix[max_line][max_column]
+
+    def reorder_bottom_up(self):
+        self.height_matrix = [[self.height_matrix[i][j] is not self.EMPTY and self.UNMARKED or self.EMPTY for j in
+                               range(self.number_columns)]
+                              for i in range(self.number_lines)]
+        generators = list(self.generators)
+        generators.sort()
+        generators.reverse()
+        self.current_height = self.INITIAL_HEIGHT
+        for end_path in generators:
+            self.propagate(end_path)
+            self.current_height += 1
+
+        return self
+
 
 def context_matrix_from_qu_arbo(original_dissimilarity):
     approximation = subdominant(original_dissimilarity)
@@ -114,6 +133,8 @@ def context_matrix_from_qu_arbo(original_dissimilarity):
                                                                         approximation.get_by_pos(j, z))})
             if two_ball in known_two_balls:
                 continue
+            known_two_balls.add(two_ball)
+
             for line in matrix:
                 line.append(0)
             for z in two_ball:
@@ -155,16 +176,15 @@ def lattices_and_points(context_matrix):
     return representant, cover_graph, cluster_matrix
 
 
-def point_transformation_square(max_y):
-    return lambda line, column: (column, max_y - line)
-
-
-def draw(plot2d, cover_graph, point_transformation, representant, colors):
+def draw_2D_lattice(plot2d, cover_graph, point_transformation):
     objects = sup_irreducible(cover_graph)
     attributes = inf_irreducible(cover_graph)
 
     for elem in cover_graph:
-        x, y = point_transformation(*representant[elem])
+        coordinates = point_transformation(elem)
+        if coordinates is None:
+            continue
+        x, y = coordinates
         if elem in objects:
             type = "^"
         elif elem in attributes:
@@ -173,13 +193,8 @@ def draw(plot2d, cover_graph, point_transformation, representant, colors):
             type = "o"
         if elem in objects and elem in attributes:
             type = "d"
-        plot2d.scatter(x, y, marker=type, zorder=1, color=colors(*representant[elem]), edgecolors='black')
-        # plot2d.annotate(str(elem), xy=(x, max_y - y), color="grey")
-
-        for neighbor in cover_graph[elem]:
-
-            x2, y2 = point_transformation(*representant[neighbor])
-            plot2d.plot([x, x2], [y, y2], color="black", zorder=0, linestyle="-")
+        plot2d.scatter(x, y, marker=type, zorder=1, edgecolors='black')
+        plot2d.annotate(str(elem), xy=(x, y), color="grey")
 
 
 def draw_2D_boxes(plot2d, cover_graph, point_transformation, representant, colors):
@@ -188,102 +203,163 @@ def draw_2D_boxes(plot2d, cover_graph, point_transformation, representant, color
             continue
 
         (min_line, max_line), (min_column, max_column) = representant[elem]
-        x, y = point_transformation(max_line, min_column)
-        color = colors(max_line, max_column)
-        rectangle = Rectangle((x, y), max_column - min_column + 1, max_line - min_line + 1, facecolor=color, edgecolor="black")
+        x, y = point_transformation(max_line + 1, min_column)
+        color = colors(elem)
+        rectangle = Rectangle((x, y), max_column - min_column + 1, max_line - min_line + 1, facecolor=color,
+                              edgecolor="black", alpha=.2)
         plot2d.add_patch(rectangle)
         x_text, y_text = point_transformation(min_line, min_column)
         plot2d.annotate(str(elem), xy=(x_text, y_text),
-                        color="grey", horizontalalignment='left', verticalalignment='bottom')
+                        color="grey", horizontalalignment='left', verticalalignment='top')
 
-
-def draw_boxes(plot2d, matrix, point_transformation, colors):
-    for i in range(len(matrix)):
-        for j in range(len(matrix[0])):
-            if matrix[i][j] is None:
-                continue
-            x, y = point_transformation(i, j)
-
-            plot2d.scatter(x, y, color=colors(i, j))
-
-
-def draw3d(plot3d, cover_graph, box_representant, cluster_matrix):
-    elem_position = dict()
-    for i in range(len(cluster_matrix)):
-        current_cluster = None
-        for j in range(len(cluster_matrix[i])):
-            if cluster_matrix[i][j] is not None:
-                if current_cluster != cluster_matrix[i][j]:
-                    current_cluster = cluster_matrix[i][j]
-                    if i == 0 or cluster_matrix[i - 1][j] != cluster_matrix[i][j]:
-                        elem_position[cluster_matrix[i][j]] = (i, i, j)
-                        plot3d.scatter(i, i, j)
-
+def draw_2D_box_edges(plot2d, cover_graph, point_transformation, representant):
     for elem in cover_graph:
         if elem not in representant:
             continue
-        for neighbor in cover_graph[elem]:
+
+        (min_line, max_line), (min_column, max_column) = representant[elem]
+
+        neighbors = [neighbor for neighbor in cover_graph[elem] if neighbor in representant]
+        neighbors.sort(key=lambda vertex: -representant[vertex][0][0])
+
+        color = "black"
+
+        for neighbor in neighbors:
             if neighbor not in representant:
                 continue
-            x, y, z = elem_position[elem]
-            x2, y2, z2 = elem_position[neighbor]
-            if representant[neighbor][1][0] <= representant[elem][1][1]:
-                if representant[neighbor][0][1] + 1 == representant[elem][0][0]:
-                    plot3d.plot([x, x2], [y, y2], [z, z2])
-                pass
-                # if x <= x2:
-                #     z_b, z_e = z, z2
-                # else:
-                #     z_b, z_e = z2, z
-                # plot3d.plot([min(x, x2), min(x, x2), max(x, x2)],
-                #             [min(y, y2), max(y, y2), max(y, y2)],
-                #             [z_b, z_b, z_e])
+
+            (min_line_neighbor, max_line_neighbor), (min_column_neighbor, max_column_neighbor) = representant[neighbor]
+
+            if min_line + 1 == max_line_neighbor:
+                color = "red"
+                continue
+            if max_column + 1 == min_column_neighbor:
+                color = "red"
+                continue
+
+            if min_line > max_line_neighbor:
+                x, y = point_transformation(min_line, .5 * (min_column_neighbor + max_column_neighbor + 1))
+                x2, y2 = point_transformation(max_line_neighbor + 1, .5 * (min_column_neighbor + max_column_neighbor + 1))
             else:
-                print(x, x2)
-                plot3d.plot([x, x2], [y, y2], [z, z2])
+                x, y = point_transformation(.5 * (min_line + max_line + 1), max_column + 1)
+                x2, y2 = point_transformation(.5 * (min_line + max_line + 1), min_column_neighbor)
+            plot2d.plot([x, x2], [y, y2], color=color, zorder=0, linestyle="-")
+            color = "red"
+
+
+def draw_2D_box_edges_full(plot2d, cover_graph, point_transformation, representant):
+    for elem in cover_graph:
+        if elem not in representant:
+            continue
+
+        (min_line, max_line), (min_column, max_column) = representant[elem]
+
+        neighbors = [neighbor for neighbor in cover_graph[elem] if neighbor in representant]
+        neighbors.sort(key=lambda vertex: -representant[vertex][0][0])
+
+        color = "black"
+
+        center_line = .5 * (min_line + max_line + 1)
+        center_column = .5 * (min_column + max_column + 1)
+        begin_x, begin_y = point_transformation(center_line, center_column)
+        for neighbor in neighbors:
+            if neighbor not in representant:
+                continue
+
+            (min_line_neighbor, max_line_neighbor), (min_column_neighbor, max_column_neighbor) = representant[neighbor]
+            center_neighbor_line = .5 * (min_line_neighbor + max_line_neighbor + 1)
+            center_neighbor_column = .5 * (min_column_neighbor + max_column_neighbor + 1)
+            end_x, end_y = point_transformation(center_neighbor_line, center_neighbor_column)
+
+            if min_line > max_line_neighbor:
+                border_line = min_line
+                border_column = center_neighbor_column
+                border_line_neighbor = max_line_neighbor + 1
+                border_column_neighbor = center_neighbor_column
+            else:
+                border_line = center_line
+                border_column = max_column + 1
+                border_line_neighbor = center_line
+                border_column_neighbor = min_column_neighbor
+
+
+            x1, y1 = point_transformation(border_line, border_column)
+            x2, y2 = point_transformation(border_line_neighbor, border_column_neighbor)
+
+            plot2d.plot([begin_x, x1, x2, end_x],
+                        [begin_y, y1, y2, end_y], color=color, zorder=0, linestyle="-")
+            color = "red"
+
+
+def point_transformation_square(max_y):
+    from math import pi, cos, sin
+    def transformation(line, column):
+        x, y = column, max_y - line
+        return x, y
+        # y *= 7
+        # angle = pi / 4
+        # x2 = cos(angle) * x - sin(angle) * y
+        # y2 = sin(angle) * x + cos(angle) * y
+        # return x2, y2
+    return transformation
+
+
+def point_transformation_middle(representant_box, point_transformation):
+    def point_coordinates(elem):
+        if elem not in representant:
+            return None
+        (min_line, max_line), (min_column, max_column) = representant_box[elem]
+        center_line = .5 * (min_line + max_line + 1)
+        center_column = .5 * (min_column + max_column + 1)
+        x, y = point_transformation(center_line, center_column)
+
+        return x, y
+
+    return point_coordinates
+
+
 if __name__ == "__main__":
     LATTICE_NUMBER_VERTICES = 13
     DISSIMILARITY_FILENAME = "resources/giraudoux.mat"
     if DISSIMILARITY_FILENAME:
         dissimilarity = subdominant(DLC.diss.file_io.load(open(DISSIMILARITY_FILENAME)))
     else:
-        dissimilarity = dissimilarity_from_dismantlable_cover_graph(randomize.random_dismantable_lattice(LATTICE_NUMBER_VERTICES))
+        dissimilarity = dissimilarity_from_dismantlable_cover_graph(
+            randomize.random_dismantable_lattice(LATTICE_NUMBER_VERTICES))
 
     context_matrix = context_matrix_from_qu_arbo(dissimilarity)
+    representant, cover_graph, cluster_matrix = lattices_and_points(context_matrix)
 
     print(DLC.graphics.from_context_matrix(context_matrix))
     chain_robinson = Chain_robinson_matrix(context_matrix.matrix).run()
+    chain_robinson.reorder_bottom_up()
     height_matrix = chain_robinson.height_matrix
     number_color = chain_robinson.current_height
-    print(number_color)
-    # for line in height_matrix:
-    #     print(line)
+    print("number of different robinsons:", number_color)
 
-
-    plot2d = pyplot.subplot2grid((2, 1), (0, 0))
     point_transformation = point_transformation_square(len(context_matrix.matrix))
-    representant, cover_graph, cluster_matrix = lattices_and_points(context_matrix)
     colors = matplotlib.cm.rainbow([0. + 1.0 * x / (number_color - 1) for x in range(number_color)])
+    color_from_representant = lambda elem: colors[chain_robinson.get_height(representant[elem])]
 
-    def get_color(x, y):
-        x, y = int(x), int(y)
-        if x >= len(height_matrix) or y >= len(height_matrix[0]):
-            return colors[0]
-        else:
-            return colors[height_matrix[x][y]]
+    plot2d = pyplot.subplot2grid((1, 1), (0, 0))
+    plot2d.set_xlim([0, len(context_matrix.matrix[0])])
+    plot2d.set_ylim([0, len(context_matrix.matrix)])
 
-    plot2d.set_xlim([0, len(context_matrix.matrix[0]) + 1])
-    plot2d.set_ylim([0, len(context_matrix.matrix) + 1])
-    draw_2D_boxes(plot2d, cover_graph, point_transformation, representant, get_color)
-
-    plot3d = pyplot.subplot2grid((2, 1), (1, 0), projection='3d')
-
-    def get_z(x, y):
-        if x >= len(height_matrix) or y >= len(height_matrix[0]):
-            return 0
-        return 10 * height_matrix[int(x)][int(y)]
+    BOXES = 0
+    DRAW = BOXES_WITH_EDGES = 1
+    LATTICE = 2
 
 
-    draw3d(plot3d, cover_graph,representant, cluster_matrix)
+    if DRAW is BOXES:
+        draw_2D_boxes(plot2d, cover_graph, point_transformation, representant,
+                      color_from_representant)
+    elif DRAW is BOXES_WITH_EDGES:
+        draw_2D_boxes(plot2d, cover_graph, point_transformation, representant,
+                      color_from_representant)
+        draw_2D_box_edges(plot2d, cover_graph, point_transformation, representant)
+    elif DRAW is LATTICE:
+        draw_2D_lattice(plot2d, cover_graph, point_transformation_middle(representant, point_transformation))
+        draw_2D_box_edges_full(plot2d, cover_graph, point_transformation, representant)
+
 
     pyplot.show()
