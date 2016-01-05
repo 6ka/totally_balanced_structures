@@ -1,6 +1,6 @@
 __author__ = 'fbrucker'
 
-__all__ = ["ProgressBarPlaceholder", "ProgressBar", "complexity_dissimilarity"]
+__all__ = ["ProgressBarPlaceholder", "ProgressBar"]
 
 import datetime
 import sys
