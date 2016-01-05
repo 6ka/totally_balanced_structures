@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from graph import Graph
+from .graph import Graph
 
 
 def mst_from_set(elements, f=lambda x, y: 1, root=None):

@@ -2,7 +2,7 @@ __author__ = 'fbrucker'
 
 import unittest
 
-from DLC.concepts import line_concept_from_matrix, column_concept_from_matrix, concepts_from_matrix
+from concepts import line_concept_from_matrix, column_concept_from_matrix, concepts_from_matrix
 
 
 class TestConcepts(unittest.TestCase):

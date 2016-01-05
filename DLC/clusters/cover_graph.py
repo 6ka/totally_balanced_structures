@@ -1,7 +1,7 @@
-__author__ = 'fbrucker'
-
 from DLC.graph import Graph
 from .clusters import ClusterLineFromMatrix
+
+__author__ = 'fbrucker'
 
 
 def cover_graph_and_boxes_from_matrix(matrix, bottom="BOTTOM", top="TOP"):

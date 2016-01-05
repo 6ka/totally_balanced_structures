@@ -2,8 +2,8 @@ import unittest
 
 from DLC.diss import Diss
 
-import DLC.cluster_order
-from DLC.cluster_order import ClusterOrder
+import DLC.chordal_order
+from DLC.chordal_order.chordal_order import ClusterOrder
 
 __author__ = 'fbrucker'
 
@@ -27,11 +27,11 @@ class TestClusterOrder(unittest.TestCase):
         self.assertEqual({0: 0, 2: 0, 3: 0}, triplets.delta)
 
     def test_order_as_list_of_sets(self):
-        cluster_order = DLC.cluster_order.from_diss_as_list_of_sets(self.diss)
+        cluster_order = DLC.chordal_order.from_diss_as_list_of_sets(self.diss)
         self.assertEqual([{1, 3}, {0, 2}], cluster_order)
 
     def test_order(self):
-        cluster_order = DLC.cluster_order.from_diss(self.diss)
+        cluster_order = DLC.chordal_order.from_diss(self.diss)
         self.assertEqual(4, len(set(cluster_order)))
         self.assertEqual({1, 3}, {cluster_order[0], cluster_order[1]})
         self.assertEqual({0, 2}, {cluster_order[2], cluster_order[3]})
@@ -46,6 +46,6 @@ class TestClusterOrder(unittest.TestCase):
 
         diss = Diss(range(4)).update(lambda x, y: diss_matrix[x][y])
         self.assertEqual({0: 2, 1: 2, 2: 2, 3: 2}, ClusterOrder(diss)._init_non_hierarchical_triplets())
-        cluster_order = DLC.cluster_order.from_diss_as_list_of_sets(diss)
+        cluster_order = DLC.chordal_order.from_diss_as_list_of_sets(diss)
         self.assertEqual([], cluster_order)
 
