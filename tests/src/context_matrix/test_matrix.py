@@ -139,3 +139,17 @@ class TestFromCoverGraph(unittest.TestCase):
                     self.assertEqual(1, context_matrix.matrix[line][index])
                 else:
                     self.assertEqual(0, context_matrix.matrix[line][index])
+
+
+class TestFromClusters(unittest.TestCase):
+    def setUp(self):
+        self.clusters = [["a", "b"], ["b", "c"]]
+
+    def test_base_set(self):
+        context_matrix = ContextMatrix.from_clusters(self.clusters)
+        self.assertEqual({"a", "b", "c"}, set(context_matrix.elements))
+
+    def test_columns(self):
+        context_matrix = ContextMatrix.from_clusters(self.clusters)
+        self.assertEqual(2, len(context_matrix.matrix[0]))
+        self.assertEqual({(1, 0), (1, 1), (0, 1)}, {tuple(line) for line in context_matrix.matrix})

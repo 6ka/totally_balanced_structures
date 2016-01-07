@@ -82,6 +82,20 @@ class ContextMatrix(object):
 
         return ContextMatrix(matrix, sup, inf)
 
+
+    @staticmethod
+    def from_clusters(clusters):
+        base_set = set()
+        column_order = []
+        for cluster in clusters:
+            base_set.update(cluster)
+            column_order.append(cluster)
+
+        base_set = list(base_set)
+
+        matrix = [[x in cluster and 1 or 0 for cluster in clusters] for x in base_set]
+        return ContextMatrix(matrix, elements=base_set, copy_matrix=False)
+
     def __str__(self):
         from .to_string import to_string
 
