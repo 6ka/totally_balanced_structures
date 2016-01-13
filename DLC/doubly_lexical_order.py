@@ -17,15 +17,17 @@ def context_matrix_approximation(context_matrix, approximation_method):
 
     approximation = context_matrix.copy()
     approximation.reorder_doubly_lexical_order()
-    import DLC.graphics
+    # import DLC.graphics
 
     # if_merdouille = DLC.graphics.raw_matrix(approximation.matrix)
+
     approximation_method(approximation.matrix, True)
 
     # if not gamma_free_matrix(approximation.matrix):
     #     print("--BIG MERDOUILLE---")
     #     print(if_merdouille)
     #     print("--------")
+
     approximation.reorder_doubly_lexical_order()
 
     return approximation

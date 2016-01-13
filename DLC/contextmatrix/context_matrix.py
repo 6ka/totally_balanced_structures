@@ -13,10 +13,10 @@ class ContextMatrix(object):
         :param matrix: 2-dimensional 0/1-matrix whose lines are objects_name and columns attributes_name.
         :type matrix: :class:`list` of :class:`list`.
 
-        :param elements: Objects name. Must coincide with the *matrix* number of line or be empty
+        :param elements: Objects name. Must coincide with the *matrix* number of line. Line number by default
         :type elements: :class:`list` of :class:`str`.
 
-        :param attributes: Attributes name. Must coincide with the *matrix* number of columns or be empty
+        :param attributes: Attributes name. Must coincide with the *matrix* number of columns. Column number by default
         :type attributes: :class:`list` of :class:`str`.
         :param copy_matrix: if False link the matrix, copy it otherwise
         :type copy_matrix: :class:`bool`
@@ -81,7 +81,6 @@ class ContextMatrix(object):
             lattice_cover_graph.dfs(vertex, get_attribute_action_for_sup(vertex))
 
         return ContextMatrix(matrix, sup, inf)
-
 
     @staticmethod
     def from_clusters(clusters):

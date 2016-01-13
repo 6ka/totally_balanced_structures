@@ -151,5 +151,9 @@ class TestFromClusters(unittest.TestCase):
 
     def test_columns(self):
         context_matrix = ContextMatrix.from_clusters(self.clusters)
+        permutation_dict = {"a": 0, "b": 1, "c": 2}
+        context_matrix.reorder(line_permutation=[permutation_dict[x] for x in context_matrix.elements])
+
         self.assertEqual(2, len(context_matrix.matrix[0]))
-        self.assertEqual({(1, 0), (1, 1), (0, 1)}, {tuple(line) for line in context_matrix.matrix})
+
+        self.assertEqual([[1, 0], [1, 1], [0, 1]], context_matrix.matrix)
