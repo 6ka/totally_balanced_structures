@@ -46,3 +46,18 @@ def up_number_matrix(binary_matrix):
     up.append(list(count))
 
     return up
+
+
+def columns_as_truncated_balls(binary_matrix):
+    up_count = up_number_matrix(binary_matrix)
+    down_count = down_number_matrix(binary_matrix)
+
+    truncated_balls = []
+    for i, line in enumerate(binary_matrix):
+        last_size = 0
+        for j, element in enumerate(line):
+            if element and up_count[i][j] == 0 and down_count[i][j] > last_size:
+                last_size = down_count[i][j]
+                truncated_balls.append((i, j))
+
+    return truncated_balls

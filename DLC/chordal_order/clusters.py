@@ -27,6 +27,7 @@ def clusters_and_truncated_balls_from_order(diss, chordal_order):
     :param chordal_order:
     :return: 2 lists.
     """
+    
     clusters = list()
     associated_balls = list()
     balls = Balls(diss)
@@ -90,7 +91,7 @@ def cluster_matrix_from_order(diss, chordal_order):
     """
     cluster[i][j]: radius of the first cluster which is a truncated ball centered in x_i containing x_j
 
-    :param diss: 
+    :param diss:
     :param chordal_order:
     :return:
     """
