@@ -13,10 +13,10 @@ class TestDissBase(unittest.TestCase):
         d.update(lambda x, y: 5)
         self.d = d 
         self.assertEqual(len(self.d._vertex), 5)
-        self.assertEqual(len(self.d._vertex_correspondence), 5)
+        self.assertEqual(len(self.d.vertex_index), 5)
         for i, x in enumerate(self.d):
             self.assertEqual(x, self.d._vertex[i])
-            self.assertEqual(i, self.d._vertex_correspondence[x])
+            self.assertEqual(i, self.d.vertex_index[x])
         self.assertEqual(len(self.d), 5)
         self.assertEqual(len(self.d._d), 5)
         

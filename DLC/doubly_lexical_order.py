@@ -6,33 +6,6 @@ __all__ = ["doubly_lexical_order", "is_doubly_lexical_ordered",
            "context_matrix_approximation"]
 
 
-def context_matrix_approximation(context_matrix, approximation_method):
-    """ return a new context_matrix DL ordered and gamma free and the line and column permutation
-    new_context_matrix[i][j] == context_matrix[line_order[i]][column_order[j]]
-
-    :param context_matrix:
-    :param approximation_method: gamma_free_matrix_*
-    :return:
-    """
-
-    approximation = context_matrix.copy()
-    approximation.reorder_doubly_lexical_order()
-    # import DLC.graphics
-
-    # if_merdouille = DLC.graphics.raw_matrix(approximation.matrix)
-
-    approximation_method(approximation.matrix, True)
-
-    # if not gamma_free_matrix(approximation.matrix):
-    #     print("--BIG MERDOUILLE---")
-    #     print(if_merdouille)
-    #     print("--------")
-
-    approximation.reorder_doubly_lexical_order()
-
-    return approximation
-
-
 def is_doubly_lexical_ordered(matrix):
     """Test if the matrix is doubly lexically ordered.
 
@@ -147,6 +120,33 @@ def gamma_free_matrix_bottom_up(matrix, transform_to_gamma_free=False):
 
             j = j_next
     return was_gamma_free
+
+
+def context_matrix_approximation(context_matrix, approximation_method=gamma_free_matrix_top_down):
+    """ return a new context_matrix DL ordered and gamma free and the line and column permutation
+    new_context_matrix[i][j] == context_matrix[line_order[i]][column_order[j]]
+
+    :param context_matrix:
+    :param approximation_method: gamma_free_matrix_*
+    :return:
+    """
+
+    approximation = context_matrix.copy()
+    approximation.reorder_doubly_lexical_order()
+    # import DLC.graphics
+
+    # if_merdouille = DLC.graphics.raw_matrix(approximation.matrix)
+
+    approximation_method(approximation.matrix, True)
+
+    # if not gamma_free_matrix(approximation.matrix):
+    #     print("--BIG MERDOUILLE---")
+    #     print(if_merdouille)
+    #     print("--------")
+
+    approximation.reorder_doubly_lexical_order()
+
+    return approximation
 
 
 def doubly_lexical_order(matrix, order=None):

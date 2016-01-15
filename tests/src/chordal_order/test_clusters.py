@@ -3,7 +3,7 @@ import unittest
 from DLC.diss import Diss
 
 from DLC.chordal_order.clusters import Balls, clusters_from_order, clusters_and_truncated_balls_from_order, \
-    cluster_matrix_from_order, truncated_balls_from_order
+    truncated_balls_correspondence_from_order, truncated_balls_from_order, context_matrix_from_order
 
 __author__ = 'fbrucker'
 
@@ -40,12 +40,16 @@ class TestClusters(unittest.TestCase):
             [1, 1, 0, 2],  # 2
             [2, 3, 2, 0]]  # 3
         self.diss = Diss(range(4)).update(lambda x, y: diss_matrix[x][y])
-        self.chordal_order = [1, 2, 0, 3]
+        self.chordal_order = (1, 2, 0, 3)
 
     def test_clusters(self):
         clusters = clusters_from_order(self.diss, self.chordal_order)
         self.assertEqual({frozenset({0, 2, 3}), frozenset({3}), frozenset({0}), frozenset({0, 1, 2, 3}),
                           frozenset({1}), frozenset({0, 1, 2}), frozenset({2})}, set(clusters))
+
+    def test_context_matrix_from_order(self):
+        context_matrix = context_matrix_from_order(self.diss, self.chordal_order)
+        self.assertEqual(context_matrix.elements, self.chordal_order)
 
     def test_truncated_balls(self):
         balls = truncated_balls_from_order(self.diss, self.chordal_order)
@@ -55,7 +59,7 @@ class TestClusters(unittest.TestCase):
                           (3, 0)], balls)
 
     def test_cluster_matrix(self):
-        cluster_matrix = cluster_matrix_from_order(self.diss, self.chordal_order)
+        cluster_matrix = truncated_balls_correspondence_from_order(self.diss, self.chordal_order)
         self.assertEqual([[0, 1, 1, 3],
                           [None, 0, 2, 2],
                           [None, None, 0, None],
@@ -72,7 +76,7 @@ class TestUniqueClusters(unittest.TestCase):
             [3, 2, 2, 2, 0]]
 
         self.diss = Diss(range(5)).update(lambda x, y: diss_matrix[x][y])
-        self.chordal_order = [0, 1, 2, 3, 4]
+        self.chordal_order = (0, 1, 2, 3, 4)
 
     def test_uniqueness_clusters(self):
         clusters, balls = clusters_and_truncated_balls_from_order(self.diss, self.chordal_order)
@@ -88,3 +92,25 @@ class TestUniqueClusters(unittest.TestCase):
     def test_uniqueness_balls(self):
         clusters, balls = clusters_and_truncated_balls_from_order(self.diss, self.chordal_order)
         self.assertEqual([(0, 0), (0, 1), (0, 3), (1, 0), (1, 2), (2, 0), (3, 0), (4, 0)], balls)
+
+
+class TestSpecialCase(unittest.TestCase):
+    def test_tree_sun(self):
+        diss_matrix = [
+            [0, 1, 1, 1, 1, 2],  # 0
+            [1, 0, 1, 1, 2, 1],  # 1
+            [1, 1, 0, 2, 1, 1],  # 2
+            [1, 1, 2, 0, 2, 2],  # 3
+            [1, 2, 1, 1, 0, 2],  # 4
+            [2, 1, 1, 2, 2, 0]]  # 5
+
+        diss = Diss(range(6)).update(lambda x, y: diss_matrix[x][y])
+        chordal_order = [3, 4, 5, 0, 1, 2]
+        clusters, balls = clusters_and_truncated_balls_from_order(diss, chordal_order)
+        self.assertEqual([frozenset({3}), frozenset({0, 1, 2, 3, 4, 5}), frozenset({0, 1, 3}),
+                          frozenset({4}), frozenset({0, 2, 4}),
+                          frozenset({5}), frozenset({1, 2, 5}),
+                          frozenset({0}), frozenset({0, 1, 2}),
+                          frozenset({1}),
+                          frozenset({2})],
+                         clusters)

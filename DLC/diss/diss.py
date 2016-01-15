@@ -20,10 +20,10 @@ class Diss(object):
             elements = []
 
         self._vertex = []
-        self._vertex_correspondence = dict()
+        self.vertex_index = dict()
         for index, element in enumerate(elements):
             self._vertex.append(element)
-            self._vertex_correspondence[element] = index
+            self.vertex_index[element] = index
 
         n = len(self._vertex)
         #list [[d(0,0)..d(n,n)],[d(1,1)..d(n,n)],...,[d(n,n)]]
@@ -69,14 +69,14 @@ class Diss(object):
         """
 
         x, y = pair
-        idx1, idx2 = self._vertex_correspondence[x], self._vertex_correspondence[y]
+        idx1, idx2 = self.vertex_index[x], self.vertex_index[y]
         self.set_by_pos(idx1, idx2, value)
         return value
 
     def __call__(self, x, y):
         """Dissimilarity between elements x and y."""
 
-        idx1, idx2 = self._vertex_correspondence[x], self._vertex_correspondence[y]
+        idx1, idx2 = self.vertex_index[x], self.vertex_index[y]
         if idx1 > idx2:
             idx1, idx2 = idx2, idx1
 
@@ -164,7 +164,7 @@ class Diss(object):
     def copy(self):
         d = self.__class__()
         d._vertex = list(self._vertex)
-        d._vertex_correspondence = {x: i for i, x in enumerate(d._vertex)}
+        d.vertex_index = {x: i for i, x in enumerate(d._vertex)}
         d._d = [list(x) for x in self._d]
         return d
 
@@ -180,9 +180,9 @@ class Diss(object):
 
         if (x not in self) or (new_x in self):
             raise ValueError("Element already present or removing a non-element.")
-        self._vertex[self._vertex_correspondence[x]] = new_x
-        self._vertex_correspondence[new_x] = self._vertex_correspondence[x]
-        del self._vertex_correspondence[x]
+        self._vertex[self.vertex_index[x]] = new_x
+        self.vertex_index[new_x] = self.vertex_index[x]
+        del self.vertex_index[x]
         return new_x
 
     def add(self, x, zero=0):
@@ -194,11 +194,11 @@ class Diss(object):
         :raises: :exc:`ValueError` if *x* is already an element.
         """
 
-        if x in self._vertex_correspondence:
+        if x in self.vertex_index:
             raise ValueError("Element already present.")
 
         self._vertex.append(x)
-        self._vertex_correspondence[x] = len(self._vertex) - 1
+        self.vertex_index[x] = len(self._vertex) - 1
         self._d.append([])
         for y in range(len(self)):
             self._d[y].append(zero)
@@ -209,13 +209,13 @@ class Diss(object):
         if x not in self:
             raise ValueError("Element not present.")
 
-        pos = self._vertex_correspondence[x]
+        pos = self.vertex_index[x]
         for y in range(pos):
             del self._d[y][pos-y]
         del self._d[pos]
 
         self._vertex.remove(x)
-        self._vertex_correspondence = {x: i for i, x in enumerate(self._vertex)}
+        self.vertex_index = {x: i for i, x in enumerate(self._vertex)}
         return x
 
     def __nonzero__(self):

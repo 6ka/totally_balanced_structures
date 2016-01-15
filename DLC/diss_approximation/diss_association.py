@@ -31,28 +31,27 @@ def diss_from_cluster_matrix(cluster_matrix, names=(), default_value=0):
     return diss
 
 
-def column_indices_from_chordaly_compatible_diss(diss, binary_matrix):
+def column_indices_from_chordally_compatible_diss(diss, context_matrix):
     """
-    position for dissimilarity must coincide with the matrix lines
 
-    :param binary_matrix:
     :param diss:
-    :param columns_as_truncated_balls:
+    :param context_matrix:
 
     :return:
     """
 
-    columns_indices = [None] * len(binary_matrix[0])
-    for j in range(len(binary_matrix[0])):
+    index_order = [diss.vertex_index[x] for x in context_matrix.elements]
+    columns_indices = [None] * len(context_matrix.attributes)
+    for j in range(len(context_matrix.attributes)):
         center = None
         radius = None
-        for i in range(len(binary_matrix)):
-            if binary_matrix[i][j]:
+        for i in range(len(context_matrix.elements)):
+            if context_matrix.matrix[i][j]:
                 if center is None:
                     center = i
-                    radius = diss.get_by_pos(center, center)
+                    radius = diss.get_by_pos(index_order[center], index_order[center])
                 else:
-                    radius = max(radius, diss.get_by_pos(center, i))
+                    radius = max(radius, diss.get_by_pos(index_order[center], index_order[i]))
 
         columns_indices[j] = radius
 

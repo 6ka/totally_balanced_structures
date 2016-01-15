@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 __all__ = ["contextmatrix", "doubly_lexical_order", "clusters", "graph", "lattice", "hierarchical_decomposition",
-           "graphics", "mst", "triangle", "progress_status", "progress_bar", "cluster_order", "concepts"]
+           "graphics", "mst", "triangle", "progress_status", "progress_bar", "cluster_order", "concepts",
+           "chordal_order"]
 
 
 from .progress_bar import ProgressBarPlaceholder

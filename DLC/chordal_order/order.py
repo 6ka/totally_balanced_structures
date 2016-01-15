@@ -36,10 +36,6 @@ class ClusterOrder:
         while self.delta:
             next_in_order = next_elements()
 
-            for x, value in self.delta.items():
-                if value == 0:
-                    next_in_order.add(x)
-
             if not next_in_order:
                 return self
             else:
@@ -82,15 +78,23 @@ def from_diss_as_list_of_sets(diss):
 
 
 def from_diss_approximate_order(diss):
-    return ClusterOrder(diss).min_decomposition().cluster_order
+    return list_of_set_to_list(ClusterOrder(diss).min_decomposition().cluster_order)
 
 
-def from_diss(diss):
-    list_of_sets = from_diss_as_list_of_sets(diss)
+
+def list_of_set_to_list(list_of_sets):
     one_cluster_order = []
     for equivalent_object in list_of_sets:
         one_cluster_order.extend(equivalent_object)
     return one_cluster_order
+
+
+def from_diss(diss):
+    return list_of_set_to_list(from_diss_as_list_of_sets(diss))
+
+
+def is_chordal(diss):
+    return len(from_diss(diss)) == len(diss)
 
 
 def is_compatible_for_diss(possible_order, diss):

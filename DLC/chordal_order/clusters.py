@@ -3,7 +3,7 @@ from contextmatrix import ContextMatrix
 __author__ = 'fbrucker'
 
 __all__ = ["clusters_and_truncated_balls_from_order", "clusters_from_order", "truncated_balls_from_order",
-           "context_matrix_from_order", "cluster_matrix_from_order"]
+           "context_matrix_from_order", "truncated_balls_correspondence_from_order"]
 
 
 class Balls:
@@ -27,14 +27,14 @@ def clusters_and_truncated_balls_from_order(diss, chordal_order):
     :param chordal_order:
     :return: 2 lists.
     """
-    
+
     clusters = list()
     associated_balls = list()
     balls = Balls(diss)
     sizes = [[-1] * (len(diss) + 1)]
     for j in range(len(diss)):
         radius = diss(chordal_order[0], chordal_order[j])
-        ball = balls(chordal_order[j], radius)
+        ball = balls(chordal_order[0], radius)
 
         if sizes[0][len(ball) - 1] == -1:
             sizes[0][len(ball) - 1] = radius
@@ -84,10 +84,17 @@ def truncated_balls_from_order(diss, chordal_order):
 
 def context_matrix_from_order(diss, chordal_order):
     clusters = clusters_from_order(diss, chordal_order)
-    return ContextMatrix.from_clusters(clusters)
+    context_matrix = ContextMatrix.from_clusters(clusters)
+
+    line_permutation = [0] * len(context_matrix.matrix)
+    for i, index in enumerate(chordal_order):
+        line_permutation[index] = i
+    context_matrix.reorder(line_permutation=line_permutation)
+
+    return context_matrix
 
 
-def cluster_matrix_from_order(diss, chordal_order):
+def truncated_balls_correspondence_from_order(diss, chordal_order):
     """
     cluster[i][j]: radius of the first cluster which is a truncated ball centered in x_i containing x_j
 

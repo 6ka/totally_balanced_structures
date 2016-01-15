@@ -3,7 +3,7 @@ import unittest
 from DLC.diss import Diss
 
 import DLC.chordal_order
-from DLC.chordal_order.order import ClusterOrder
+from DLC.chordal_order.order import ClusterOrder, list_of_set_to_list, is_chordal, is_compatible_for_diss
 
 __author__ = 'fbrucker'
 
@@ -83,3 +83,22 @@ class TestApproximateChordalOrder(unittest.TestCase):
         self.assertEqual({1}, self.cluster_order.next_min())
         self.cluster_order._update_delta(1)
         self.assertIn(self.cluster_order.next_min().pop(), {0, 2, 3, 4})
+
+class TestHelpers(unittest.TestCase):
+    def test_from_list_of_set_to_list(self):
+        self.assertEqual([1, 2], list_of_set_to_list([{1}, {2}]))
+
+
+class TestSpecialCases(unittest.TestCase):
+    def test_tree_sun(self):
+        diss_matrix = [
+            [0, 1, 1, 1, 1, 2],  # 0
+            [1, 0, 1, 1, 2, 1],  # 1
+            [1, 1, 0, 2, 1, 1],  # 2
+            [1, 1, 2, 0, 2, 2],  # 3
+            [1, 2, 1, 1, 0, 2],  # 4
+            [2, 1, 1, 2, 2, 0]]  # 5
+
+        diss = Diss(range(6)).update(lambda x, y: diss_matrix[x][y])
+        self.assertTrue(is_chordal(diss))
+        self.assertTrue(is_compatible_for_diss([3, 4, 5, 0, 1, 2], diss))

@@ -1,42 +1,60 @@
 import unittest
+import random
 
-from DLC.diss_approximation.diss_association import cluster_matrix_from_column_indices, diss_from_cluster_matrix, \
-    column_indices_from_chordaly_compatible_diss
 from DLC.diss import Diss
+from DLC.diss_approximation.approximation import totally_balanced_dissimilarity, \
+    totally_balanced_dissimilarity_for_order
 
 
-class TestIndexedColumns(unittest.TestCase):
+class TestApproximationNoApproximation(unittest.TestCase):
     def setUp(self):
-        self.matrix = [
-            [0, 0, 1, 1, 0, 0],  # 0
-            [1, 0, 0, 1, 0, 1],  # 1
-            [1, 1, 1, 1, 0, 1],  # 2
-            [0, 1, 0, 1, 0, 0]]  # 3
+        diss_matrix = [
+            [0, 4, 1, 1, 2],  # 0
+            [4, 0, 2, 1, 3],  # 1
+            [1, 2, 0, 1, 2],  # 2
+            [1, 1, 1, 0, 1],  # 3
+            [2, 3, 2, 1, 0]]  # 4
 
-        self.balls = [(0, 2), (0, 3), (1, 0), (2, 1)]
-        self.column_indices = [1, 2, 3, 4, 5, 6]
+        self.diss = Diss(range(5)).update(lambda x, y: diss_matrix[x][y])
 
-    def test_columns_as_truncated_balls(self):
-        cluster_matrix = cluster_matrix_from_column_indices(self.balls, self.column_indices, self.matrix)
-        self.assertEqual([[3, 4, 3, 4],
-                          [None, 1, 1, None],
-                          [None, None, 2, 2],
-                          [None, None, None, None]], cluster_matrix)
+    def test_approximation(self):
+        approximated_diss = totally_balanced_dissimilarity(self.diss)
+        self.assertEqual(self.diss, approximated_diss)
 
-    def test_diss_from_cluster_matrix(self):
-        cluster_matrix = cluster_matrix_from_column_indices(self.balls, self.column_indices, self.matrix)
-        diss_matrix = [[0, 4, 3, 4], [4, 0, 1, 4], [3, 1, 0, 2], [4, 4, 2, 0]]
-        self.assertEqual(Diss(range(4)).update(lambda x, y: diss_matrix[x][y]),
-                         diss_from_cluster_matrix(cluster_matrix))
+    def test_approximation_fixed_order_no_approximation(self):
+        approximated_diss = totally_balanced_dissimilarity_for_order(self.diss, [0, 4, 2, 1, 3])
 
-    def test_column_indices_from_chordaly_compatible_diss(self):
-        diss_matrix = [[0, 4, 3, 4], [4, 0, 1, 4], [3, 1, 0, 2], [4, 4, 2, 0]]
-        diss = Diss(range(4)).update(lambda x, y: diss_matrix[x][y])
-        matrix = [
-            [0, 0, 1, 1, 0, 0, 1],  # 0
-            [1, 0, 0, 1, 0, 1, 0],  # 1
-            [1, 1, 1, 1, 0, 1, 0],  # 2
-            [0, 1, 0, 1, 0, 0, 0]]  # 3
+        self.assertEqual(self.diss, approximated_diss)
 
-        column_indices = column_indices_from_chordaly_compatible_diss(diss, matrix)
-        self.assertEqual([1, 2, 3, 4, None, 1, 0], column_indices)
+
+class TestApproximation(unittest.TestCase):
+    def setUp(self):
+        diss_matrix = [
+            [0, 1, 1, 1, 1, 2],  # 0
+            [1, 0, 1, 1, 2, 1],  # 1
+            [1, 1, 0, 2, 1, 1],  # 2
+            [1, 1, 2, 0, 2, 2],  # 3
+            [1, 2, 1, 1, 0, 2],  # 4
+            [2, 1, 1, 2, 2, 0]]  # 5
+
+        self.diss = Diss(range(6)).update(lambda x, y: diss_matrix[x][y])
+
+    def test_approximation(self):
+        approximated_diss = totally_balanced_dissimilarity(self.diss)
+        self.assertNotEqual(self.diss, approximated_diss)
+
+    def test_approximation_fixed_order_no_approximation(self):
+        approximated_diss = Diss(range(6)).update(
+            totally_balanced_dissimilarity_for_order(self.diss, [3, 4, 5, 0, 1, 2]))
+        self.assertNotEqual(self.diss, approximated_diss)
+
+
+class TestApproximationRandom(unittest.TestCase):
+
+    def test_random(self):
+        for step in range(20):
+            diss = Diss(range(20)).update(lambda x, y: random.randint(1, 20))
+            approximate_diss = totally_balanced_dissimilarity(diss)
+            self.assertEqual(approximate_diss, totally_balanced_dissimilarity(approximate_diss))
+
+
