@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from DLC.diss import Diss
-import DLC.diss.conversion.to_string
+from TBS.diss import Diss
+import TBS.diss.conversion.to_string
 
 
 class TestDissUtils(unittest.TestCase):
@@ -101,11 +101,11 @@ class TestDissUtils(unittest.TestCase):
         squarep = "5\n0 0 1 2 3 4\n1 1 2 3 4 5\n2 2 3 4 5 6\n3 3 4 5 6 7\n4 4 5 6 7 8"
         upperp = "5\n0   1 2 3 4\n1     3 4 5\n2       5 6\n3         7\n4"
         self.assertEqual(str(d), square)
-        self.assertEqual(DLC.diss.conversion.to_string(d, "squarel"), squarel)
-        self.assertEqual(DLC.diss.conversion.to_string(d, "squarep"), squarep)
-        self.assertEqual(DLC.diss.conversion.to_string(d, "upper"), upper)
-        self.assertEqual(DLC.diss.conversion.to_string(d, "upperl"), upperl)
-        self.assertEqual(DLC.diss.conversion.to_string(d, "upperp"), upperp)
-        self.assertEqual(DLC.diss.conversion.to_string(d, "lower"), lower)
-        self.assertEqual(DLC.diss.conversion.to_string(d, "lowerl",','), lowerl)
-        self.assertEqual(DLC.diss.conversion.to_string(d, "lowerp",','), lowerp)
+        self.assertEqual(TBS.diss.conversion.to_string(d, "squarel"), squarel)
+        self.assertEqual(TBS.diss.conversion.to_string(d, "squarep"), squarep)
+        self.assertEqual(TBS.diss.conversion.to_string(d, "upper"), upper)
+        self.assertEqual(TBS.diss.conversion.to_string(d, "upperl"), upperl)
+        self.assertEqual(TBS.diss.conversion.to_string(d, "upperp"), upperp)
+        self.assertEqual(TBS.diss.conversion.to_string(d, "lower"), lower)
+        self.assertEqual(TBS.diss.conversion.to_string(d, "lowerl", ','), lowerl)
+        self.assertEqual(TBS.diss.conversion.to_string(d, "lowerp", ','), lowerp)

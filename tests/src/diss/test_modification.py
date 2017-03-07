@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import unittest
-from DLC.diss import Diss
+from TBS.diss import Diss
+
 
 class TestDissModification(unittest.TestCase):
     def test_update(self):
@@ -19,6 +18,22 @@ class TestDissModification(unittest.TestCase):
         for x in d:
             for y in d:
                 self.assertEqual(d(x, y), 3)
+
+    def test_update_by_pos(self):
+
+        d = Diss(range(3, 6))
+        d.update_by_pos(lambda x, y: x + y)
+        for x in range(3):
+            for y in range(3):
+                if x == y:
+                    self.assertEqual(d.get_by_pos(x, y), 0)
+                else:
+                    self.assertEqual(d.get_by_pos(x, y), x + y)
+
+        d.update(lambda x, y: 3, True)
+        for x in range(3):
+            for y in range(3):
+                self.assertEqual(d.get_by_pos(x, y), 3)
 
     def test_rename(self):
         """Renaming elements."""

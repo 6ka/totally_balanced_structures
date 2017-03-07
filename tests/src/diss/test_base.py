@@ -2,7 +2,7 @@
 
 import random
 import unittest
-from DLC.diss import Diss
+from TBS.diss import Diss
 
 
 class TestDissBase(unittest.TestCase):        
@@ -14,13 +14,15 @@ class TestDissBase(unittest.TestCase):
         self.d = d 
         self.assertEqual(len(self.d._vertex), 5)
         self.assertEqual(len(self.d.vertex_index), 5)
+
+
         for i, x in enumerate(self.d):
             self.assertEqual(x, self.d._vertex[i])
             self.assertEqual(i, self.d.vertex_index[x])
         self.assertEqual(len(self.d), 5)
         self.assertEqual(len(self.d._d), 5)
         
-        for i,x in enumerate(self.d._d):
+        for i, x in enumerate(self.d._d):
             self.assertEqual(len(x), 5 - i)
         for x in self.d:
             for y in self.d:

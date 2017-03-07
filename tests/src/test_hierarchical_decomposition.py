@@ -1,9 +1,7 @@
-__author__ = 'fbrucker'
-
 import unittest
 
-from DLC.graph import Graph
-from DLC.hierarchical_decomposition import hierarchical_height_from_lattice
+from TBS.graph import Graph
+from TBS.hierarchical_decomposition import hierarchical_height_from_lattice
 
 
 class TestHierarchicalFromLattice(unittest.TestCase):

@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from DLC.graph import Graph
-from DLC.graph.to_string import to_string
+
+from TBS.graph import Graph
+from TBS.graph.conversion import to_string
+
 
 class TestGraphBase(unittest.TestCase):
     

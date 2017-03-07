@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import DLC.graph
-import DLC.lattice
+import TBS.graph
+import TBS.lattice
 
 
 class TestOrder(unittest.TestCase):
 
-    def generic_lattice(self):
-        lattice = DLC.graph.Graph(directed=True)
+    @staticmethod
+    def generic_lattice():
+        lattice = TBS.graph.Graph(directed=True)
         lattice.update([("bottom", 1),
                         ("bottom", 2),
                         ("bottom", 3),
@@ -28,12 +29,12 @@ class TestOrder(unittest.TestCase):
         return lattice
 
     def test_get_order(self):
-        dual_lattice_order = DLC.lattice.get_order(self.generic_lattice()).dual()
+        dual_lattice_order = TBS.lattice.get_order(self.generic_lattice()).dual()
         self.assertEqual({"bottom", 1, 2, 3, 4, 5, 6, 7, 8, 9}, set(dual_lattice_order["top"]))
         self.assertEqual({"bottom", 2, 4}, set(dual_lattice_order[7]))
 
     def test_comparability_function(self):
-        smaller_than = DLC.lattice.comparability_function(self.generic_lattice())
+        smaller_than = TBS.lattice.comparability_function(self.generic_lattice())
         self.assertTrue(smaller_than("bottom", "top"))
         self.assertTrue(smaller_than(1, 5))
         self.assertFalse(smaller_than(5, 1))

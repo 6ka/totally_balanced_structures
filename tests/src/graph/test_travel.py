@@ -2,7 +2,7 @@
 
 import unittest
 
-from DLC.graph import Graph
+from TBS.graph import Graph
 
 class TestTravel(unittest.TestCase):
     def setUp(self):

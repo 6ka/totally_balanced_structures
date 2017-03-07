@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
-
 import unittest
-from DLC.diss import Diss
+from TBS.diss import Diss
+
 
 class TestDissComparison(unittest.TestCase):
     def test_comparisons(self):
@@ -15,9 +14,9 @@ class TestDissComparison(unittest.TestCase):
         self.assertFalse(d)
         
         d = Diss(range(5))
-        d.update(lambda  x, y: x + y)
+        d.update(lambda x, y: x + y)
         dprim = Diss(range(5))
-        dprim.update(lambda  x, y: x + y)
+        dprim.update(lambda x, y: x + y)
         self.assertTrue(d == dprim)
         dprim.add("an element")
         self.assertFalse(d == dprim)

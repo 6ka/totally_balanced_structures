@@ -17,5 +17,5 @@ setup(
         "Programming Language :: Python :: 3",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    requires=['pillow', 'colorama'],  # , 'matplotlib'],
+    requires=['pillow', 'PIL'],  # , 'matplotlib'],
 )

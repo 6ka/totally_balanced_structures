@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from DLC.graph import Graph
-from DLC.lattice import inf_irreducible, sup_irreducible, sup_irreducible_clusters, inf_irreducible_clusters, \
-    isa_lattice_cover_graph, delete_join_irreducible
-from DLC.randomize import random_dismantable_lattice
+from TBS.graph import Graph
+from TBS.lattice import inf_irreducible, sup_irreducible, sup_irreducible_clusters, inf_irreducible_clusters, \
+    isa_lattice, delete_join_irreducible
+from TBS.randomize import random_dismantable_lattice
 
 
 class TestIrreducible(unittest.TestCase):
-    def new_lattice(self):
+    @staticmethod
+    def new_lattice():
         lattice = Graph(directed=True)
         lattice.update([("bottom", 1),
                         ("bottom", 2),
@@ -59,10 +60,10 @@ class TestIrreducible(unittest.TestCase):
     def test_deletion(self):
         for i in range(2):
             lattice = random_dismantable_lattice(10)
-            join_irreducibles = inf_irreducible(lattice).intersection(sup_irreducible(lattice))
-            while join_irreducibles:
-                for join in join_irreducibles:
+            join_irreducible = inf_irreducible(lattice).intersection(sup_irreducible(lattice))
+            while join_irreducible:
+                for join in join_irreducible:
                     delete_join_irreducible(lattice, join)
-                    self.assertTrue(isa_lattice_cover_graph(lattice))
-                join_irreducibles = inf_irreducible(lattice).intersection(sup_irreducible(lattice))
+                    self.assertTrue(isa_lattice(lattice))
+                join_irreducible = inf_irreducible(lattice).intersection(sup_irreducible(lattice))
             self.assertEqual(frozenset(["BOTTOM", "TOP"]), set(lattice))
