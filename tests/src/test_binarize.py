@@ -1,7 +1,7 @@
 import unittest
 from TBS.graph import Graph
 from TBS.binarize import atoms, coatoms, smaller_atoms, max_intersection, is_binary, element_is_binary, \
-    one_direction_binarize_element, binarize_element
+    bottom_up_element_binarization, binarize_element
 from TBS.lattice import comparability_function, dual_lattice, isa_lattice
 
 
@@ -66,13 +66,13 @@ class TestBinarize(unittest.TestCase):
         assert not element_is_binary(self.lattice, self.dual_lattice, "bottom")
 
     def test_one_direction_binarize_element(self):
-        binarized_2_lattice = one_direction_binarize_element(self.lattice, 2)
+        binarized_2_lattice = bottom_up_element_binarization(self.lattice, 2)
         assert len(binarized_2_lattice[2]) <= 2
         assert binarized_2_lattice[2] == [10, 7]
         assert isa_lattice(binarized_2_lattice)
 
     def test_one_direction_binarize_binary_element(self):
-        binarized_5_lattice = one_direction_binarize_element(self.lattice, 5)
+        binarized_5_lattice = bottom_up_element_binarization(self.lattice, 5)
         assert len(binarized_5_lattice[2]) <= 5
         assert isa_lattice(binarized_5_lattice)
 
