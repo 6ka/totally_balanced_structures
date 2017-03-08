@@ -65,3 +65,23 @@ class TestBinarize(unittest.TestCase):
         assert not element_is_binary(self.lattice, self.dual_lattice, 2)
         assert not element_is_binary(self.lattice, self.dual_lattice, "bottom")
 
+    def test_one_direction_binarize_element(self):
+        binarized_2_lattice = one_direction_binarize_element(self.lattice, 2)
+        assert len(binarized_2_lattice[2]) <= 2
+        assert binarized_2_lattice[2] == [10, 7]
+        assert isa_lattice(binarized_2_lattice)
+
+    def test_one_direction_binarize_binary_element(self):
+        binarized_5_lattice = one_direction_binarize_element(self.lattice, 5)
+        assert len(binarized_5_lattice[2]) <= 5
+        assert isa_lattice(binarized_5_lattice)
+
+    def test_binarize_element(self):
+        binarized_2_lattice = binarize_element(self.lattice, 2)
+        assert element_is_binary(binarized_2_lattice, dual_lattice(binarized_2_lattice), 2)
+        assert isa_lattice(binarized_2_lattice)
+
+    def test_binarize_binary_element(self):
+        binarized_5_lattice = binarize_element(self.lattice, 5)
+        assert element_is_binary(binarized_5_lattice, dual_lattice(binarized_5_lattice), 5)
+        assert isa_lattice(binarized_5_lattice)

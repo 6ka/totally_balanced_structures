@@ -48,3 +48,27 @@ def element_is_binary(lattice, dual, element):
     return len(lattice[element]) <= 2 and len(dual[element]) <= 2
 
 
+def one_direction_binarize_element(lattice, element):
+    one_way_binarized_element_lattice = lattice.copy()
+    dual = dual_lattice(one_way_binarized_element_lattice)
+    lattice_atoms = atoms(dual)
+    smaller_than = comparability_function(dual)
+    while not len(one_way_binarized_element_lattice[element]) <= 2:
+        antichain_indices = one_way_binarized_element_lattice[element]
+        antichain = [smaller_atoms(lattice_atoms, antichain_element, smaller_than) for antichain_element in
+                     antichain_indices]
+        first_element_in_antichain, second_element_in_antichain = max_intersection(antichain)
+        first_element, second_element = antichain_indices[first_element_in_antichain], antichain_indices[
+            second_element_in_antichain]
+        union_index = len(one_way_binarized_element_lattice) - 1
+        edges_to_add = ((union_index, first_element), (union_index, second_element), (element, union_index))
+        edges_to_remove = ((element, first_element), (element, second_element))
+        one_way_binarized_element_lattice.update(edges_to_add + edges_to_remove)
+    return one_way_binarized_element_lattice
+
+
+def binarize_element(lattice, element):
+    one_way_binarized_element_lattice = one_direction_binarize_element(lattice, element)
+    dual = dual_lattice(one_way_binarized_element_lattice)
+    binarized_element_lattice = one_direction_binarize_element(dual, element)
+    return dual_lattice(binarized_element_lattice)
