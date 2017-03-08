@@ -44,7 +44,9 @@ def is_binary(lattice):
     return True
 
 
-def element_is_binary(lattice, dual, element):
+def element_is_binary(lattice, element, dual=None):
+    if not dual:
+        dual = dual_lattice(lattice)
     return len(lattice[element]) <= 2 and len(dual[element]) <= 2
 
 

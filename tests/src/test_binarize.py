@@ -59,11 +59,18 @@ class TestBinarize(unittest.TestCase):
         assert is_binary(self.lattice.restriction(["bottom", 2, 3, 5, 6, 8]))
 
     def test_element_is_binary(self):
-        assert element_is_binary(self.lattice, self.dual_lattice, 5)
-        assert element_is_binary(self.lattice, self.dual_lattice, 6)
-        assert element_is_binary(self.lattice, self.dual_lattice, 4)
-        assert not element_is_binary(self.lattice, self.dual_lattice, 2)
-        assert not element_is_binary(self.lattice, self.dual_lattice, "bottom")
+        assert element_is_binary(self.lattice, 5, self.dual_lattice)
+        assert element_is_binary(self.lattice, 6, self.dual_lattice)
+        assert element_is_binary(self.lattice, 4, self.dual_lattice)
+        assert not element_is_binary(self.lattice, 2, self.dual_lattice)
+        assert not element_is_binary(self.lattice, "bottom", self.dual_lattice)
+
+    def test_element_is_binary_no_dual(self):
+        assert element_is_binary(self.lattice, 5)
+        assert element_is_binary(self.lattice, 6)
+        assert element_is_binary(self.lattice, 4)
+        assert not element_is_binary(self.lattice, 2)
+        assert not element_is_binary(self.lattice, "bottom")
 
     def test_one_direction_binarize_element(self):
         binarized_2_lattice = bottom_up_element_binarization(self.lattice, 2)
@@ -79,17 +86,17 @@ class TestBinarize(unittest.TestCase):
     def test_binarize_element_other_direction(self):
         self.lattice.update((('bottom', 10), (10, 7), (10, 11), (11, 'top')))
         binarized_7_lattice = binarize_element(self.lattice, 7)
-        assert element_is_binary(binarized_7_lattice, dual_lattice(binarized_7_lattice), 7)
+        assert element_is_binary(binarized_7_lattice, 7, dual_lattice(binarized_7_lattice))
         assert isa_lattice(binarized_7_lattice)
 
     def test_binarize_element(self):
         self.lattice.update((('bottom', 10), ('bottom', 11), ('bottom', 12), (10, 2), (11, 2), (12, 2), ('bottom', 2)))
         binarized_2_lattice = binarize_element(self.lattice, 2)
-        assert element_is_binary(binarized_2_lattice, dual_lattice(binarized_2_lattice), 2)
+        assert element_is_binary(binarized_2_lattice, 2, dual_lattice(binarized_2_lattice))
         assert binarized_2_lattice[2] == [13, 7]
         assert isa_lattice(binarized_2_lattice)
 
     def test_binarize_binary_element(self):
         binarized_5_lattice = binarize_element(self.lattice, 5)
-        assert element_is_binary(binarized_5_lattice, dual_lattice(binarized_5_lattice), 5)
+        assert element_is_binary(binarized_5_lattice, 5, dual_lattice(binarized_5_lattice))
         assert isa_lattice(binarized_5_lattice)
