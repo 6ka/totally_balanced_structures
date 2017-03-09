@@ -1,4 +1,4 @@
-from TBS.lattice import get_bottom, get_top, comparability_function, dual_lattice
+from TBS.lattice import get_bottom, get_top, dual_lattice, sup_filter
 import random
 
 
@@ -11,8 +11,9 @@ def coatoms(lattice):
     return set(dual[get_bottom(dual)])
 
 
-def smaller_atoms(lattice_atoms, element, smaller_than):
-    return set(atom for atom in lattice_atoms if smaller_than(atom, element))
+def smaller_atoms(lattice_atoms, element, lattice):
+    sup = sup_filter(lattice, element)
+    return set(atom for atom in lattice_atoms if atom in sup)
 
 
 def max_intersection(antichain):
@@ -57,10 +58,9 @@ def bottom_up_element_binarization(lattice, element):
     bottom_up_binarized_element_lattice = lattice.copy()
     dual = dual_lattice(bottom_up_binarized_element_lattice)
     lattice_atoms = atoms(dual)
-    smaller_than = comparability_function(dual)
     while not len(bottom_up_binarized_element_lattice[element]) <= 2:
         antichain_indices = bottom_up_binarized_element_lattice[element]
-        antichain = [smaller_atoms(lattice_atoms, antichain_element, smaller_than) for antichain_element in
+        antichain = [smaller_atoms(lattice_atoms, antichain_element, bottom_up_binarized_element_lattice) for antichain_element in
                      antichain_indices]
         first_element_in_antichain, second_element_in_antichain = max_intersection(antichain)
         first_element, second_element = antichain_indices[first_element_in_antichain], antichain_indices[

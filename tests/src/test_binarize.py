@@ -38,10 +38,9 @@ class TestBinarize(unittest.TestCase):
         self.assertSetEqual(coatoms(self.lattice), {8, 9})
 
     def test_smaller_atoms(self):
-        smaller_than = comparability_function(self.lattice)
-        self.assertSetEqual(smaller_atoms({1, 2, 3, 4}, 8, smaller_than), {1, 2, 3})
-        self.assertSetEqual(smaller_atoms({1, 2, 3, 4}, "top", smaller_than), {1, 2, 3, 4})
-        self.assertSetEqual(smaller_atoms({1, 2, 3, 4}, 9, smaller_than), {2, 4})
+        self.assertSetEqual(smaller_atoms({1, 2, 3, 4}, 8, self.dual_lattice), {1, 2, 3})
+        self.assertSetEqual(smaller_atoms({1, 2, 3, 4}, "top", self.dual_lattice), {1, 2, 3, 4})
+        self.assertSetEqual(smaller_atoms({1, 2, 3, 4}, 9, self.dual_lattice), {2, 4})
 
     def test_max_intersection(self):
         antichain = [{0, 1, 2, 3}, {6, 7}, {3, 4, 5, 6}, {2, 3, 4, 8, 9}, {9, 10}]
