@@ -72,12 +72,12 @@ class TestBinarize(unittest.TestCase):
         self.assertFalse(element_is_binary(self.lattice, 2))
         self.assertFalse(element_is_binary(self.lattice, "bottom"))
 
-    def test_one_direction_binarize_element(self):
+    def test_bottom_up_binarize_element(self):
         binarized_2_lattice = bottom_up_element_binarization(self.lattice, 2)
         self.assertLessEqual(len(binarized_2_lattice[2]), 2)
         self.assertTrue(isa_lattice(binarized_2_lattice))
 
-    def test_one_direction_binarize_binary_element(self):
+    def test_bottom_up_binarize_binary_element(self):
         binarized_5_lattice = bottom_up_element_binarization(self.lattice, 5)
         self.assertLessEqual(len(binarized_5_lattice[2]), 5)
         self.assertTrue(isa_lattice(binarized_5_lattice))
