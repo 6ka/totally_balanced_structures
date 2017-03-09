@@ -1,4 +1,4 @@
-from TBS.lattice import get_bottom, get_top, dual_lattice, sup_filter, inf_irreducible
+from TBS.lattice import get_bottom, dual_lattice, sup_filter, inf_irreducible
 import random
 
 
@@ -40,9 +40,8 @@ def max_intersection(antichain):
 def is_binary(lattice):
     dual = dual_lattice(lattice)
     bottom = get_bottom(lattice)
-    top = get_top(lattice)
     for element in lattice:
-        if element != top and element != bottom:
+        if element != bottom:
             if len(lattice[element]) > 2 or len(dual[element]) > 2:
                 return False
     return True
@@ -85,14 +84,13 @@ def binarize(lattice):
     dual_initial_lattice = dual_lattice(lattice)
 
     bottom = get_bottom(lattice)
-    top = get_top(lattice)
 
     fifo = collections.deque((bottom,))
     is_seen = {bottom}
 
     while fifo:
         vertex = fifo.pop()
-        if not element_is_binary(lattice, vertex, dual_initial_lattice) and vertex != top and vertex != bottom:
+        if not element_is_binary(lattice, vertex, dual_initial_lattice) and vertex != bottom:
             binarized_lattice = binarize_element(binarized_lattice, vertex)
         visit_list = lattice[vertex]
         for neighbor in visit_list:
