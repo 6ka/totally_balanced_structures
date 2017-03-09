@@ -1,6 +1,6 @@
 import unittest
 from TBS.graph import Graph
-from TBS.binarize import atoms, coatoms, smaller_atoms, max_intersection, is_binary, element_is_binary, \
+from TBS.binarize import atoms, coatoms, smaller_sup_irreducible, max_intersection, is_binary, element_is_binary, \
     bottom_up_element_binarization, binarize_element, binarize
 from TBS.lattice import comparability_function, dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
@@ -38,9 +38,9 @@ class TestBinarize(unittest.TestCase):
         self.assertSetEqual(coatoms(self.lattice), {8, 9})
 
     def test_smaller_atoms(self):
-        self.assertSetEqual(smaller_atoms({1, 2, 3, 4}, 8, self.dual_lattice), {1, 2, 3})
-        self.assertSetEqual(smaller_atoms({1, 2, 3, 4}, "top", self.dual_lattice), {1, 2, 3, 4})
-        self.assertSetEqual(smaller_atoms({1, 2, 3, 4}, 9, self.dual_lattice), {2, 4})
+        self.assertSetEqual(smaller_sup_irreducible({1, 2, 3, 4}, 8, self.dual_lattice), {1, 2, 3})
+        self.assertSetEqual(smaller_sup_irreducible({1, 2, 3, 4}, "top", self.dual_lattice), {1, 2, 3, 4})
+        self.assertSetEqual(smaller_sup_irreducible({1, 2, 3, 4}, 9, self.dual_lattice), {2, 4})
 
     def test_max_intersection(self):
         antichain = [{0, 1, 2, 3}, {6, 7}, {3, 4, 5, 6}, {2, 3, 4, 8, 9}, {9, 10}]
@@ -75,7 +75,6 @@ class TestBinarize(unittest.TestCase):
     def test_one_direction_binarize_element(self):
         binarized_2_lattice = bottom_up_element_binarization(self.lattice, 2)
         self.assertLessEqual(len(binarized_2_lattice[2]), 2)
-        self.assertListEqual(binarized_2_lattice[2], [10, 7])
         self.assertTrue(isa_lattice(binarized_2_lattice))
 
     def test_one_direction_binarize_binary_element(self):
@@ -93,7 +92,6 @@ class TestBinarize(unittest.TestCase):
         self.lattice.update((('bottom', 10), ('bottom', 11), ('bottom', 12), (10, 2), (11, 2), (12, 2), ('bottom', 2)))
         binarized_2_lattice = binarize_element(self.lattice, 2)
         self.assertTrue(element_is_binary(binarized_2_lattice, 2, dual_lattice(binarized_2_lattice)))
-        self.assertTrue(binarized_2_lattice[2] == [13, 7])
         self.assertTrue(isa_lattice(binarized_2_lattice))
 
     def test_binarize_binary_element(self):
