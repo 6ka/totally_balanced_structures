@@ -2,15 +2,6 @@ from TBS.lattice import get_bottom, dual_lattice, sup_filter, inf_irreducible
 import random
 
 
-def atoms(lattice):
-    return set(lattice[get_bottom(lattice)])
-
-
-def coatoms(lattice):
-    dual = dual_lattice(lattice)
-    return set(dual[get_bottom(dual)])
-
-
 def sup_irreducible_filter(lattice_sup_irreducible, element, lattice):
     sup = sup_filter(lattice, element)
     return set(atom for atom in lattice_sup_irreducible.intersection(sup))

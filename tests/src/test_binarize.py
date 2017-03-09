@@ -1,8 +1,8 @@
 import unittest
 from TBS.graph import Graph
-from TBS.binarize import atoms, coatoms, sup_irreducible_filter, max_intersection, is_binary, element_is_binary, \
+from TBS.binarize import sup_irreducible_filter, max_intersection, is_binary, element_is_binary, \
     bottom_up_element_binarization, binarize_element, binarize
-from TBS.lattice import comparability_function, dual_lattice, isa_lattice
+from TBS.lattice import dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
 
 
@@ -30,12 +30,6 @@ class TestBinarize(unittest.TestCase):
     def setUp(self):
         self.lattice = self.new_lattice()
         self.dual_lattice = dual_lattice(self.lattice)
-
-    def test_atoms(self):
-        self.assertSetEqual(atoms(self.lattice), {1, 2, 3, 4})
-
-    def test_coatoms(self):
-        self.assertSetEqual(coatoms(self.lattice), {8, 9})
 
     def test_sup_irreducible_filter(self):
         self.assertSetEqual(sup_irreducible_filter({1, 2, 3, 4}, 8, self.dual_lattice), {1, 2, 3})
