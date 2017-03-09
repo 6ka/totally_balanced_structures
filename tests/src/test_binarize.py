@@ -1,7 +1,7 @@
 import unittest
 from TBS.graph import Graph
 from TBS.binarize import sup_irreducible_filter, max_intersection, is_binary, element_is_binary, \
-    bottom_up_element_binarization, binarize_element, binarize
+    bottom_up_element_binarization, binarize_element, binarize, bottom_up_binarization, top_down_binarization
 from TBS.lattice import dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
 
@@ -117,4 +117,21 @@ class TestBinarize(unittest.TestCase):
             lattice = random_dismantable_lattice(20)
             binarized_lattice = binarize(lattice)
             self.assertTrue(is_binary(binarized_lattice))
+            self.assertTrue(isa_lattice(binarized_lattice))
+
+    def test_random_bottom_up_binarization(self):
+        for i in range(10):
+            lattice = random_dismantable_lattice(20)
+            binarized_lattice = bottom_up_binarization(lattice)
+            for element in binarized_lattice:
+                if element != 'BOTTOM':
+                    self.assertLessEqual(len(binarized_lattice[element]), 2)
+            self.assertTrue(isa_lattice(binarized_lattice))
+
+    def test_random_top_down_binarization(self):
+        for i in range(10):
+            lattice = random_dismantable_lattice(20)
+            binarized_lattice = top_down_binarization(lattice)
+            for element in binarized_lattice:
+                self.assertLessEqual(len(dual_lattice(binarized_lattice)[element]), 2)
             self.assertTrue(isa_lattice(binarized_lattice))

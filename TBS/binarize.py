@@ -89,3 +89,28 @@ def binarize(lattice):
                 is_seen.add(neighbor)
                 fifo.appendleft(neighbor)
     return binarized_lattice
+
+
+def bottom_up_binarization(lattice):
+    import collections
+
+    binarized_lattice = lattice.copy()
+    bottom = get_bottom(lattice)
+
+    fifo = collections.deque((bottom,))
+    is_seen = {bottom}
+
+    while fifo:
+        vertex = fifo.pop()
+        if not len(lattice[vertex]) <= 2:
+            binarized_lattice = bottom_up_element_binarization(binarized_lattice, vertex)
+        visit_list = lattice[vertex]
+        for neighbor in visit_list:
+            if neighbor not in is_seen:
+                is_seen.add(neighbor)
+                fifo.appendleft(neighbor)
+    return binarized_lattice
+
+
+def top_down_binarization(lattice):
+    return dual_lattice(bottom_up_binarization(dual_lattice(lattice)))
