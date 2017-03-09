@@ -1,4 +1,4 @@
-from TBS.lattice import get_bottom, get_top, dual_lattice, isa_lattice, sup_filter, sup_irreducible
+from TBS.lattice import get_bottom, get_top, dual_lattice, isa_lattice, sup_filter, sup_irreducible, inf_irreducible
 import random
 
 
@@ -57,9 +57,9 @@ def element_is_binary(lattice, element, dual=None):
 def bottom_up_element_binarization(lattice, element):
     bottom_up_binarized_element_lattice = lattice.copy()
     while not len(bottom_up_binarized_element_lattice[element]) <= 2:
-        lattice_sup_irreducible = sup_irreducible(bottom_up_binarized_element_lattice)
+        lattice_inf_irreducible = inf_irreducible(bottom_up_binarized_element_lattice)
         antichain_indices = bottom_up_binarized_element_lattice[element]
-        antichain = [smaller_sup_irreducible(lattice_sup_irreducible, antichain_element, dual_lattice(bottom_up_binarized_element_lattice)) for antichain_element in
+        antichain = [smaller_sup_irreducible(lattice_inf_irreducible, antichain_element, bottom_up_binarized_element_lattice) for antichain_element in
                      antichain_indices]
         first_element_in_antichain, second_element_in_antichain = max_intersection(antichain)
         first_element, second_element = antichain_indices[first_element_in_antichain], antichain_indices[
