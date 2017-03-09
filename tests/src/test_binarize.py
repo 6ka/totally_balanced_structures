@@ -1,6 +1,6 @@
 import unittest
 from TBS.graph import Graph
-from TBS.binarize import atoms, coatoms, smaller_sup_irreducible, max_intersection, is_binary, element_is_binary, \
+from TBS.binarize import atoms, coatoms, sup_irreducible_filter, max_intersection, is_binary, element_is_binary, \
     bottom_up_element_binarization, binarize_element, binarize
 from TBS.lattice import comparability_function, dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
@@ -37,10 +37,10 @@ class TestBinarize(unittest.TestCase):
     def test_coatoms(self):
         self.assertSetEqual(coatoms(self.lattice), {8, 9})
 
-    def test_smaller_atoms(self):
-        self.assertSetEqual(smaller_sup_irreducible({1, 2, 3, 4}, 8, self.dual_lattice), {1, 2, 3})
-        self.assertSetEqual(smaller_sup_irreducible({1, 2, 3, 4}, "top", self.dual_lattice), {1, 2, 3, 4})
-        self.assertSetEqual(smaller_sup_irreducible({1, 2, 3, 4}, 9, self.dual_lattice), {2, 4})
+    def test_sup_irreducible_filter(self):
+        self.assertSetEqual(sup_irreducible_filter({1, 2, 3, 4}, 8, self.dual_lattice), {1, 2, 3})
+        self.assertSetEqual(sup_irreducible_filter({1, 2, 3, 4}, "top", self.dual_lattice), {1, 2, 3, 4})
+        self.assertSetEqual(sup_irreducible_filter({1, 2, 3, 4}, 9, self.dual_lattice), {2, 4})
 
     def test_max_intersection(self):
         antichain = [{0, 1, 2, 3}, {6, 7}, {3, 4, 5, 6}, {2, 3, 4, 8, 9}, {9, 10}]
@@ -82,7 +82,7 @@ class TestBinarize(unittest.TestCase):
         self.assertLessEqual(len(binarized_5_lattice[2]), 5)
         self.assertTrue(isa_lattice(binarized_5_lattice))
 
-    def test_binarize_element_other_direction(self):
+    def test_top_down_binarize_element(self):
         self.lattice.update((('bottom', 10), (10, 7), (10, 11), (11, 'top')))
         binarized_7_lattice = binarize_element(self.lattice, 7)
         self.assertTrue(element_is_binary(binarized_7_lattice, 7, dual_lattice(binarized_7_lattice)))
@@ -120,7 +120,7 @@ class TestBinarize(unittest.TestCase):
 
     def test_random_binarize(self):
         for i in range(10):
-            lattice = random_dismantable_lattice(10)
+            lattice = random_dismantable_lattice(20)
             binarized_lattice = binarize(lattice)
             self.assertTrue(is_binary(binarized_lattice))
             self.assertTrue(isa_lattice(binarized_lattice))

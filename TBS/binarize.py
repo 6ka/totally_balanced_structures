@@ -1,4 +1,4 @@
-from TBS.lattice import get_bottom, get_top, dual_lattice, isa_lattice, sup_filter, sup_irreducible, inf_irreducible
+from TBS.lattice import get_bottom, get_top, dual_lattice, sup_filter, inf_irreducible
 import random
 
 
@@ -11,7 +11,7 @@ def coatoms(lattice):
     return set(dual[get_bottom(dual)])
 
 
-def smaller_sup_irreducible(lattice_sup_irreducible, element, lattice):
+def sup_irreducible_filter(lattice_sup_irreducible, element, lattice):
     sup = sup_filter(lattice, element)
     return set(atom for atom in lattice_sup_irreducible.intersection(sup))
 
@@ -59,7 +59,7 @@ def bottom_up_element_binarization(lattice, element):
     while not len(bottom_up_binarized_element_lattice[element]) <= 2:
         lattice_inf_irreducible = inf_irreducible(bottom_up_binarized_element_lattice)
         antichain_indices = bottom_up_binarized_element_lattice[element]
-        antichain = [smaller_sup_irreducible(lattice_inf_irreducible, antichain_element, bottom_up_binarized_element_lattice) for antichain_element in
+        antichain = [sup_irreducible_filter(lattice_inf_irreducible, antichain_element, bottom_up_binarized_element_lattice) for antichain_element in
                      antichain_indices]
         first_element_in_antichain, second_element_in_antichain = max_intersection(antichain)
         first_element, second_element = antichain_indices[first_element_in_antichain], antichain_indices[
