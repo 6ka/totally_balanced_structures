@@ -1,8 +1,9 @@
 import unittest
 from TBS.graph import Graph
 from TBS.binarize import atoms, coatoms, smaller_atoms, max_intersection, is_binary, element_is_binary, \
-    bottom_up_element_binarization, binarize_element
+    bottom_up_element_binarization, binarize_element, binarize
 from TBS.lattice import comparability_function, dual_lattice, isa_lattice
+from TBS.randomize import random_dismantable_lattice
 
 
 class TestBinarize(unittest.TestCase):
@@ -99,4 +100,30 @@ class TestBinarize(unittest.TestCase):
     def test_binarize_binary_element(self):
         binarized_5_lattice = binarize_element(self.lattice, 5)
         assert element_is_binary(binarized_5_lattice, 5, dual_lattice(binarized_5_lattice))
-        assert isa_lattice(binarized_5_lattice)
+        self.assertTrue(isa_lattice(binarized_5_lattice))
+
+    def test_binarize_with_one_element_bottom_up_not_binary(self):
+        binarized_lattice = binarize(self.lattice)
+        assert is_binary(binarized_lattice)
+        self.assertTrue(isa_lattice(binarized_lattice))
+
+    def test_binarize_with_one_element_not_binary(self):
+        self.lattice.update((('bottom', 10), ('bottom', 11), ('bottom', 12), (10, 2), (11, 2), (12, 2), ('bottom', 2)))
+        binarized_lattice = binarize(self.lattice)
+        assert is_binary(binarized_lattice)
+        self.assertTrue(isa_lattice(binarized_lattice))
+
+    def test_binarize(self):
+        self.lattice.update(((5, 8), (6, 8), (7, 9), (8, 'top'), (9, 'top'), (5, 'top'), (6, 'top'), (7, 'top')))
+        self.lattice.remove(8)
+        self.lattice.remove(9)
+        binarized_lattice = binarize(self.lattice)
+        assert is_binary(binarized_lattice)
+        self.assertTrue(isa_lattice(binarized_lattice))
+
+    def test_random_binarize(self):
+        for i in range(10):
+            lattice = random_dismantable_lattice(10)
+            binarized_lattice = binarize(lattice)
+            self.assertTrue(is_binary(binarized_lattice))
+            self.assertTrue(isa_lattice(binarized_lattice))

@@ -1,4 +1,4 @@
-from TBS.lattice import get_bottom, comparability_function, dual_lattice
+from TBS.lattice import get_bottom, get_top, comparability_function, dual_lattice
 import random
 
 
@@ -38,9 +38,12 @@ def max_intersection(antichain):
 
 def is_binary(lattice):
     dual = dual_lattice(lattice)
+    bottom = get_bottom(lattice)
+    top = get_top(lattice)
     for element in lattice:
-        if len(lattice[element]) > 2 or len(dual[element]) > 2:
-            return False
+        if element != top and element != bottom:
+            if len(lattice[element]) > 2 or len(dual[element]) > 2:
+                return False
     return True
 
 
@@ -74,3 +77,27 @@ def binarize_element(lattice, element):
     dual = dual_lattice(bottom_up_binarized_element_lattice)
     binarized_element_lattice = bottom_up_element_binarization(dual, element)
     return dual_lattice(binarized_element_lattice)
+
+
+def binarize(lattice):
+    import collections
+
+    binarized_lattice = lattice.copy()
+    dual_initial_lattice = dual_lattice(lattice)
+
+    bottom = get_bottom(lattice)
+    top = get_top(lattice)
+
+    fifo = collections.deque((bottom,))
+    is_seen = {bottom}
+
+    while fifo:
+        vertex = fifo.pop()
+        if not element_is_binary(lattice, vertex, dual_initial_lattice) and vertex != top and vertex != bottom:
+            binarized_lattice = binarize_element(binarized_lattice, vertex)
+        visit_list = lattice[vertex]
+        for neighbor in visit_list:
+            if neighbor not in is_seen:
+                is_seen.add(neighbor)
+                fifo.appendleft(neighbor)
+    return binarized_lattice
