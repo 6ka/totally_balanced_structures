@@ -100,9 +100,6 @@ class TestBinarize(unittest.TestCase):
         self.assertTrue(isa_lattice(binarized_lattice))
 
     def test_binarize(self):
-        self.lattice.update(((5, 8), (6, 8), (7, 9), (8, 'top'), (9, 'top'), (5, 'top'), (6, 'top'), (7, 'top')))
-        self.lattice.remove(8)
-        self.lattice.remove(9)
         binarized_lattice = binarize(self.lattice)
         self.assertTrue(is_binary(binarized_lattice))
         self.assertTrue(isa_lattice(binarized_lattice))
@@ -113,6 +110,28 @@ class TestBinarize(unittest.TestCase):
             binarized_lattice = binarize(lattice)
             self.assertTrue(is_binary(binarized_lattice))
             self.assertTrue(isa_lattice(binarized_lattice))
+
+    def test_binarize_with_ignored_elements(self):
+        binarized_ignore_2 = binarize(self.lattice, {2})
+        self.assertTrue(isa_lattice(binarized_ignore_2))
+        self.assertFalse(element_is_binary(binarized_ignore_2, 2))
+        for element in binarized_ignore_2:
+            if element != 2 and element != 'bottom':
+                self.assertTrue(element_is_binary(binarized_ignore_2, element))
+        binarized_ignore_78 = binarize(self.lattice, {7, 8})
+        self.assertTrue(isa_lattice(binarized_ignore_78))
+        self.assertTrue(is_binary(binarized_ignore_78))
+
+    def test_bottom_up_binarization_with_ignored_elements(self):
+        binarized_ignore_2 = bottom_up_binarization(self.lattice, {2})
+        self.assertTrue(isa_lattice(binarized_ignore_2))
+        self.assertFalse(len(binarized_ignore_2[2]) <= 2)
+        for element in binarized_ignore_2:
+            if element != 2 and element != 'bottom':
+                self.assertTrue(len(binarized_ignore_2[element]) <= 2)
+        binarized_ignore_78 = bottom_up_binarization(self.lattice, {7, 8})
+        self.assertTrue(isa_lattice(binarized_ignore_78))
+        self.assertTrue(is_binary(binarized_ignore_78))
 
     def test_random_bottom_up_binarization(self):
         for i in range(10):
@@ -128,5 +147,6 @@ class TestBinarize(unittest.TestCase):
             lattice = random_dismantable_lattice(20)
             binarized_lattice = top_down_binarization(lattice)
             for element in binarized_lattice:
-                self.assertLessEqual(len(dual_lattice(binarized_lattice)[element]), 2)
+                if element != 'BOTTOM':
+                    self.assertLessEqual(len(dual_lattice(binarized_lattice)[element]), 2)
             self.assertTrue(isa_lattice(binarized_lattice))

@@ -63,7 +63,7 @@ def binarize_element(lattice, element):
     return dual_lattice(binarized_element_lattice)
 
 
-def binarize(lattice):
+def binarize(lattice, ignored_elements={'BOTTOM'}):
     import collections
 
     binarized_lattice = lattice.copy()
@@ -76,7 +76,7 @@ def binarize(lattice):
 
     while fifo:
         vertex = fifo.pop()
-        if not element_is_binary(lattice, vertex, dual_initial_lattice) and vertex != bottom:
+        if not element_is_binary(lattice, vertex, dual_initial_lattice) and vertex not in ignored_elements:
             binarized_lattice = binarize_element(binarized_lattice, vertex)
         visit_list = lattice[vertex]
         for neighbor in visit_list:
@@ -86,7 +86,7 @@ def binarize(lattice):
     return binarized_lattice
 
 
-def bottom_up_binarization(lattice):
+def bottom_up_binarization(lattice, ignored_elements={'BOTTOM'}):
     import collections
 
     binarized_lattice = lattice.copy()
@@ -97,7 +97,7 @@ def bottom_up_binarization(lattice):
 
     while fifo:
         vertex = fifo.pop()
-        if not len(lattice[vertex]) <= 2:
+        if not len(lattice[vertex]) <= 2 and vertex not in ignored_elements:
             binarized_lattice = bottom_up_element_binarization(binarized_lattice, vertex)
         visit_list = lattice[vertex]
         for neighbor in visit_list:
