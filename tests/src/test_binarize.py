@@ -1,7 +1,7 @@
 import unittest
 from TBS.graph import Graph
-from TBS.binarize import max_intersection, is_binary, element_is_binary, \
-    bottom_up_element_binarization, binarize_element, binarize, bottom_up_binarization, top_down_binarization
+from TBS.binarize import max_intersection, is_binary, element_is_binary, bottom_up_element_binarization, \
+    binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization
 from TBS.lattice import dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
 
@@ -150,3 +150,25 @@ class TestBinarize(unittest.TestCase):
                 if element != 'BOTTOM':
                     self.assertLessEqual(len(dual_lattice(binarized_lattice)[element]), 2)
             self.assertTrue(isa_lattice(binarized_lattice))
+
+    def test_bfs_binarization(self):
+        def element_binarization(lattice, vertex):
+            lattice.remove(vertex)
+            return lattice
+
+        def condition(*unused):
+            return True
+
+        empty = bfs_binarization(self.lattice, condition, element_binarization, ignored_elements={})
+        self.assertEqual(len(empty), 0)
+
+    def test_bfs_binarization_with_ignored_elements(self):
+        def element_binarization(lattice, vertex):
+            lattice.remove(vertex)
+            return lattice
+
+        def condition(*unused):
+            return True
+
+        visited = bfs_binarization(self.lattice, condition, element_binarization, ignored_elements={1, 2})
+        self.assertEqual(len(visited), 2)

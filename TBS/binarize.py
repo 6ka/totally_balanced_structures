@@ -63,7 +63,7 @@ def binarize_element(lattice, element):
     return dual_lattice(binarized_element_lattice)
 
 
-def binarize(lattice, ignored_elements={'BOTTOM'}):
+def bfs_binarization(lattice, binarization_condition, element_binarization, ignored_elements={'BOTTOM'}):
     import collections
 
     binarized_lattice = lattice.copy()
@@ -76,35 +76,30 @@ def binarize(lattice, ignored_elements={'BOTTOM'}):
 
     while fifo:
         vertex = fifo.pop()
-        if not element_is_binary(lattice, vertex, dual_initial_lattice) and vertex not in ignored_elements:
-            binarized_lattice = binarize_element(binarized_lattice, vertex)
+        if binarization_condition(lattice, vertex, dual_initial_lattice) and vertex not in ignored_elements:
+            binarized_lattice = element_binarization(binarized_lattice, vertex)
         visit_list = lattice[vertex]
         for neighbor in visit_list:
             if neighbor not in is_seen:
                 is_seen.add(neighbor)
                 fifo.appendleft(neighbor)
     return binarized_lattice
+
+
+def binarize_condition(lattice, vertex, dual_initial_lattice):
+    return not element_is_binary(lattice, vertex, dual_initial_lattice)
+
+
+def bottom_up_binarize_condition(lattice, vertex, *unused):
+    return not len(lattice[vertex]) <= 2
+
+
+def binarize(lattice, ignored_elements={'BOTTOM'}):
+    return bfs_binarization(lattice, binarize_condition, binarize_element, ignored_elements)
 
 
 def bottom_up_binarization(lattice, ignored_elements={'BOTTOM'}):
-    import collections
-
-    binarized_lattice = lattice.copy()
-    bottom = get_bottom(lattice)
-
-    fifo = collections.deque((bottom,))
-    is_seen = {bottom}
-
-    while fifo:
-        vertex = fifo.pop()
-        if not len(lattice[vertex]) <= 2 and vertex not in ignored_elements:
-            binarized_lattice = bottom_up_element_binarization(binarized_lattice, vertex)
-        visit_list = lattice[vertex]
-        for neighbor in visit_list:
-            if neighbor not in is_seen:
-                is_seen.add(neighbor)
-                fifo.appendleft(neighbor)
-    return binarized_lattice
+    return bfs_binarization(lattice, bottom_up_binarize_condition, bottom_up_element_binarization, ignored_elements)
 
 
 def top_down_binarization(lattice):
