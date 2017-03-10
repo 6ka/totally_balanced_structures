@@ -1,4 +1,4 @@
-from TBS.lattice import get_bottom, dual_lattice, sup_filter, inf_irreducible, inf_irreducible_clusters
+from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters
 import random
 
 

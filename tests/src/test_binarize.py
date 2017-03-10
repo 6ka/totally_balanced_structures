@@ -61,21 +61,43 @@ class TestBinarize(unittest.TestCase):
         self.assertFalse(element_is_binary(self.lattice, 2))
         self.assertFalse(element_is_binary(self.lattice, "bottom"))
 
-    def test_bottom_up_binarize_element(self):
+    def test_bottom_up_element_binarization(self):
         binarized_2_lattice = bottom_up_element_binarization(self.lattice, 2)
         self.assertLessEqual(len(binarized_2_lattice[2]), 2)
         self.assertTrue(isa_lattice(binarized_2_lattice))
 
-    def test_bottom_up_binarize_binary_element(self):
+    def test_bottom_up_binary_element_binarization(self):
         binarized_5_lattice = bottom_up_element_binarization(self.lattice, 5)
         self.assertLessEqual(len(binarized_5_lattice[2]), 5)
         self.assertTrue(isa_lattice(binarized_5_lattice))
 
-    def test_top_down_binarize_element(self):
+    def test_top_down_element_binarization(self):
         self.lattice.update((('bottom', 10), (10, 7), (10, 11), (11, 'top')))
         binarized_7_lattice = binarize_element(self.lattice, 7)
         self.assertTrue(element_is_binary(binarized_7_lattice, 7, dual_lattice(binarized_7_lattice)))
         self.assertTrue(isa_lattice(binarized_7_lattice))
+
+    def test_bfs_binarization(self):
+        def element_binarization(lattice, vertex):
+            lattice.remove(vertex)
+            return lattice
+
+        def condition(*unused):
+            return True
+
+        empty = bfs_binarization(self.lattice, condition, element_binarization, ignored_elements={})
+        self.assertEqual(len(empty), 0)
+
+    def test_bfs_binarization_with_ignored_elements(self):
+        def element_binarization(lattice, vertex):
+            lattice.remove(vertex)
+            return lattice
+
+        def condition(*unused):
+            return True
+
+        visited = bfs_binarization(self.lattice, condition, element_binarization, ignored_elements={1, 2})
+        self.assertEqual(len(visited), 2)
 
     def test_binarize_element(self):
         self.lattice.update((('bottom', 10), ('bottom', 11), ('bottom', 12), (10, 2), (11, 2), (12, 2), ('bottom', 2)))
@@ -150,25 +172,3 @@ class TestBinarize(unittest.TestCase):
                 if element != 'BOTTOM':
                     self.assertLessEqual(len(dual_lattice(binarized_lattice)[element]), 2)
             self.assertTrue(isa_lattice(binarized_lattice))
-
-    def test_bfs_binarization(self):
-        def element_binarization(lattice, vertex):
-            lattice.remove(vertex)
-            return lattice
-
-        def condition(*unused):
-            return True
-
-        empty = bfs_binarization(self.lattice, condition, element_binarization, ignored_elements={})
-        self.assertEqual(len(empty), 0)
-
-    def test_bfs_binarization_with_ignored_elements(self):
-        def element_binarization(lattice, vertex):
-            lattice.remove(vertex)
-            return lattice
-
-        def condition(*unused):
-            return True
-
-        visited = bfs_binarization(self.lattice, condition, element_binarization, ignored_elements={1, 2})
-        self.assertEqual(len(visited), 2)
