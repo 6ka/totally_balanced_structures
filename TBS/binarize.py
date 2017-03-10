@@ -1,4 +1,4 @@
-from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters
+from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters, sup_irreducible
 import random
 
 
@@ -104,3 +104,16 @@ def bottom_up_binarization(lattice, ignored_elements={'BOTTOM'}):
 
 def top_down_binarization(lattice):
     return dual_lattice(bottom_up_binarization(dual_lattice(lattice)))
+
+
+def move_sup_irreducibles_to_atoms(lattice):
+    flat_lattice = lattice.copy()
+    sup_irr = sup_irreducible(flat_lattice)
+    bottom = get_bottom(flat_lattice)
+    atoms = flat_lattice[bottom]
+    current_element_index = len(flat_lattice) - 1
+    for sup in sup_irr:
+        if sup not in atoms:
+            flat_lattice.update(((bottom, current_element_index), (current_element_index, sup)))
+            current_element_index += 1
+    return flat_lattice

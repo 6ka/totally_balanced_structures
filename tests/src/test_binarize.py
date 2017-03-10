@@ -1,7 +1,8 @@
 import unittest
 from TBS.graph import Graph
 from TBS.binarize import max_intersection, is_binary, element_is_binary, bottom_up_element_binarization, \
-    binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization
+    binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization, \
+    move_sup_irreducibles_to_atoms
 from TBS.lattice import dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
 
@@ -172,3 +173,8 @@ class TestBinarize(unittest.TestCase):
                 if element != 'BOTTOM':
                     self.assertLessEqual(len(dual_lattice(binarized_lattice)[element]), 2)
             self.assertTrue(isa_lattice(binarized_lattice))
+
+    def test_move_sup_irreducibles_to_atoms(self):
+        flat_lattice = move_sup_irreducibles_to_atoms(self.lattice)
+        self.assertListEqual(flat_lattice['bottom'], [1, 2, 3, 4, 10])
+        self.assertListEqual(flat_lattice[10], [9])
