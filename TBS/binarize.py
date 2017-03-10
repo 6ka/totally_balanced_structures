@@ -2,6 +2,11 @@ from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters, sup_
 import random
 
 
+def atoms(lattice):
+    bottom = get_bottom(lattice)
+    return lattice[bottom]
+
+
 def max_intersection(antichain):
     n_elements = len(antichain)
     indices_map = [i for i in range(n_elements)]
