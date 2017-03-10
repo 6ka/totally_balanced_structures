@@ -2,7 +2,7 @@ import unittest
 from TBS.graph import Graph
 from TBS.binarize import max_intersection, is_binary, element_is_binary, bottom_up_element_binarization, \
     binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization, \
-    move_sup_irreducibles_to_atoms, atoms, flat_contraction_order
+    move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order
 from TBS.lattice import dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
 
@@ -197,3 +197,20 @@ class TestBinarize(unittest.TestCase):
         self.assertTrue(order.index(7) > order.index(4))
         self.assertTrue(order.index(9) > order.index(7))
         self.assertTrue(order.index(9) > order.index(10))
+
+    def test_is_flat(self):
+        self.assertFalse(is_flat(self.lattice))
+        self.lattice.update((('bottom', 10), (10, 9)))
+        self.assertTrue(is_flat(self.lattice))
+
+    def test_contraction_order(self):
+        order = contraction_order(self.lattice)
+        self.assertTrue(order.index(8) > order.index(5))
+        self.assertTrue(order.index(8) > order.index(6))
+        self.assertTrue(order.index(5) > order.index(1))
+        self.assertTrue(order.index(5) > order.index(2))
+        self.assertTrue(order.index(6) > order.index(2))
+        self.assertTrue(order.index(6) > order.index(3))
+        self.assertTrue(order.index(7) > order.index(2))
+        self.assertTrue(order.index(7) > order.index(4))
+        self.assertTrue(order.index(9) > order.index(7))

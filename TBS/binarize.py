@@ -145,3 +145,20 @@ def flat_contraction_order(flat_lattice):
                             or predecessors[1] == chosen_candidate and predecessors[0] in contraction_order:
                         candidates.add(successor)
     return contraction_order
+
+
+def is_flat(lattice):
+    objects = sup_irreducible(lattice)
+    lattice_atoms = atoms(lattice)
+    for object in objects:
+        if object not in lattice_atoms:
+            return False
+    return True
+
+
+def contraction_order(lattice):
+    if not is_flat(lattice):
+        lattice = move_sup_irreducibles_to_atoms(lattice)
+    if not is_binary(lattice):
+        lattice = binarize(lattice, ignored_elements={get_bottom(lattice)})
+    return flat_contraction_order(lattice)
