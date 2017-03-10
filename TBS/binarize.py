@@ -1,10 +1,5 @@
-from TBS.lattice import get_bottom, dual_lattice, sup_filter, inf_irreducible
+from TBS.lattice import get_bottom, dual_lattice, sup_filter, inf_irreducible, inf_irreducible_clusters
 import random
-
-
-def sup_irreducible_filter(lattice_sup_irreducible, element, lattice):
-    sup = sup_filter(lattice, element)
-    return set(atom for atom in lattice_sup_irreducible.intersection(sup))
 
 
 def max_intersection(antichain):
@@ -46,15 +41,15 @@ def element_is_binary(lattice, element, dual=None):
 
 def bottom_up_element_binarization(lattice, element):
     bottom_up_binarized_element_lattice = lattice.copy()
+    classes = inf_irreducible_clusters(bottom_up_binarized_element_lattice)
     while not len(bottom_up_binarized_element_lattice[element]) <= 2:
-        lattice_inf_irreducible = inf_irreducible(bottom_up_binarized_element_lattice)
         antichain_indices = bottom_up_binarized_element_lattice[element]
-        antichain = [sup_irreducible_filter(lattice_inf_irreducible, antichain_element, bottom_up_binarized_element_lattice) for antichain_element in
-                     antichain_indices]
+        antichain = [classes[antichain_element] for antichain_element in antichain_indices]
         first_element_in_antichain, second_element_in_antichain = max_intersection(antichain)
         first_element, second_element = antichain_indices[first_element_in_antichain], antichain_indices[
             second_element_in_antichain]
         union_index = len(bottom_up_binarized_element_lattice) - 1
+        classes[union_index] = classes[first_element].union(classes[second_element]).union({union_index})
         edges_to_add = ((union_index, first_element), (union_index, second_element), (element, union_index))
         edges_to_remove = ((element, first_element), (element, second_element))
         bottom_up_binarized_element_lattice.update(edges_to_add + edges_to_remove)

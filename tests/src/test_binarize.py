@@ -1,6 +1,6 @@
 import unittest
 from TBS.graph import Graph
-from TBS.binarize import sup_irreducible_filter, max_intersection, is_binary, element_is_binary, \
+from TBS.binarize import max_intersection, is_binary, element_is_binary, \
     bottom_up_element_binarization, binarize_element, binarize, bottom_up_binarization, top_down_binarization
 from TBS.lattice import dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
@@ -30,11 +30,6 @@ class TestBinarize(unittest.TestCase):
     def setUp(self):
         self.lattice = self.new_lattice()
         self.dual_lattice = dual_lattice(self.lattice)
-
-    def test_sup_irreducible_filter(self):
-        self.assertSetEqual(sup_irreducible_filter({1, 2, 3, 4}, 8, self.dual_lattice), {1, 2, 3})
-        self.assertSetEqual(sup_irreducible_filter({1, 2, 3, 4}, "top", self.dual_lattice), {1, 2, 3, 4})
-        self.assertSetEqual(sup_irreducible_filter({1, 2, 3, 4}, 9, self.dual_lattice), {2, 4})
 
     def test_max_intersection(self):
         antichain = [{0, 1, 2, 3}, {6, 7}, {3, 4, 5, 6}, {2, 3, 4, 8, 9}, {9, 10}]
