@@ -2,7 +2,7 @@ import unittest
 from TBS.graph import Graph
 from TBS.binarize import max_intersection, is_binary, element_is_binary, bottom_up_element_binarization, \
     binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization, \
-    move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order
+    move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order, support_tree
 from TBS.lattice import dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
 
@@ -216,3 +216,16 @@ class TestBinarize(unittest.TestCase):
         self.assertTrue(order.index(7) > order.index(2))
         self.assertTrue(order.index(7) > order.index(4))
         self.assertTrue(order.index(9) > order.index(7))
+
+    def test_support_tree(self):
+        tree = support_tree(move_sup_irreducibles_to_atoms(self.lattice))
+        self.assertTrue(tree.isa_edge(1, 2))
+        self.assertTrue(tree.isa_edge(3, 2))
+        self.assertTrue(tree.isa_edge(4, 2))
+        self.assertTrue(tree.isa_edge(10, 2) or tree.isa_edge(10, 4))
+        self.assertFalse(tree.isa_edge(1, 3))
+        self.assertFalse(tree.isa_edge(1, 4))
+        self.assertFalse(tree.isa_edge(3, 4))
+        self.assertFalse(tree.isa_edge(10, 1))
+        self.assertFalse(tree.isa_edge(10, 3))
+        self.assertFalse(tree.isa_edge(10, 2) and tree.isa_edge(10, 4))
