@@ -34,6 +34,7 @@ class TestBinarize(unittest.TestCase):
 
     def test_atoms(self):
         self.assertListEqual(atoms(self.lattice), [1, 2, 3, 4])
+        self.assertListEqual(atoms(self.lattice, "bottom"), [1, 2, 3, 4])
 
     def test_max_intersection(self):
         antichain = [{0, 1, 2, 3}, {6, 7}, {3, 4, 5, 6}, {2, 3, 4, 8, 9}, {9, 10}]
@@ -202,6 +203,7 @@ class TestBinarize(unittest.TestCase):
         self.assertFalse(is_flat(self.lattice))
         self.lattice.update((('bottom', 10), (10, 9)))
         self.assertTrue(is_flat(self.lattice))
+        self.assertTrue(is_flat(self.lattice, "bottom"))
 
     def test_contraction_order(self):
         order = contraction_order(self.lattice)

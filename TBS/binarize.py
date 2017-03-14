@@ -2,8 +2,9 @@ from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters, sup_
 import random
 
 
-def atoms(lattice):
-    bottom = get_bottom(lattice)
+def atoms(lattice, bottom=None):
+    if not bottom:
+        bottom = get_bottom(lattice)
     return lattice[bottom]
 
 
@@ -147,9 +148,9 @@ def flat_contraction_order(flat_lattice):
     return contraction_order
 
 
-def is_flat(lattice):
+def is_flat(lattice, bottom=None):
     objects = sup_irreducible(lattice)
-    lattice_atoms = atoms(lattice)
+    lattice_atoms = atoms(lattice, bottom)
     for object in objects:
         if object not in lattice_atoms:
             return False
