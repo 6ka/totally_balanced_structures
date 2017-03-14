@@ -33,8 +33,8 @@ class TestBinarize(unittest.TestCase):
         self.dual_lattice = dual_lattice(self.lattice)
 
     def test_atoms(self):
-        self.assertListEqual(atoms(self.lattice), [1, 2, 3, 4])
-        self.assertListEqual(atoms(self.lattice, "bottom"), [1, 2, 3, 4])
+        self.assertSetEqual(atoms(self.lattice), {1, 2, 3, 4})
+        self.assertSetEqual(atoms(self.lattice, "bottom"), {1, 2, 3, 4})
 
     def test_max_intersection(self):
         antichain = [{0, 1, 2, 3}, {6, 7}, {3, 4, 5, 6}, {2, 3, 4, 8, 9}, {9, 10}]
@@ -181,7 +181,7 @@ class TestBinarize(unittest.TestCase):
 
     def test_move_sup_irreducibles_to_atoms(self):
         flat_lattice = move_sup_irreducibles_to_atoms(self.lattice)
-        self.assertListEqual(atoms(flat_lattice), [1, 2, 3, 4, 10])
+        self.assertSetEqual(atoms(flat_lattice), {1, 2, 3, 4, 10})
         self.assertListEqual(flat_lattice[10], [9])
 
     def test_flat_contraction_order(self):
@@ -219,6 +219,17 @@ class TestBinarize(unittest.TestCase):
 
     def test_support_tree(self):
         tree = support_tree(move_sup_irreducibles_to_atoms(self.lattice))
+        self.assertTrue(tree.isa_edge(1, 2))
+        self.assertTrue(tree.isa_edge(3, 2))
+        self.assertTrue(tree.isa_edge(4, 2))
+        self.assertTrue(tree.isa_edge(10, 2) or tree.isa_edge(10, 4))
+        self.assertFalse(tree.isa_edge(1, 3))
+        self.assertFalse(tree.isa_edge(1, 4))
+        self.assertFalse(tree.isa_edge(3, 4))
+        self.assertFalse(tree.isa_edge(10, 1))
+        self.assertFalse(tree.isa_edge(10, 3))
+        self.assertFalse(tree.isa_edge(10, 2) and tree.isa_edge(10, 4))
+        tree = support_tree(move_sup_irreducibles_to_atoms(self.lattice), 'bottom')
         self.assertTrue(tree.isa_edge(1, 2))
         self.assertTrue(tree.isa_edge(3, 2))
         self.assertTrue(tree.isa_edge(4, 2))

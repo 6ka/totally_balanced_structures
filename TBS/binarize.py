@@ -6,7 +6,7 @@ import random
 def atoms(lattice, bottom=None):
     if not bottom:
         bottom = get_bottom(lattice)
-    return lattice[bottom]
+    return set(lattice[bottom])
 
 
 def max_intersection(antichain):
@@ -175,14 +175,14 @@ def support_tree(lattice, bottom=None):
     classes = {object: {object} for object in objects}
     tree = Graph(vertices=tuple(objects), directed=False)
     n_connected_parts = len(objects)
+    next(class_order)  # jumps bottom
     while n_connected_parts > 1:
         current_class_index = next(class_order)
-        predecessors = dual[current_class_index]
-        if len(predecessors) == 2:
-            print(current_class_index, predecessors, classes)
+        if current_class_index not in objects:
+            predecessors = dual[current_class_index]
             if classes[predecessors[0]].intersection(classes[predecessors[1]]) == set():
-                tree.update(tuple([(random.sample(classes[predecessors[0]], 1)[0], (random.sample(classes[predecessors[1]], 1)[0]))]))
+                tree.update(tuple(
+                    [(random.sample(classes[predecessors[0]], 1)[0], (random.sample(classes[predecessors[1]], 1)[0]))]))
                 n_connected_parts -= 1
             classes[current_class_index] = classes[predecessors[0]].union(classes[predecessors[1]])
     return tree
-
