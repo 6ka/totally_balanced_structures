@@ -2,7 +2,7 @@ import unittest
 from TBS.graph import Graph
 from TBS.binarize import max_intersection, is_binary, element_is_binary, bottom_up_element_binarization, \
     binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization, \
-    move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order, support_tree
+    move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order, support_tree, find_root
 from TBS.lattice import dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
 
@@ -240,3 +240,11 @@ class TestBinarize(unittest.TestCase):
         self.assertFalse(tree.isa_edge(10, 1))
         self.assertFalse(tree.isa_edge(10, 3))
         self.assertFalse(tree.isa_edge(10, 2) and tree.isa_edge(10, 4))
+
+    def test_find_root(self):
+        tree = Graph(vertices=[0, 1, 2, 3, 4, 5, 6], edges=((0, 1), (0, 2), (0, 3), (1, 4), (2, 5), (3, 6)))
+        root = find_root(tree)
+        self.assertEqual(root, 0)
+        tree = Graph(vertices=[0, 1, 2, 3, 4, 5], edges=((0, 1), (0, 2), (0, 3), (1, 4), (1, 5)))
+        root = find_root(tree)
+        self.assertTrue(root == 0 or root == 1)
