@@ -172,17 +172,24 @@ def support_tree(lattice, bottom=None):
     dual = dual_lattice(lattice)
     class_order = lattice.topological_sort(bottom)
     objects = atoms(lattice, bottom)
+    representatives = {object: object for object in objects}
     classes = {object: {object} for object in objects}
     tree = Graph(vertices=tuple(objects), directed=False)
     n_connected_parts = len(objects)
-    next(class_order)  # jumps bottom
+    colors = {object: i for i, object in enumerate(objects)}
+    next(class_order)
     while n_connected_parts > 1:
         current_class_index = next(class_order)
         if current_class_index not in objects:
             predecessors = dual[current_class_index]
-            if classes[predecessors[0]].intersection(classes[predecessors[1]]) == set():
-                tree.update(tuple(
-                    [(random.sample(classes[predecessors[0]], 1)[0], (random.sample(classes[predecessors[1]], 1)[0]))]))
+            first_class_representative = representatives[predecessors[0]]
+            second_class_representative = representatives[predecessors[1]]
+            representatives[current_class_index] = random.choice(
+                [first_class_representative, second_class_representative])
+            if colors[first_class_representative] != colors[second_class_representative]:
+                tree.update(tuple([(first_class_representative, second_class_representative)]))
+                for class_element in classes[predecessors[1]]:
+                    colors[class_element] = colors[first_class_representative]
                 n_connected_parts -= 1
             classes[current_class_index] = classes[predecessors[0]].union(classes[predecessors[1]])
     return tree
