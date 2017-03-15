@@ -2,7 +2,8 @@ import unittest
 from TBS.graph import Graph
 from TBS.binarize import max_intersection, is_binary, element_is_binary, bottom_up_element_binarization, \
     binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization, \
-    move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order, support_tree, find_root
+    move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order, support_tree
+from tree import find_root
 from TBS.lattice import dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
 
