@@ -1,6 +1,6 @@
 import random
 from TBS.graph import Graph
-from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters, sup_irreducible
+from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters, sup_irreducible, sup_filter
 
 
 def atoms(lattice, bottom=None):
@@ -195,3 +195,33 @@ def support_tree(lattice, bottom=None):
     return tree
 
 
+def contract_edge(tree, class_to_create, lattice, dual, already_created):
+    already_created.add(class_to_create)
+    tree.update(((dual[class_to_create][0], dual[class_to_create][1]),))
+    edges_to_update = tuple(())
+    for predecessor in dual[class_to_create]:
+        if len(lattice[predecessor]) == 1:
+            for neighbor in tree[predecessor]:
+                edges_to_update += ((neighbor, class_to_create),)
+            tree.remove(predecessor)
+        elif len(lattice[predecessor]) == 2:
+            if lattice[predecessor][0] == class_to_create:
+                other_successor = lattice[predecessor][1]
+            elif lattice[predecessor][1] == class_to_create:
+                other_successor = lattice[predecessor][0]
+            else:
+                raise ValueError("Lattice is not binary")
+            if other_successor not in already_created:
+                edges_to_update += ((predecessor, class_to_create),)
+                for neighbor in tree[predecessor]:
+                    if sup_filter(lattice, neighbor).intersection(sup_filter(lattice, predecessor)) in sup_filter(
+                            lattice, class_to_create):
+                        edges_to_update += ((neighbor, predecessor), (neighbor, class_to_create))
+            else:
+                for neighbor in tree[predecessor]:
+                    edges_to_update += ((neighbor, class_to_create),)
+                tree.remove(predecessor)
+        else:
+            raise ValueError("Lattice is not binary")
+    tree.update(edges_to_update)
+    return tree
