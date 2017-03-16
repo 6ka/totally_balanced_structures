@@ -136,7 +136,8 @@ def flat_contraction_order(flat_lattice):
     while len(candidates) > 0:
         chosen_candidate = random.sample(candidates, 1)[0]
         candidates.remove(chosen_candidate)
-        order.append(chosen_candidate)
+        if chosen_candidate not in objects:
+            order.append(chosen_candidate)
         for successor in flat_lattice[chosen_candidate]:
             if successor not in is_seen:
                 is_seen.add(chosen_candidate)
@@ -202,6 +203,7 @@ def contract_edge(tree, class_to_create, lattice, dual, already_created):
     already_created.add(class_to_create)
     tree.update(((dual[class_to_create][0], dual[class_to_create][1]),))
     edges_to_update = tuple(())
+    tree.add(class_to_create)
     for predecessor in dual[class_to_create]:
         if len(lattice[predecessor]) == 1:
             for neighbor in tree[predecessor]:
@@ -228,3 +230,17 @@ def contract_edge(tree, class_to_create, lattice, dual, already_created):
             raise ValueError("Lattice is not binary")
     tree.update(edges_to_update)
     return tree
+
+
+def contraction_trees(lattice, bottom=None):
+    if not bottom:
+        bottom = get_bottom(lattice)
+    dual = dual_lattice(lattice)
+    tree = support_tree(lattice, bottom)
+    trees = [tree.copy()]
+    order = iter(contraction_order(lattice))
+    already_created = set()
+    for vertex in order:
+        tree = contract_edge(tree, vertex, lattice, dual, already_created)
+        trees.append(tree.copy())
+    return trees

@@ -3,7 +3,7 @@ from TBS.graph import Graph
 from TBS.binarize import max_intersection, is_binary, element_is_binary, bottom_up_element_binarization, \
     binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization, \
     move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order, support_tree, \
-    contract_edge
+    contract_edge, contraction_trees
 from tree import find_root
 from TBS.lattice import dual_lattice, isa_lattice
 from TBS.randomize import random_dismantable_lattice
@@ -195,7 +195,11 @@ class TestBinarize(unittest.TestCase):
         self.assertTrue(order.index(5) > order.index(11))
         self.assertTrue(order.index(6) > order.index(11))
         self.assertTrue(order.index(9) > order.index(7))
-        self.assertTrue(order.index(9) > order.index(10))
+        self.assertNotIn(1, order)
+        self.assertNotIn(2, order)
+        self.assertNotIn(3, order)
+        self.assertNotIn(4, order)
+        self.assertNotIn(10, order)
 
     def test_is_flat(self):
         self.assertFalse(is_flat(self.lattice))
@@ -289,3 +293,18 @@ class TestBinarize(unittest.TestCase):
         self.assertTrue(contract_23_tree.isa_edge(3, 4))
         self.assertFalse(contract_23_tree.isa_vertex(2))
         self.assertTrue(len(tree.edges()) == 4)
+
+    def test_contraction_trees(self):
+        small_binary_lattice = Graph((1, 2, 3, 4, 5, 'bottom', 'top'), (
+            ('bottom', 1), ('bottom', 2), ('bottom', 3), (1, 4), (2, 4), (2, 5), (3, 5), (4, 'top'), (5, 'top')),
+                                     directed=True)
+        trees = contraction_trees(small_binary_lattice, 'bottom')
+        support = Graph((1, 2, 3), ((1, 2), (2, 3)))
+        self.assertEqual(trees[0], support)
+        first_1 = Graph((4, 2, 3), ((4, 2), (2, 3)))
+        first_2 = Graph((1, 2, 5), ((1, 2), (2, 5)))
+        self.assertTrue(trees[1] == first_1 or trees[1] == first_2)
+        second = Graph((4, 5), ((4, 5),))
+        self.assertEqual(trees[2], second)
+        last = Graph(('top',), ())
+        self.assertEqual(trees[3], last)
