@@ -129,13 +129,14 @@ def move_sup_irreducibles_to_atoms(lattice):
 def flat_contraction_order(flat_lattice):
     dual = dual_lattice(flat_lattice)
     bottom = get_bottom(flat_lattice)
-    candidates = set(flat_lattice[bottom])
-    contraction_order = []
+    objects = atoms(flat_lattice, bottom)
+    candidates = objects.copy()
+    order = []
     is_seen = set()
     while len(candidates) > 0:
         chosen_candidate = random.sample(candidates, 1)[0]
         candidates.remove(chosen_candidate)
-        contraction_order.append(chosen_candidate)
+        order.append(chosen_candidate)
         for successor in flat_lattice[chosen_candidate]:
             if successor not in is_seen:
                 is_seen.add(chosen_candidate)
@@ -143,10 +144,12 @@ def flat_contraction_order(flat_lattice):
                 if len(predecessors) == 1:
                     candidates.add(successor)
                 else:
-                    if predecessors[0] == chosen_candidate and predecessors[1] in contraction_order \
-                            or predecessors[1] == chosen_candidate and predecessors[0] in contraction_order:
+                    if predecessors[0] == chosen_candidate and (predecessors[1] in order or
+                                                                predecessors[1] in objects) \
+                            or predecessors[1] == chosen_candidate and (predecessors[0] in order or
+                                                                        predecessors[0] in objects):
                         candidates.add(successor)
-    return contraction_order
+    return order
 
 
 def is_flat(lattice, bottom=None):

@@ -192,12 +192,8 @@ class TestBinarize(unittest.TestCase):
         order = flat_contraction_order(self.lattice)
         self.assertTrue(order.index(8) > order.index(5))
         self.assertTrue(order.index(8) > order.index(6))
-        self.assertTrue(order.index(5) > order.index(1))
         self.assertTrue(order.index(5) > order.index(11))
         self.assertTrue(order.index(6) > order.index(11))
-        self.assertTrue(order.index(6) > order.index(3))
-        self.assertTrue(order.index(7) > order.index(2))
-        self.assertTrue(order.index(7) > order.index(4))
         self.assertTrue(order.index(9) > order.index(7))
         self.assertTrue(order.index(9) > order.index(10))
 
@@ -211,12 +207,6 @@ class TestBinarize(unittest.TestCase):
         order = contraction_order(self.lattice)
         self.assertTrue(order.index(8) > order.index(5))
         self.assertTrue(order.index(8) > order.index(6))
-        self.assertTrue(order.index(5) > order.index(1))
-        self.assertTrue(order.index(5) > order.index(2))
-        self.assertTrue(order.index(6) > order.index(2))
-        self.assertTrue(order.index(6) > order.index(3))
-        self.assertTrue(order.index(7) > order.index(2))
-        self.assertTrue(order.index(7) > order.index(4))
         self.assertTrue(order.index(9) > order.index(7))
 
     def test_support_tree(self):
