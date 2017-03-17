@@ -187,8 +187,8 @@ class TestBinarize(unittest.TestCase):
         self.assertListEqual(flat_lattice[10], [9])
 
     def test_flat_contraction_order(self):
-        self.lattice.update((('bottom', 10), (10, 9)))  # transforms objects into atoms
         self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
         order = flat_contraction_order(self.lattice)
         self.assertTrue(order.index(8) > order.index(5))
         self.assertTrue(order.index(8) > order.index(6))
@@ -246,28 +246,30 @@ class TestBinarize(unittest.TestCase):
         self.assertTrue(root == 0 or root == 1)
 
     def test_contract_edge_one_disappears(self):
-        self.lattice.update(((9, 12), (12, 'top'), (10, 12), ('bottom', 10), (9, 'top'), (2, 7), (11, 7)))
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
         self.dual_lattice = dual_lattice(self.lattice)
-        tree = Graph((1, 2, 3, 4, 10), ((1, 2), (2, 3), (2, 4), (4, 10)), False)
-        contract_12_tree = contract_edge(tree, 5, self.lattice, self.dual_lattice, set())
-        self.assertTrue(contract_12_tree.isa_edge(5, 2))
-        self.assertTrue(contract_12_tree.isa_edge(2, 4))
-        self.assertTrue(contract_12_tree.isa_edge(2, 3))
-        self.assertTrue(contract_12_tree.isa_edge(4, 10))
-        self.assertFalse(contract_12_tree.isa_vertex(1))
-        self.assertTrue(len(tree.edges()) == 4)
+        tree = Graph((1, 2, 3, 4, 10, 12), ((2, 12), (1, 2), (2, 3), (2, 4), (4, 10)), False)
+        contract_24_tree = contract_edge(tree, 7, self.lattice, self.dual_lattice, set())
+        self.assertTrue(contract_24_tree.isa_edge(7, 2))
+        self.assertTrue(contract_24_tree.isa_edge(2, 1))
+        self.assertTrue(contract_24_tree.isa_edge(2, 3))
+        self.assertTrue(contract_24_tree.isa_edge(2, 12))
+        self.assertTrue(contract_24_tree.isa_edge(7, 10))
+        self.assertFalse(contract_24_tree.isa_vertex(4))
+        self.assertTrue(len(tree.edges()) == 5)
 
     def test_contract_edge_both_disappear(self):
-        self.lattice.update(((9, 12), (12, 'top'), (10, 12), ('bottom', 10), (9, 'top'), (2, 7), (11, 7)))
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
         self.dual_lattice = dual_lattice(self.lattice)
-        tree = Graph((5, 6, 4, 10, 11), ((5, 6), (6, 4), (4, 10), (4, 11)), False)
-        contract_56_tree = contract_edge(tree, 8, self.lattice, self.dual_lattice, {5, 6})
-        self.assertTrue(contract_56_tree.isa_edge(8, 4))
-        self.assertTrue(contract_56_tree.isa_edge(10, 4))
-        self.assertTrue(contract_56_tree.isa_edge(4, 11))
+        tree = Graph((5, 6, 7, 10), ((5, 6), (6, 7), (7, 10)), False)
+        contract_56_tree = contract_edge(tree, 8, self.lattice, self.dual_lattice, {5, 6, 7, 11})
+        self.assertTrue(contract_56_tree.isa_edge(8, 7))
+        self.assertTrue(contract_56_tree.isa_edge(10, 7))
         self.assertFalse(contract_56_tree.isa_vertex(5))
         self.assertFalse(contract_56_tree.isa_vertex(6))
-        self.assertTrue(len(tree.edges()) == 3)
+        self.assertTrue(len(tree.edges()) == 2)
 
     def test_contract_edge_both_stay(self):
         self.lattice.update(((2, 7), ('bottom', 10), (10, 9), (3, 7)))

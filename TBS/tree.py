@@ -14,11 +14,12 @@ def find_root(tree):
     return random.choice(possible_roots)
 
 
-def radial_draw_tree(tree, root=None):
+def radial_draw_tree(tree, root=None, order=None):
     fig, ax = pyplot.subplots()
     if not root:
         root = find_root(tree)
-    order = list(tree.topological_sort(root))
+    if not order:
+        order = list(tree.topological_sort(root))
     angles = {}
     leaves = [vertex for vertex in order if tree.isa_leaf(vertex)]
     for index, leaf in enumerate(leaves):

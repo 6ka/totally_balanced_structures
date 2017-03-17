@@ -136,8 +136,7 @@ def flat_contraction_order(flat_lattice):
     while len(candidates) > 0:
         chosen_candidate = random.sample(candidates, 1)[0]
         candidates.remove(chosen_candidate)
-        if chosen_candidate not in objects:
-            order.append(chosen_candidate)
+        order.append(chosen_candidate)
         for successor in flat_lattice[chosen_candidate]:
             if successor not in is_seen:
                 is_seen.add(chosen_candidate)
@@ -150,6 +149,7 @@ def flat_contraction_order(flat_lattice):
                             or predecessors[1] == chosen_candidate and (predecessors[0] in order or
                                                                         predecessors[0] in objects):
                         candidates.add(successor)
+    order = [vertex for vertex in order if vertex not in objects]
     return order
 
 
@@ -219,7 +219,7 @@ def contract_edge(tree, class_to_create, lattice, dual, already_created):
             if other_successor not in already_created:
                 edges_to_update += ((predecessor, class_to_create),)
                 for neighbor in tree[predecessor]:
-                    if sup_filter(lattice, neighbor).intersection(sup_filter(lattice, predecessor)) in sup_filter(
+                    if sup_filter(lattice, neighbor).intersection(sup_filter(lattice, predecessor)) <= sup_filter(
                             lattice, class_to_create):
                         edges_to_update += ((neighbor, predecessor), (neighbor, class_to_create))
             else:
