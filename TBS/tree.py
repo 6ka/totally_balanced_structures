@@ -2,7 +2,7 @@ import math
 import random
 import matplotlib.collections
 from matplotlib import pyplot
-from TBS.lattice import sup_filter
+from TBS.lattice import sup
 
 
 def find_root(tree):
@@ -16,6 +16,8 @@ def find_root(tree):
 
 
 def get_radial_tree_coordinates(tree, root=None, order=None):
+    if len(tree) == 1:
+        return {0: [0, 0]}
     if not root:
         root = find_root(tree)
     if not order:
@@ -40,17 +42,31 @@ def get_radial_tree_coordinates(tree, root=None, order=None):
     return coordinates
 
 
-def radial_draw_tree(tree, root=None, order=None):
+def radial_draw_tree(tree, lattice, root=None, order=None, save=None, show=True):
     fig, ax = pyplot.subplots()
     coordinates = get_radial_tree_coordinates(tree, root, order)
     lines = []
+    red_lines = []
     for vertex in tree:
         for neighbour in tree[vertex]:
-            lines.append([tuple(coordinates[vertex]), tuple(coordinates[neighbour])])
+            edge_sup = sup(lattice, vertex, neighbour)
+            if edge_sup == vertex or edge_sup == neighbour:
+                red_lines.append((coordinates[vertex], coordinates[neighbour]))
+            else:
+                lines.append([tuple(coordinates[vertex]), tuple(coordinates[neighbour])])
+            edge_middle = [(coordinates[vertex][i] + coordinates[neighbour][i]) / 2 for i in
+                           range(len(coordinates[vertex]))]
+            pyplot.annotate(edge_sup, edge_middle, color='#0d749e')
     line_collection = matplotlib.collections.LineCollection(lines)
+    red_line_collection = matplotlib.collections.LineCollection(red_lines, colors="red")
     ax.add_collection(line_collection)
+    ax.add_collection(red_line_collection)
     pyplot.scatter([coordinates[vertex][0] for vertex in coordinates],
                    [coordinates[vertex][1] for vertex in coordinates])
     for i, vertex in enumerate(coordinates):
         pyplot.annotate(vertex, (coordinates[vertex][0], coordinates[vertex][1]))
-    pyplot.show()
+    if show:
+        pyplot.show()
+    if save:
+        pyplot.savefig(save)
+        pyplot.close()
