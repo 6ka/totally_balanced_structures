@@ -14,8 +14,7 @@ def find_root(tree):
     return random.choice(possible_roots)
 
 
-def radial_draw_tree(tree, root=None, order=None):
-    fig, ax = pyplot.subplots()
+def get_radial_tree_coordinates(tree, root=None, order=None):
     if not root:
         root = find_root(tree)
     if not order:
@@ -29,7 +28,6 @@ def radial_draw_tree(tree, root=None, order=None):
             neighbors_angles = [angles[neighbor] for neighbor in tree[vertex] if neighbor in angles]
             angles[vertex] = sum(neighbors_angles) / len(neighbors_angles)
     coordinates = {order[0]: [0, 0]}
-    lines = []
     for vertex in order[1:]:
         i = 0
         predecessor = tree[vertex][i]
@@ -38,7 +36,16 @@ def radial_draw_tree(tree, root=None, order=None):
             i += 1
         coordinates[vertex] = [coordinates[predecessor][0] + math.cos(angles[vertex]),
                                coordinates[predecessor][1] + math.sin(angles[vertex])]
-        lines.append([tuple(coordinates[predecessor]), tuple(coordinates[vertex])])
+    return coordinates
+
+
+def radial_draw_tree(tree, root=None, order=None):
+    fig, ax = pyplot.subplots()
+    coordinates = get_radial_tree_coordinates(tree, root, order)
+    lines = []
+    for vertex in tree:
+        for neighbour in tree[vertex]:
+            lines.append([tuple(coordinates[vertex]), tuple(coordinates[neighbour])])
     line_collection = matplotlib.collections.LineCollection(lines)
     ax.add_collection(line_collection)
     pyplot.scatter([coordinates[vertex][0] for vertex in coordinates],
