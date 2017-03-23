@@ -67,3 +67,11 @@ class TestCoverGraph(unittest.TestCase):
                     8: 3,
                     "top": 4}
         self.assertEqual(expected, TBS.lattice.compute_height(self.lattice))
+
+    def test_sup(self):
+        sup = TBS.lattice.sup(self.lattice, 1, 2)
+        self.assertEqual(sup, 5)
+        sup = TBS.lattice.sup(self.lattice, 3, 4)
+        self.assertEqual(sup, "top")
+        sup = TBS.lattice.sup(self.lattice, 1, 3)
+        self.assertEqual(sup, 8)

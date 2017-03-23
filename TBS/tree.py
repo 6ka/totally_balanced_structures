@@ -2,6 +2,7 @@ import math
 import random
 import matplotlib.collections
 from matplotlib import pyplot
+from TBS.lattice import sup_filter
 
 
 def find_root(tree):

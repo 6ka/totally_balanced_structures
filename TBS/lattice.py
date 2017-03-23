@@ -302,3 +302,13 @@ def isa_lattice(possible_lattice):
                 if not unique_generator:
                     return False
     return True
+
+
+def sup(lattice, element, other_element):
+    element_sup = sup_filter(lattice, element)
+    other_element_sup = sup_filter(lattice, other_element)
+    intersection_sup = element_sup.intersection(other_element_sup)
+    dual = dual_lattice(lattice)
+    for element in intersection_sup:
+        if not frozenset(dual[element]).intersection(intersection_sup):
+            return element
