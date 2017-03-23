@@ -21,7 +21,7 @@ def radial_draw_tree(tree, root=None, order=None):
     if not order:
         order = list(tree.topological_sort(root))
     angles = {}
-    leaves = [vertex for vertex in order if tree.isa_leaf(vertex)]
+    leaves = [vertex for vertex in order if tree.isa_leaf(vertex) and vertex != root]
     for index, leaf in enumerate(leaves):
         angles[leaf] = 2 * math.pi * index / len(leaves)
     for vertex in reversed(order):

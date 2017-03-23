@@ -120,7 +120,7 @@ def move_sup_irreducibles_to_atoms(lattice):
     atoms = flat_lattice[bottom]
     current_element_index = len(flat_lattice) - 1
     for sup in sup_irr:
-        if sup not in atoms:
+        if sup not in atoms and len(flat_lattice[sup]) > 0:
             flat_lattice.update(((bottom, current_element_index), (current_element_index, sup)))
             current_element_index += 1
     return flat_lattice
@@ -191,9 +191,12 @@ def support_tree(lattice, bottom=None):
             representatives[current_class_index] = random.choice(
                 [first_class_representative, second_class_representative])
             if colors[first_class_representative] != colors[second_class_representative]:
-                tree.update(tuple([(first_class_representative, second_class_representative)]))
-                for class_element in classes[predecessors[1]]:
-                    colors[class_element] = colors[first_class_representative]
+                tree.update(((first_class_representative, second_class_representative), ))
+                color_to_change = colors[second_class_representative]
+                color_to_keep = colors[first_class_representative]
+                for element in colors:
+                    if colors[element] == color_to_change:
+                        colors[element] = color_to_keep
                 n_connected_parts -= 1
             classes[current_class_index] = classes[predecessors[0]].union(classes[predecessors[1]])
     return tree
