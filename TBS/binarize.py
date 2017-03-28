@@ -1,6 +1,7 @@
 import random
 from TBS.graph import Graph
 from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters, sup_irreducible, sup_filter
+from TBS.tree import radial_draw_tree
 
 
 def atoms(lattice, bottom=None):
@@ -126,9 +127,11 @@ def move_sup_irreducibles_to_atoms(lattice):
     return flat_lattice
 
 
-def flat_contraction_order(flat_lattice):
-    dual = dual_lattice(flat_lattice)
-    bottom = get_bottom(flat_lattice)
+def flat_contraction_order(flat_lattice, dual=None, bottom=None):
+    if not dual:
+        dual = dual_lattice(flat_lattice)
+    if not bottom:
+        bottom = get_bottom(flat_lattice)
     objects = atoms(flat_lattice, bottom)
     candidates = objects.copy()
     order = []
@@ -145,9 +148,9 @@ def flat_contraction_order(flat_lattice):
                     candidates.add(successor)
                 else:
                     if predecessors[0] == chosen_candidate and (predecessors[1] in order or
-                                                                predecessors[1] in objects) \
+                                                                        predecessors[1] in objects) \
                             or predecessors[1] == chosen_candidate and (predecessors[0] in order or
-                                                                        predecessors[0] in objects):
+                                                                                predecessors[0] in objects):
                         candidates.add(successor)
     order = [vertex for vertex in order if vertex not in objects]
     return order
@@ -170,10 +173,11 @@ def contraction_order(lattice):
     return flat_contraction_order(lattice)
 
 
-def support_tree(lattice, bottom=None):
+def support_tree(lattice, bottom=None, dual=None):
     if not bottom:
         bottom = get_bottom(lattice)
-    dual = dual_lattice(lattice)
+    if not dual:
+        dual = dual_lattice(lattice)
     class_order = lattice.topological_sort(bottom)
     objects = atoms(lattice, bottom)
     representatives = {object: object for object in objects}
@@ -191,7 +195,7 @@ def support_tree(lattice, bottom=None):
             representatives[current_class_index] = random.choice(
                 [first_class_representative, second_class_representative])
             if colors[first_class_representative] != colors[second_class_representative]:
-                tree.update(((first_class_representative, second_class_representative), ))
+                tree.update(((first_class_representative, second_class_representative),))
                 color_to_change = colors[second_class_representative]
                 color_to_keep = colors[first_class_representative]
                 for element in colors:
@@ -235,15 +239,37 @@ def contract_edge(tree, class_to_create, lattice, dual, already_created):
     return tree
 
 
-def contraction_trees(lattice, bottom=None):
+def contraction_trees(lattice, order=None, bottom=None):
     if not bottom:
         bottom = get_bottom(lattice)
+    if not order:
+        order = iter(contraction_order(lattice))
     dual = dual_lattice(lattice)
     tree = support_tree(lattice, bottom)
     trees = [tree.copy()]
-    order = iter(contraction_order(lattice))
     already_created = set()
     for vertex in order:
         tree = contract_edge(tree, vertex, lattice, dual, already_created)
         trees.append(tree.copy())
     return trees
+
+
+def draw_binarisation_trees(lattice, bottom=None, order=None, show=True, save=None):
+    if not bottom:
+        bottom = get_bottom(lattice)
+    if not order:
+        order = contraction_order(lattice)
+    dual = dual_lattice(lattice)
+    trees = contraction_trees(lattice, order=order, bottom=bottom)
+    directory = save
+    if save:
+        save = directory + "0"
+    radial_draw_tree(trees[0], lattice, highlighted_edge={tuple(dual[order[0]])}, show=show, save=save)
+    for i in range(1, len(trees) - 1):
+        if save:
+            save = directory + str(i)
+        radial_draw_tree(trees[i], lattice, highlighted_edge={tuple(dual[order[i]])}, highlighted_node={order[i - 1]},
+                         show=show, save=save)
+    if save:
+        save = directory + str(len(trees) - 1)
+    radial_draw_tree(trees[-1], lattice, highlighted_node={order[-1]}, show=show, save=save)

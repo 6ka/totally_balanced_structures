@@ -300,7 +300,7 @@ class TestBinarize(unittest.TestCase):
         small_binary_lattice = Graph((1, 2, 3, 4, 5, 'bottom', 'top'), (
             ('bottom', 1), ('bottom', 2), ('bottom', 3), (1, 4), (2, 4), (2, 5), (3, 5), (4, 'top'), (5, 'top')),
                                      directed=True)
-        trees = contraction_trees(small_binary_lattice, 'bottom')
+        trees = contraction_trees(small_binary_lattice, bottom='bottom')
         support = Graph((1, 2, 3), ((1, 2), (2, 3)))
         self.assertEqual(trees[0], support)
         first_1 = Graph((4, 2, 3), ((4, 2), (2, 3)))
