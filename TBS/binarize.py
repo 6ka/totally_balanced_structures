@@ -121,7 +121,7 @@ def move_sup_irreducibles_to_atoms(lattice):
     atoms = flat_lattice[bottom]
     current_element_index = len(flat_lattice) - 1
     for sup in sup_irr:
-        if sup not in atoms and len(flat_lattice[sup]) > 0:
+        if sup not in atoms:
             flat_lattice.update(((bottom, current_element_index), (current_element_index, sup)))
             current_element_index += 1
     return flat_lattice
@@ -133,43 +133,55 @@ def flat_contraction_order(flat_lattice, dual=None, bottom=None):
     if not bottom:
         bottom = get_bottom(flat_lattice)
     objects = atoms(flat_lattice, bottom)
-    candidates = objects.copy()
+    predecessors_exist = set()
     order = []
-    is_seen = set()
-    while len(candidates) > 0:
-        chosen_candidate = random.sample(candidates, 1)[0]
-        candidates.remove(chosen_candidate)
+    is_built = objects.copy()
+    for element in objects:
+        for successor in flat_lattice[element]:
+            if other_successor(dual, successor, element) in objects:
+                predecessors_exist.add(successor)
+    while len(predecessors_exist) > 0:
+        chosen_candidate = random.sample(predecessors_exist, 1)[0]
+        predecessors_exist.remove(chosen_candidate)
         order.append(chosen_candidate)
+        is_built.add(chosen_candidate)
         for successor in flat_lattice[chosen_candidate]:
-            if successor not in is_seen:
-                is_seen.add(chosen_candidate)
+            if successor not in is_built:
                 predecessors = dual[successor]
                 if len(predecessors) == 1:
-                    candidates.add(successor)
+                    predecessors_exist.add(successor)
                 else:
-                    if predecessors[0] == chosen_candidate and (predecessors[1] in order or
-                                                                        predecessors[1] in objects) \
-                            or predecessors[1] == chosen_candidate and (predecessors[0] in order or
-                                                                                predecessors[0] in objects):
-                        candidates.add(successor)
+                    other_predecessor = other_successor(dual, successor, chosen_candidate)
+                    if other_predecessor in is_built or other_predecessor in objects:
+                        predecessors_exist.add(successor)
+
     order = [vertex for vertex in order if vertex not in objects]
     return order
+
+
+def other_successor(lattice, element, first_successor):
+    successors = lattice[element]
+    if len(successors) != 2:
+        raise ValueError("element is not binary in lattice")
+    elif successors[0] == first_successor:
+        return successors[1]
+    elif successors[1] == first_successor:
+        return successors[0]
+    else:
+        raise ValueError("first_successor is not a successor of element in lattice")
 
 
 def is_flat(lattice, bottom=None):
     objects = sup_irreducible(lattice)
     lattice_atoms = atoms(lattice, bottom)
-    for object in objects:
-        if object not in lattice_atoms:
-            return False
-    return True
+    return objects == lattice_atoms
 
 
 def contraction_order(lattice):
-    if not is_flat(lattice):
-        lattice = move_sup_irreducibles_to_atoms(lattice)
     if not is_binary(lattice):
         lattice = binarize(lattice, ignored_elements={get_bottom(lattice)})
+    if not is_flat(lattice):
+        lattice = move_sup_irreducibles_to_atoms(lattice)
     return flat_contraction_order(lattice)
 
 

@@ -213,6 +213,10 @@ class TestBinarize(unittest.TestCase):
         self.assertTrue(order.index(8) > order.index(6))
         self.assertTrue(order.index(9) > order.index(7))
 
+    # def test_contraction_order_with_red_path(self):
+    #     flat_lattice = Graph()
+    #     flat_lattice.update(('BOTTOM', 0), ('BOTTOM', 0), ('BOTTOM', 0), ('BOTTOM', 0), ('BOTTOM', 15), ('BOTTOM', 18), ('BOTTOM', 17), ('BOTTOM', 14))
+
     def test_support_tree(self):
         tree = support_tree(move_sup_irreducibles_to_atoms(self.lattice))
         self.assertTrue(tree.isa_edge(1, 2))
@@ -310,3 +314,35 @@ class TestBinarize(unittest.TestCase):
         self.assertEqual(trees[2], second)
         last = Graph(('top',), ())
         self.assertEqual(trees[3], last)
+
+    def test_contraction_trees_more_specific_order(self):
+        # lattice = Graph(vertices=['BOTTOM', 1, 3, 4, 0, 2, 5, 9, 6, 7, 'TOP', 8],
+        #                 edges=[('BOTTOM', 1, None), ('BOTTOM', 3, None), ('BOTTOM', 4, None), (1, 0, None),
+        #                        (1, 5, None), (3, 2, None), (4, 0, None), (0, 2, None), (2, 9, None), (5, 2, None),
+        #                        (5, 6, None), (5, 7, None), (9, 8, None), (6, 'TOP', None), (7, 'TOP', None),
+        #                        (8, 'TOP', None)], directed=True)
+        flat_binarized_lattice = Graph(
+            vertices=['BOTTOM', 16, 17, 18, 3, 4, 1, 14, 19, 15, 0, 5, 11, 12, 2, 6, 9, 8, 13, 7],
+            edges=[('BOTTOM', 16), ('BOTTOM', 17), ('BOTTOM', 18), ('BOTTOM', 3), ('BOTTOM', 4), ('BOTTOM', 1),
+                   ('BOTTOM', 14), ('BOTTOM', 19), ('BOTTOM', 15), (4, 0), (1, 0), (1, 5), (14, 5), (5, 11), (11, 6),
+                   (19, 11), (15, 6), (0, 12), (11, 12), (12, 2), (3, 2), (2, 9), (18, 9), (9, 8), (17, 8), (8, 13),
+                   (6, 13), (13, 'TOP'), (7, 'TOP'), (5, 7), (16, 7)], directed=True)
+        trees = contraction_trees(flat_binarized_lattice)
+        self.assertEqual(len(trees[-1]), 1)
+
+    def test_contraction_trees_move_edge(self):
+        # lattice = Graph(vertices=['BOTTOM', 'TOP', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        #                 edges=[('BOTTOM', 3, None), (0, 6, None), (6, 8, None), (1, 4, None), (1, 5, None),
+        #                        (2, 'TOP', None), (3, 1, None), (3, 9, None), (4, 2, None), (4, 7, None), (5, 0, None),
+        #                        (6, 2, None), (7, 'TOP', None), (8, 'TOP', None), (9, 8, None)], directed=True)
+        flat_binarized_lattice = Graph(
+            vertices=['BOTTOM', 'TOP', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18],
+            edges=[('BOTTOM', 3, None), ('BOTTOM', 12, None), ('BOTTOM', 13, None), ('BOTTOM', 14, None),
+                   ('BOTTOM', 15, None), ('BOTTOM', 16, None), ('BOTTOM', 17, None), ('BOTTOM', 18, None), (0, 6, None),
+                   (6, 8, None), (1, 4, None), (1, 5, None), (2, 11, None), (3, 1, None), (3, 9, None), (4, 2, None),
+                   (4, 7, None), (5, 0, None), (6, 2, None), (7, 'TOP', None), (8, 11, None), (9, 8, None),
+                   (11, 'TOP', None), (12, 0, None), (13, 1, None), (14, 4, None), (15, 5, None), (16, 6, None),
+                   (17, 7, None), (18, 9, None)], directed=True)
+        trees = contraction_trees(flat_binarized_lattice, order=[9, 1, 5, 0, 6, 8, 4, 2, 7, 11, 'TOP'])
+        print(trees[-1], [vertex for vertex in trees[-1]])
+        self.assertEqual(len(trees[-1]), 1)
