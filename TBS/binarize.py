@@ -134,6 +134,9 @@ def flat_contraction_order(flat_lattice, dual=None, bottom=None):
         bottom = get_bottom(flat_lattice)
     objects = atoms(flat_lattice, bottom)
     predecessors_exist = set()
+    take_after = set()
+    arrow_head = set()
+    arrows = {}
     order = []
     is_built = objects.copy()
     for element in objects:
@@ -141,21 +144,30 @@ def flat_contraction_order(flat_lattice, dual=None, bottom=None):
             if other_successor(dual, successor, element) in objects:
                 predecessors_exist.add(successor)
     while len(predecessors_exist) > 0:
-        chosen_candidate = random.sample(predecessors_exist, 1)[0]
+        chosen_candidate = random.sample(predecessors_exist - take_after, 1)[0]
         predecessors_exist.remove(chosen_candidate)
-        order.append(chosen_candidate)
         is_built.add(chosen_candidate)
-        for successor in flat_lattice[chosen_candidate]:
-            if successor not in is_built:
-                predecessors = dual[successor]
-                if len(predecessors) == 1:
-                    predecessors_exist.add(successor)
+        order.append(chosen_candidate)
+        arrows[chosen_candidate] = []
+        for predecessor in dual[chosen_candidate]:
+            if len(flat_lattice[predecessor]) == 2:
+                other_succ = other_successor(flat_lattice, predecessor, chosen_candidate)
+                if other_succ not in is_built:
+                    arrow_head.add(chosen_candidate)
+                    arrows[chosen_candidate].append(predecessor)
                 else:
-                    other_predecessor = other_successor(dual, successor, chosen_candidate)
-                    if other_predecessor in is_built or other_predecessor in objects:
-                        predecessors_exist.add(successor)
-
-    order = [vertex for vertex in order if vertex not in objects]
+                    arrows[other_succ].remove(predecessor)
+                    if len(arrows[other_succ]) == 0:
+                        arrow_head.remove(other_succ)
+                        for successor in flat_lattice[other_succ]:
+                            if other_successor(dual, successor, other_succ) not in arrow_head:
+                                take_after.discard(successor)
+        for successor in flat_lattice[chosen_candidate]:
+            if other_successor(dual, successor, chosen_candidate) in is_built:
+                predecessors_exist.add(successor)
+                for other_succ_pred in dual[successor]:
+                    if other_succ_pred in arrow_head:
+                        take_after.add(successor)
     return order
 
 

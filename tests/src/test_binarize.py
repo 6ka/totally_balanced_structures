@@ -213,9 +213,24 @@ class TestBinarize(unittest.TestCase):
         self.assertTrue(order.index(8) > order.index(6))
         self.assertTrue(order.index(9) > order.index(7))
 
-    # def test_contraction_order_with_red_path(self):
-    #     flat_lattice = Graph()
-    #     flat_lattice.update(('BOTTOM', 0), ('BOTTOM', 0), ('BOTTOM', 0), ('BOTTOM', 0), ('BOTTOM', 15), ('BOTTOM', 18), ('BOTTOM', 17), ('BOTTOM', 14))
+    def test_contraction_order_with_red_path(self):
+        flat_binarized_lattice = Graph(vertices=['BOTTOM', 'TOP', 0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15],
+                                       edges=[('BOTTOM', 3, None), ('BOTTOM', 10, None), ('BOTTOM', 11, None),
+                                              ('BOTTOM', 12, None),
+                                              ('BOTTOM', 13, None), ('BOTTOM', 14, None), ('BOTTOM', 15, None),
+                                              (0, 9, None), (1, 5, None),
+                                              (1, 8, None), (2, 'TOP', None), (3, 1, None), (3, 4, None), (4, 2, None),
+                                              (5, 'TOP', None),
+                                              (6, 9, None), (8, 0, None), (8, 6, None), (9, 2, None), (10, 0, None),
+                                              (11, 1, None),
+                                              (12, 4, None), (13, 5, None), (14, 6, None), (15, 8, None)],
+                                       directed=True)
+        order = contraction_order(flat_binarized_lattice)
+        for i in [0, 2, 5, 6, 8, 9]:
+            self.assertTrue(order.index(1) < order.index(i))
+            self.assertTrue(order.index(4) < order.index(i))
+        self.assertTrue(order.index(6) > order.index(5))
+        self.assertTrue(order.index(0) > order.index(5))
 
     def test_support_tree(self):
         tree = support_tree(move_sup_irreducibles_to_atoms(self.lattice))
