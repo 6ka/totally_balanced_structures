@@ -1,7 +1,10 @@
 import random
 from TBS.graph import Graph
-from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters, sup_irreducible, sup_filter
+from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters, sup_irreducible, sup_filter, \
+    sup_irreducible_clusters
 from TBS.tree import radial_draw_tree
+from TBS.contextmatrix import ContextMatrix
+from TBS.orders.doubly_lexical import doubly_lexical_order
 
 
 def atoms(lattice, bottom=None):
@@ -230,6 +233,51 @@ def support_tree(lattice, bottom=None, dual=None):
     return tree
 
 
+def dlo_support_tree(lattice):
+    matrix = ContextMatrix.from_lattice(lattice)
+    row_order = doubly_lexical_order(matrix.matrix)[0]
+    row_order = [matrix.elements[row_order[i]] for i in range(len(row_order))]
+    tree = Graph()
+    classes = sup_irreducible_clusters(lattice)
+    for element in row_order[:-1]:
+        neighbour = dlo_support_tree_neighbour(lattice, row_order, element, classes)
+        tree.update(((element, neighbour),))
+    return tree
+
+
+def dlo_support_tree_neighbour(lattice, row_order, element, classes):
+    found = False
+    current_element = element
+    current_class = element
+    inferiors = {row_order[i] for i in range(row_order.index(current_element) + 1)}
+    while not found:
+        if len(lattice[current_class]) == 1:
+            successor = lattice[current_class][0]
+            if len(classes[successor] - inferiors) != 0:
+                neighbour = min(classes[successor] - inferiors, key=lambda x: row_order.index(x))
+                found = True
+            else:
+                current_class = successor
+                current_element = row_order[row_order.index(current_element) - 1]
+        elif len(lattice[current_class]) == 2:
+            first_successor = lattice[current_class][0]
+            second_successor = lattice[current_class][1]
+            if len(classes[first_successor] - inferiors) != 0: # first successor is to the right
+                neighbour = min(classes[first_successor] - inferiors, key=lambda x: row_order.index(x))
+                found = True
+            elif len(classes[second_successor] - inferiors) != 0: # second successor is to the right
+                neighbour = min(classes[second_successor] - inferiors, key=lambda x: row_order.index(x))
+                found = True
+            else: # both successors are on top
+                just_on_top_element = row_order[row_order.index(current_element) - 1]
+                if just_on_top_element in classes[first_successor]:
+                    current_class = first_successor
+                else:
+                    current_class = second_successor
+                current_element = just_on_top_element
+    return neighbour
+
+
 def contract_edge(tree, class_to_create, lattice, dual, already_created):
     already_created.add(class_to_create)
     tree.update(((dual[class_to_create][0], dual[class_to_create][1]),))
@@ -242,12 +290,12 @@ def contract_edge(tree, class_to_create, lattice, dual, already_created):
             tree.remove(predecessor)
         elif len(lattice[predecessor]) == 2:
             if lattice[predecessor][0] == class_to_create:
-                other_successor = lattice[predecessor][1]
+                other_succ = lattice[predecessor][1]
             elif lattice[predecessor][1] == class_to_create:
-                other_successor = lattice[predecessor][0]
+                other_succ = lattice[predecessor][0]
             else:
                 raise ValueError("Lattice is not binary")
-            if other_successor not in already_created:
+            if other_succ not in already_created:
                 edges_to_update += ((predecessor, class_to_create),)
                 for neighbor in tree[predecessor]:
                     if sup_filter(lattice, neighbor).intersection(sup_filter(lattice, predecessor)) <= sup_filter(
