@@ -407,3 +407,14 @@ class TestBinarize(unittest.TestCase):
             if cls != 'BOTTOM':
                 self.assertEqual(len(support_tree.connected_parts(list(classes[cls]))), 1)
 
+    def test_dlo_contraction_order(self):
+        flat_binarized_lattice = Graph(
+            vertices=['BOTTOM', 'TOP', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18],
+            edges=[('BOTTOM', 3, None), ('BOTTOM', 12, None), ('BOTTOM', 13, None), ('BOTTOM', 14, None),
+                   ('BOTTOM', 15, None), ('BOTTOM', 16, None), ('BOTTOM', 17, None), ('BOTTOM', 18, None), (0, 6, None),
+                   (6, 8, None), (1, 4, None), (1, 5, None), (2, 11, None), (3, 1, None), (3, 9, None), (4, 2, None),
+                   (4, 7, None), (5, 0, None), (6, 2, None), (7, 'TOP', None), (8, 11, None), (9, 8, None),
+                   (11, 'TOP', None), (12, 0, None), (13, 1, None), (14, 4, None), (15, 5, None), (16, 6, None),
+                   (17, 7, None), (18, 9, None)], directed=True)
+        order = dlo_contraction_order(flat_binarized_lattice)
+        self.assertListEqual(order, [1, 5, 0, 6, 4, 2, 9, 8, 11, 7, 'TOP'])

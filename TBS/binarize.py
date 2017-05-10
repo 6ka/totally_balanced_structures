@@ -251,8 +251,8 @@ def dlo_support_tree_neighbour(lattice, row_order, element, classes):
     current_class = element
     inferiors = {row_order[i] for i in range(row_order.index(current_element) + 1)}
     while not found:
-        successor_right = successor_to_the_right_in_context_matrix(lattice, current_class, classes, inferiors)
-        if successor_right:
+        successor_right = successor_to_the_right_in_context_matrix(lattice, current_class, classes, row_order)
+        if successor_right != -1:
             neighbour = min(classes[successor_right] - inferiors, key=lambda x: row_order.index(x))
             found = True
         else:
@@ -260,22 +260,44 @@ def dlo_support_tree_neighbour(lattice, row_order, element, classes):
     return neighbour
 
 
-def successor_to_the_right_in_context_matrix(lattice, current_class, classes, inferiors):
+def dlo_contraction_order(lattice):  # returns the order from left to right and bottom to top of dlo context matrix
+    matrix = ContextMatrix.from_lattice(lattice)
+    row_order = doubly_lexical_order(matrix.matrix)[0]
+    row_order = [matrix.elements[row_order[i]] for i in range(len(row_order))]
+    classes = sup_irreducible_clusters(lattice)
+    contrac_order = []
+    for element in reversed(row_order[:-1]):
+        right_successor = successor_to_the_right_in_context_matrix(lattice, element, classes, row_order)
+        while right_successor != -1:
+            contrac_order.append(right_successor)
+            element = right_successor
+            right_successor = successor_to_the_right_in_context_matrix(lattice, element, classes, row_order)
+    return contrac_order
+
+
+def successor_to_the_right_in_context_matrix(lattice, current_class, classes, row_order):
+    if len(lattice[current_class]) == 0:
+        return -1
     if len(lattice[current_class]) == 1:
         successor = lattice[current_class][0]
-        if len(classes[successor] - inferiors) != 0:
+        if min(classes[successor], key=lambda x: row_order.index(x)) == min(classes[current_class],
+                                                                            key=lambda x: row_order.index(x)):
             return successor
         else:
-            return False
+            return -1
     elif len(lattice[current_class]) == 2:
         first_successor = lattice[current_class][0]
         second_successor = lattice[current_class][1]
-        if len(classes[first_successor] - inferiors) != 0: # first successor is to the right
+        if min(classes[first_successor], key=lambda x: row_order.index(x)) == min(classes[current_class],
+                                                                                  key=lambda x: row_order.index(x)):
+            # first successor is to the right
             return first_successor
-        elif len(classes[second_successor] - inferiors) != 0: # second successor is to the right
+        elif min(classes[second_successor], key=lambda x: row_order.index(x)) == min(classes[current_class],
+                                                                                     key=lambda x: row_order.index(x)):
+            # second successor is to the right
             return second_successor
-        else: # both successors are on top
-            return False
+        else:  # both successors are on top
+            return -1
 
 
 def on_top_element(lattice, current_class, current_element, row_order, classes):  # when no element to the right
