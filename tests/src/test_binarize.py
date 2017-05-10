@@ -3,7 +3,7 @@ from TBS.graph import Graph
 from TBS.binarize import max_intersection, is_binary, element_is_binary, bottom_up_element_binarization, \
     binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization, \
     move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order, support_tree, \
-    contract_edge, contraction_trees, dlo_support_tree_neighbour, dlo_support_tree
+    contract_edge, contraction_trees, dlo_support_tree_neighbour, dlo_support_tree, dlo_contraction_order
 from tree import find_root
 from TBS.lattice import dual_lattice, isa_lattice, sup_irreducible_clusters
 from TBS.randomize import random_dismantable_lattice
@@ -377,9 +377,19 @@ class TestBinarize(unittest.TestCase):
         assert dlo_support_tree_neighbour(flat_binarized_lattice, row_order, 18, classes) == 3
 
     def test_dlo_support_tree_neighbour_two_distinct_clusters(self):
-        flat_binarized_lattice = Graph(vertices=['BOTTOM', 'TOP', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25], edges=[('BOTTOM', 0, None), ('BOTTOM', 3, None), ('BOTTOM', 5, None), ('BOTTOM', 17, None), ('BOTTOM', 18, None), ('BOTTOM', 19, None), ('BOTTOM', 20, None), ('BOTTOM', 21, None), ('BOTTOM', 22, None), ('BOTTOM', 23, None), ('BOTTOM', 24, None), ('BOTTOM', 25, None), (0, 2, None), (1, 9, None), (1, 14, None), (2, 8, None), (3, 7, None), (3, 10, None), (4, 11, None), (4, 13, None), (5, 1, None), (6, 16, None), (7, 4, None), (8, 'TOP', None), (9, 12, None), (10, 16, None), (11, 6, None), (12, 'TOP', None), (13, 9, None), (14, 12, None), (16, 1, None), (17, 2, None), (18, 4, None), (19, 6, None), (20, 7, None), (21, 8, None), (22, 10, None), (23, 11, None), (24, 13, None), (25, 14, None)], directed=True)
+        flat_binarized_lattice = Graph(
+            vertices=['BOTTOM', 'TOP', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 16, 17, 18, 19, 20, 21, 22, 23,
+                      24, 25],
+            edges=[('BOTTOM', 0, None), ('BOTTOM', 3, None), ('BOTTOM', 5, None), ('BOTTOM', 17, None),
+                   ('BOTTOM', 18, None), ('BOTTOM', 19, None), ('BOTTOM', 20, None), ('BOTTOM', 21, None),
+                   ('BOTTOM', 22, None), ('BOTTOM', 23, None), ('BOTTOM', 24, None), ('BOTTOM', 25, None), (0, 2, None),
+                   (1, 9, None), (1, 14, None), (2, 8, None), (3, 7, None), (3, 10, None), (4, 11, None), (4, 13, None),
+                   (5, 1, None), (6, 16, None), (7, 4, None), (8, 'TOP', None), (9, 12, None), (10, 16, None),
+                   (11, 6, None), (12, 'TOP', None), (13, 9, None), (14, 12, None), (16, 1, None), (17, 2, None),
+                   (18, 4, None), (19, 6, None), (20, 7, None), (21, 8, None), (22, 10, None), (23, 11, None),
+                   (24, 13, None), (25, 14, None)], directed=True)
         classes = sup_irreducible_clusters(flat_binarized_lattice)
-        row_order = [25,24,5,22,19,23,18,20,3,21,17,0]
+        row_order = [25, 24, 5, 22, 19, 23, 18, 20, 3, 21, 17, 0]
         assert dlo_support_tree_neighbour(flat_binarized_lattice, row_order, 3, classes) == 21
 
     def test_dlo_support_tree(self):
@@ -395,4 +405,5 @@ class TestBinarize(unittest.TestCase):
         support_tree = dlo_support_tree(flat_binarized_lattice)
         for cls in classes:
             if cls != 'BOTTOM':
-                assert len(support_tree.connected_parts(list(classes[cls]))) == 1
+                self.assertEqual(len(support_tree.connected_parts(list(classes[cls]))), 1)
+

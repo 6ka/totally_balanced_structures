@@ -251,31 +251,47 @@ def dlo_support_tree_neighbour(lattice, row_order, element, classes):
     current_class = element
     inferiors = {row_order[i] for i in range(row_order.index(current_element) + 1)}
     while not found:
-        if len(lattice[current_class]) == 1:
-            successor = lattice[current_class][0]
-            if len(classes[successor] - inferiors) != 0:
-                neighbour = min(classes[successor] - inferiors, key=lambda x: row_order.index(x))
-                found = True
-            else:
-                current_class = successor
-                current_element = row_order[row_order.index(current_element) - 1]
-        elif len(lattice[current_class]) == 2:
-            first_successor = lattice[current_class][0]
-            second_successor = lattice[current_class][1]
-            if len(classes[first_successor] - inferiors) != 0: # first successor is to the right
-                neighbour = min(classes[first_successor] - inferiors, key=lambda x: row_order.index(x))
-                found = True
-            elif len(classes[second_successor] - inferiors) != 0: # second successor is to the right
-                neighbour = min(classes[second_successor] - inferiors, key=lambda x: row_order.index(x))
-                found = True
-            else: # both successors are on top
-                just_on_top_element = row_order[row_order.index(current_element) - 1]
-                if just_on_top_element in classes[first_successor]:
-                    current_class = first_successor
-                else:
-                    current_class = second_successor
-                current_element = just_on_top_element
+        successor_right = successor_to_the_right_in_context_matrix(lattice, current_class, classes, inferiors)
+        if successor_right:
+            neighbour = min(classes[successor_right] - inferiors, key=lambda x: row_order.index(x))
+            found = True
+        else:
+            current_class, current_element = on_top_element(lattice, current_class, current_element, row_order, classes)
     return neighbour
+
+
+def successor_to_the_right_in_context_matrix(lattice, current_class, classes, inferiors):
+    if len(lattice[current_class]) == 1:
+        successor = lattice[current_class][0]
+        if len(classes[successor] - inferiors) != 0:
+            return successor
+        else:
+            return False
+    elif len(lattice[current_class]) == 2:
+        first_successor = lattice[current_class][0]
+        second_successor = lattice[current_class][1]
+        if len(classes[first_successor] - inferiors) != 0: # first successor is to the right
+            return first_successor
+        elif len(classes[second_successor] - inferiors) != 0: # second successor is to the right
+            return second_successor
+        else: # both successors are on top
+            return False
+
+
+def on_top_element(lattice, current_class, current_element, row_order, classes):  # when no element to the right
+    if len(lattice[current_class]) == 1:
+        successor = lattice[current_class][0]
+        return successor, row_order[row_order.index(current_element) - 1]
+    elif len(lattice[current_class]) == 2:
+        first_successor = lattice[current_class][0]
+        second_successor = lattice[current_class][1]
+        just_on_top_element = row_order[row_order.index(current_element) - 1]
+        if just_on_top_element in classes[first_successor]:
+            current_class = first_successor
+        else:
+            current_class = second_successor
+        current_element = just_on_top_element
+        return current_class, current_element
 
 
 def contract_edge(tree, class_to_create, lattice, dual, already_created):
