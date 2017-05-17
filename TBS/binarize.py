@@ -130,12 +130,13 @@ def move_sup_irreducibles_to_atoms(lattice):
     return flat_lattice
 
 
-def flat_contraction_order(flat_lattice, dual=None, bottom=None):
+def flat_contraction_order(flat_lattice, dual=None, bottom=None, dlo=None):
     if not dual:
         dual = dual_lattice(flat_lattice)
     if not bottom:
         bottom = get_bottom(flat_lattice)
     objects = atoms(flat_lattice, bottom)
+    classes = sup_irreducible_clusters(flat_lattice)
     predecessors_exist = set()
     take_after = set()
     arrow_head = set()
@@ -147,7 +148,18 @@ def flat_contraction_order(flat_lattice, dual=None, bottom=None):
             if other_successor(dual, successor, element) in objects:
                 predecessors_exist.add(successor)
     while len(predecessors_exist) > 0:
-        chosen_candidate = random.sample(predecessors_exist - take_after, 1)[0]
+        if dlo:
+            candidates = predecessors_exist - take_after
+            current_candidate = candidates.pop()
+            current_min = min(classes[current_candidate], key=lambda x: dlo.index(x))
+            for candidate in candidates:
+                candidate_min = min(classes[candidate], key=lambda x: dlo.index(x))
+                if dlo.index(candidate_min) > dlo.index(current_min):
+                    current_candidate = candidate
+                    current_min = candidate_min
+            chosen_candidate = current_candidate
+        else:
+            chosen_candidate = random.sample(predecessors_exist - take_after, 1)[0]
         predecessors_exist.remove(chosen_candidate)
         is_built.add(chosen_candidate)
         order.append(chosen_candidate)

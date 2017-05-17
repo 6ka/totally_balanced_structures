@@ -201,6 +201,13 @@ class TestBinarize(unittest.TestCase):
         self.assertNotIn(4, order)
         self.assertNotIn(10, order)
 
+    def test_flat_contraction_order_with_dlo(self):
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
+        dlo = [10, 4, 3, 12, 2, 1]
+        order = flat_contraction_order(self.lattice, bottom='bottom', dlo=dlo)
+        self.assertListEqual(order, [11, 7, 5, 6, 8, 9, 'top'])
+
     def test_is_flat(self):
         self.assertFalse(is_flat(self.lattice))
         self.lattice.update((('bottom', 10), (10, 9)))
