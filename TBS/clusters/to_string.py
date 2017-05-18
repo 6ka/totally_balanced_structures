@@ -12,7 +12,8 @@ def from_dlo_gamma_free_context_matrix(context_matrix):
 
     return BoxesToString(boxes.values(),
                          context_matrix.elements, context_matrix.attributes,
-                         {value: key for key, value in boxes.items()},
+                         {value: context_matrix.attributes[value[0][1]] for value in
+                          boxes.values()},
                          lattice).run()
 
 

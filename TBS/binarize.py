@@ -2,9 +2,10 @@ import random
 from TBS.graph import Graph
 from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters, sup_irreducible, sup_filter, \
     sup_irreducible_clusters
-from TBS.tree import radial_draw_tree
+from TBS.tree import radial_draw_tree, draw_3d_support_tree
 from TBS.contextmatrix import ContextMatrix
 from TBS.orders.doubly_lexical import doubly_lexical_order
+from TBS.draw_lattice import point_coordinates
 
 
 def atoms(lattice, bottom=None):
@@ -130,6 +131,18 @@ def move_sup_irreducibles_to_atoms(lattice):
     return flat_lattice
 
 
+def lower_class_in_dlo_matrix(classes, order):
+    current_candidate = None
+    for candidate in classes:
+        if current_candidate is None:
+            current_candidate = candidate
+        current_min = min(classes[current_candidate], key=lambda x: order.index(x))
+        candidate_min = min(classes[candidate], key=lambda x: order.index(x))
+        if order.index(candidate_min) > order.index(current_min):
+            current_candidate = candidate
+    return current_candidate
+
+
 def flat_contraction_order(flat_lattice, dual=None, bottom=None, dlo=None):
     if not dual:
         dual = dual_lattice(flat_lattice)
@@ -149,15 +162,8 @@ def flat_contraction_order(flat_lattice, dual=None, bottom=None, dlo=None):
                 predecessors_exist.add(successor)
     while len(predecessors_exist) > 0:
         if dlo:
-            candidates = predecessors_exist - take_after
-            current_candidate = candidates.pop()
-            current_min = min(classes[current_candidate], key=lambda x: dlo.index(x))
-            for candidate in candidates:
-                candidate_min = min(classes[candidate], key=lambda x: dlo.index(x))
-                if dlo.index(candidate_min) > dlo.index(current_min):
-                    current_candidate = candidate
-                    current_min = candidate_min
-            chosen_candidate = current_candidate
+            chosen_candidate = lower_class_in_dlo_matrix(
+                {element: classes[element] for element in predecessors_exist - take_after}, dlo)
         else:
             chosen_candidate = random.sample(predecessors_exist - take_after, 1)[0]
         predecessors_exist.remove(chosen_candidate)
@@ -277,14 +283,14 @@ def dlo_contraction_order(lattice):  # returns the order from left to right and 
     row_order = doubly_lexical_order(matrix.matrix)[0]
     row_order = [matrix.elements[row_order[i]] for i in range(len(row_order))]
     classes = sup_irreducible_clusters(lattice)
-    contrac_order = []
+    order = []
     for element in reversed(row_order[:-1]):
         right_successor = successor_to_the_right_in_context_matrix(lattice, element, classes, row_order)
         while right_successor != -1:
-            contrac_order.append(right_successor)
+            order.append(right_successor)
             element = right_successor
             right_successor = successor_to_the_right_in_context_matrix(lattice, element, classes, row_order)
-    return contrac_order
+    return order
 
 
 def successor_to_the_right_in_context_matrix(lattice, current_class, classes, row_order):
@@ -361,13 +367,18 @@ def contract_edge(tree, class_to_create, lattice, dual, already_created):
     return tree
 
 
-def contraction_trees(lattice, order=None, bottom=None):
+def contraction_trees(lattice, order=None, bottom=None, dlo=False):
     if not bottom:
         bottom = get_bottom(lattice)
-    if not order:
-        order = iter(contraction_order(lattice))
+    if dlo:
+        tree = dlo_support_tree(lattice)
+        if not order:
+            order = iter(dlo_contraction_order(lattice))
+    else:
+        tree = support_tree(lattice, bottom)
+        if not order:
+            order = iter(contraction_order(lattice))
     dual = dual_lattice(lattice)
-    tree = support_tree(lattice, bottom)
     trees = [tree.copy()]
     already_created = set()
     for vertex in order:
@@ -376,13 +387,13 @@ def contraction_trees(lattice, order=None, bottom=None):
     return trees
 
 
-def draw_binarisation_trees(lattice, bottom=None, order=None, show=True, save=None):
+def draw_binarisation_trees(lattice, bottom=None, order=None, dlo=False, show=True, save=None):
     if not bottom:
         bottom = get_bottom(lattice)
     if not order:
         order = contraction_order(lattice)
     dual = dual_lattice(lattice)
-    trees = contraction_trees(lattice, order=order, bottom=bottom)
+    trees = contraction_trees(lattice, order=order, bottom=bottom, dlo=dlo)
     directory = save
     if save:
         save = directory + "0"
@@ -395,3 +406,16 @@ def draw_binarisation_trees(lattice, bottom=None, order=None, show=True, save=No
     if save:
         save = directory + str(len(trees) - 1)
     radial_draw_tree(trees[-1], lattice, highlighted_node={order[-1]}, show=show, save=save)
+
+
+def draw_binarisation_trees_dlo_3d(lattice, bottom=None):
+    if not bottom:
+        bottom = get_bottom(lattice)
+    context_matrix = ContextMatrix.from_lattice(lattice)
+    context_matrix.reorder_doubly_lexical_order()
+    order = flat_contraction_order(lattice, bottom=bottom, order=order)
+    trees = contraction_trees(lattice, order=order, bottom=bottom, dlo=True)
+    coordinates = point_coordinates(lattice)
+    draw_3d_support_tree(trees[0], coordinates, lattice)
+    for tree in trees:
+        draw_3d_support_tree(tree, coordinates, lattice)
