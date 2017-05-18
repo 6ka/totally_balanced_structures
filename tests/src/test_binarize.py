@@ -4,7 +4,7 @@ from TBS.binarize import max_intersection, is_binary, element_is_binary, bottom_
     binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization, \
     move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order, support_tree, \
     contract_edge, contraction_trees, dlo_support_tree_neighbour, dlo_support_tree, dlo_contraction_order, \
-    successor_to_the_right_in_context_matrix
+    successor_to_the_right_in_context_matrix, on_top_element
 from TBS.draw_lattice import class_associated_to_box
 from TBS.clusters import from_dlo_gamma_free_matrix
 from TBS.contextmatrix import ContextMatrix
@@ -417,6 +417,35 @@ class TestBinarize(unittest.TestCase):
         for cls in classes:
             if cls != 'BOTTOM':
                 self.assertEqual(len(support_tree.connected_parts(list(classes[cls]))), 1)
+
+    def test_successor_to_the_right(self):
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
+        row_order = [10, 4, 3, 12, 2, 1]
+        classes = sup_irreducible_clusters(self.lattice)
+        self.assertEqual(successor_to_the_right_in_context_matrix(self.lattice, 10, classes, row_order), 9)
+
+    def test_successor_to_the_right_two_on_top(self):
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
+        row_order = [10, 4, 3, 12, 2, 1]
+        classes = sup_irreducible_clusters(self.lattice)
+        self.assertEqual(successor_to_the_right_in_context_matrix(self.lattice, 11, classes, row_order), 5)
+
+    def test_on_top_element_one_successor(self):
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
+        row_order = [10, 4, 3, 12, 2, 1]
+        classes = sup_irreducible_clusters(self.lattice)
+        self.assertEqual(on_top_element(self.lattice, 1, 1, row_order, classes), (5, 12))
+        self.assertEqual(on_top_element(self.lattice, 11, 12, row_order, classes), (6, 3))
+
+    def test_on_top_element_two_successors(self):
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
+        row_order = [10, 4, 3, 12, 2, 1]
+        classes = sup_irreducible_clusters(self.lattice)
+        self.assertEqual(on_top_element(self.lattice, 2, 2, row_order, classes), (11, 12))
 
     def test_dlo_contraction_order(self):
         flat_binarized_lattice = Graph(

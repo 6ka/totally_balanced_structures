@@ -321,11 +321,15 @@ def successor_to_the_right_in_context_matrix(lattice, current_class, classes, ro
 def on_top_element(lattice, current_class, current_element, row_order, classes):  # when no element to the right
     if len(lattice[current_class]) == 1:
         successor = lattice[current_class][0]
-        return successor, row_order[row_order.index(current_element) - 1]
+        return successor, min(classes[successor], key=lambda x: row_order.index(x))
     elif len(lattice[current_class]) == 2:
         first_successor = lattice[current_class][0]
         second_successor = lattice[current_class][1]
-        just_on_top_element = row_order[row_order.index(current_element) - 1]
+        previous_element = row_order[row_order.index(current_element) - 1]
+        if previous_element in classes[first_successor]:
+            just_on_top_element = min(classes[first_successor], key=lambda x: row_order.index(x))
+        else:
+            just_on_top_element = min(classes[second_successor], key=lambda x: row_order.index(x))
         if just_on_top_element in classes[first_successor]:
             current_class = first_successor
         else:
