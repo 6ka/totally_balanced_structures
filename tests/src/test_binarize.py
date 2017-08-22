@@ -4,7 +4,8 @@ from TBS.binarize import max_intersection, is_binary, element_is_binary, bottom_
     binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization, \
     move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order, support_tree, \
     contract_edge, contraction_trees, dlo_support_tree_neighbour, dlo_support_tree, dlo_contraction_order, \
-    successor_to_the_right_in_context_matrix, on_top_element
+    successor_to_the_right_in_context_matrix, just_on_top_element, left_predecessor, on_top_successors, \
+    on_the_top_and_left
 from TBS.draw_lattice import class_associated_to_box
 from TBS.clusters import from_dlo_gamma_free_matrix
 from TBS.contextmatrix import ContextMatrix
@@ -432,20 +433,51 @@ class TestBinarize(unittest.TestCase):
         classes = sup_irreducible_clusters(self.lattice)
         self.assertEqual(successor_to_the_right_in_context_matrix(self.lattice, 11, classes, row_order), 5)
 
-    def test_on_top_element_one_successor(self):
+    def test_left_predecessor(self):
         self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
         self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
         row_order = [10, 4, 3, 12, 2, 1]
         classes = sup_irreducible_clusters(self.lattice)
-        self.assertEqual(on_top_element(self.lattice, 1, 1, row_order, classes), (5, 12))
-        self.assertEqual(on_top_element(self.lattice, 11, 12, row_order, classes), (6, 3))
+        dual = dual_lattice(self.lattice)
+        self.assertEqual(left_predecessor(dual, 7, classes, row_order), 4)
+        self.assertEqual(left_predecessor(dual, 8, classes, row_order), 6)
+        with self.assertRaises(ValueError):
+            left_predecessor(dual, 10, classes, row_order)
 
-    def test_on_top_element_two_successors(self):
+    def test_on_top_successors(self):
         self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
         self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
         row_order = [10, 4, 3, 12, 2, 1]
         classes = sup_irreducible_clusters(self.lattice)
-        self.assertEqual(on_top_element(self.lattice, 2, 2, row_order, classes), (11, 12))
+        self.assertListEqual(on_top_successors(self.lattice, 2, classes, row_order), [7, 11])
+        self.assertListEqual(on_top_successors(self.lattice, 12, classes, row_order), [])
+        self.assertListEqual(on_top_successors(self.lattice, 7, classes, row_order), [9])
+        self.assertListEqual(on_top_successors(self.lattice, 'top', classes, row_order), [])
+
+    def test_just_on_top_element_one_successor(self):
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
+        row_order = [10, 4, 3, 12, 2, 1]
+        classes = sup_irreducible_clusters(self.lattice)
+        self.assertEqual(just_on_top_element(self.lattice, 1, 1, row_order, classes), (5, 12))
+        self.assertEqual(just_on_top_element(self.lattice, 11, 12, row_order, classes), (6, 3))
+
+    def test_just_on_top_element_two_successors(self):
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
+        row_order = [10, 4, 3, 12, 2, 1]
+        classes = sup_irreducible_clusters(self.lattice)
+        self.assertEqual(just_on_top_element(self.lattice, 2, 2, row_order, classes), (11, 12))
+
+    def test_on_the_top_and_left(self):
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
+        row_order = [10, 4, 3, 12, 2, 1]
+        classes = sup_irreducible_clusters(self.lattice)
+        self.assertSetEqual(on_the_top_and_left(self.lattice, 2, classes, row_order), {11, 6, 12, 3, 7, 4, 9, 10})
+        self.assertSetEqual(on_the_top_and_left(self.lattice, 12, classes, row_order), set())
+        self.assertSetEqual(on_the_top_and_left(self.lattice, 7, classes, row_order), {9, 10, 4})
+        self.assertSetEqual(on_the_top_and_left(self.lattice, 9, classes, row_order), {10})
 
     def test_dlo_contraction_order(self):
         flat_binarized_lattice = Graph(

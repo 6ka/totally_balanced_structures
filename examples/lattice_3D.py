@@ -4,11 +4,11 @@ from TBS.contextmatrix import ContextMatrix
 from TBS.clusters import to_string
 from TBS.hierarchical_decomposition import hierarchical_height_from_lattice
 from TBS import clusters
-from TBS.draw_lattice import draw, point_transformation_square, draw_3d
+from TBS.draw_lattice import draw, draw_3d
 from matplotlib import pyplot
 import matplotlib
 
-NUMBER_OF_ELEMENTS = 25
+NUMBER_OF_ELEMENTS = 12
 lattice = random_dismantable_lattice(NUMBER_OF_ELEMENTS)
 
 binarized_lattice = binarize(lattice)
@@ -34,8 +34,10 @@ colors = matplotlib.cm.rainbow([0. + 1.0 * x / (number_hierarchies - 1) for x in
 draw(formal_context_lattice, colors)
 
 pyplot.show()
+draw_3d(flat_binarized_lattice, colors, hierarchy_association)
 
-draw_3d(flat_binarized_lattice,
-        colors)
+pyplot.show()
+
+draw_3d(flat_binarized_lattice, colors, hierarchy_association, z_position="cross")
 
 pyplot.show()

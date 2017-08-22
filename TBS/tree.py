@@ -81,14 +81,17 @@ def radial_draw_tree(tree, lattice, root=None, order=None, highlighted_edge=set(
     pyplot.close()
 
 
-def draw_3d_support_tree(tree, coordinates, lattice):
+def draw_3d_support_tree(tree, coordinates, lattice, highlighted_edges=set(), highlighted_nodes=set()):
     fig = pyplot.figure()
     ax = fig.gca(projection='3d')
     number_hierarchies = max([coordinates[elem][2] + 2 for elem in coordinates])
     colors = matplotlib.cm.rainbow([0. + 1.0 * x / (number_hierarchies - 1) for x in range(number_hierarchies)])
     for node in tree:
         x, y, z = coordinates[node]
-        ax.scatter(xs=x, ys=y, zs=z, color=colors[z])
+        if node in highlighted_nodes:
+            ax.scatter(xs=x, ys=y, zs=z, color='r')
+        else:
+            ax.scatter(xs=x, ys=y, zs=z, color=colors[z])
     for edge in tree.edges():
         if coordinates[edge[0]][1] > coordinates[edge[1]][1]:
             max_y = edge[0]
@@ -100,7 +103,11 @@ def draw_3d_support_tree(tree, coordinates, lattice):
         x2, y2, z2 = coordinates[min_y]
         # x_int, y_int, z_int = coordinates[sup(lattice, min_y, max_y)]
         x_int, y_int, z_int = (x2, y1, z1)
-        ax.plot([x1, x_int], [y1, y_int], [z1, z_int], color=colors[z1])
-        ax.plot([x_int, x2], [y_int, y2], [z_int, z2], color=colors[min(z1, z2)])
+        if edge in highlighted_edges:
+            ax.plot([x1, x_int], [y1, y_int], [z1, z_int], color='r')
+            ax.plot([x_int, x2], [y_int, y2], [z_int, z2], color='r')
+        else:
+            ax.plot([x1, x_int], [y1, y_int], [z1, z_int], color=colors[z1])
+            ax.plot([x_int, x2], [y_int, y2], [z_int, z2], color=colors[min(z1, z2)])
     pyplot.show()
     pyplot.close()

@@ -1,11 +1,12 @@
 import random
+from collections import deque
+
+from TBS.contextmatrix import ContextMatrix
 from TBS.graph import Graph
 from TBS.lattice import get_bottom, dual_lattice, inf_irreducible_clusters, sup_irreducible, sup_filter, \
     sup_irreducible_clusters
-from TBS.tree import radial_draw_tree, draw_3d_support_tree
-from TBS.contextmatrix import ContextMatrix
 from TBS.orders.doubly_lexical import doubly_lexical_order
-from TBS.draw_lattice import point_coordinates
+from TBS.tree import radial_draw_tree
 
 
 def atoms(lattice, bottom=None):
@@ -52,6 +53,7 @@ def element_is_binary(lattice, element, dual=None):
 
 
 def bottom_up_element_binarization(lattice, element):
+    """Binarize elements covered by more than two elements"""
     bottom_up_binarized_element_lattice = lattice.copy()
     classes = inf_irreducible_clusters(bottom_up_binarized_element_lattice)
     while not len(bottom_up_binarized_element_lattice[element]) <= 2:
@@ -274,7 +276,7 @@ def dlo_support_tree_neighbour(lattice, row_order, element, classes):
             neighbour = min(classes[successor_right] - inferiors, key=lambda x: row_order.index(x))
             found = True
         else:
-            current_class, current_element = on_top_element(lattice, current_class, current_element, row_order, classes)
+            current_class, current_element = just_on_top_element(lattice, current_class, current_element, row_order, classes)
     return neighbour
 
 
@@ -318,7 +320,7 @@ def successor_to_the_right_in_context_matrix(lattice, current_class, classes, ro
             return -1
 
 
-def on_top_element(lattice, current_class, current_element, row_order, classes):  # when no element to the right
+def just_on_top_element(lattice, current_class, current_element, row_order, classes):  # when no element to the right
     if len(lattice[current_class]) == 1:
         successor = lattice[current_class][0]
         return successor, min(classes[successor], key=lambda x: row_order.index(x))
@@ -336,6 +338,51 @@ def on_top_element(lattice, current_class, current_element, row_order, classes):
             current_class = second_successor
         current_element = just_on_top_element
         return current_class, current_element
+
+
+def on_top_successors(lattice, current_class, classes, row_order):
+    on_top_succ = []
+    if len(lattice[current_class]) > 0:
+        successors = lattice[current_class]
+        class_min = min(classes[current_class], key= lambda x: row_order.index(x))
+        for successor in successors:
+            successor_min = min(classes[successor], key=lambda x: row_order.index(x))
+            if row_order.index(successor_min )< row_order.index(class_min):
+                on_top_succ.append(successor)
+    return on_top_succ
+
+
+def left_predecessor(dual, current_class, classes, row_order):  # parent class on the left of current_class in matrix
+    if len(classes[current_class]) != 1:
+        first_parent = dual[current_class][0]
+        second_parent = dual[current_class][1]
+        min_class_element = min(classes[current_class], key=lambda x: row_order.index(x))
+        if min_class_element in classes[first_parent]:
+            return first_parent
+        elif min_class_element in classes[second_parent]:
+            return second_parent
+        else:
+            raise ValueError("current_class has no left parent")
+    else:
+        raise ValueError("current_class is an element so it has no parent")
+
+
+def on_the_top_and_left(lattice, current_class, classes, row_order):
+    top_left_elements = set()
+    class_queue = deque()
+    class_queue.append(current_class)
+    dual = dual_lattice(lattice)
+    while class_queue:
+        current_class = class_queue.pop()
+        if len(classes[current_class]) > 1:
+            left_pred = left_predecessor(dual, current_class, classes, row_order)
+            top_left_elements.add(left_pred)
+            class_queue.append(left_pred)
+        top_succ = on_top_successors(lattice, current_class, classes, row_order)
+        for succ in top_succ:
+            top_left_elements.add(succ)
+            class_queue.append(succ)
+    return top_left_elements
 
 
 def contract_edge(tree, class_to_create, lattice, dual, already_created):
@@ -412,14 +459,3 @@ def draw_binarisation_trees(lattice, bottom=None, order=None, dlo=False, show=Tr
     radial_draw_tree(trees[-1], lattice, highlighted_node={order[-1]}, show=show, save=save)
 
 
-def draw_binarisation_trees_dlo_3d(lattice, bottom=None):
-    if not bottom:
-        bottom = get_bottom(lattice)
-    context_matrix = ContextMatrix.from_lattice(lattice)
-    context_matrix.reorder_doubly_lexical_order()
-    order = flat_contraction_order(lattice, bottom=bottom, order=order)
-    trees = contraction_trees(lattice, order=order, bottom=bottom, dlo=True)
-    coordinates = point_coordinates(lattice)
-    draw_3d_support_tree(trees[0], coordinates, lattice)
-    for tree in trees:
-        draw_3d_support_tree(tree, coordinates, lattice)
