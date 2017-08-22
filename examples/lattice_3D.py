@@ -1,5 +1,5 @@
 from TBS.randomize import random_dismantable_lattice
-from TBS.binarize import binarize, move_sup_irreducibles_to_atoms
+from TBS.binarize import binarize, make_atomistic
 from TBS.contextmatrix import ContextMatrix
 from TBS.clusters import to_string
 from TBS.hierarchical_decomposition import hierarchical_height_from_lattice
@@ -12,7 +12,7 @@ NUMBER_OF_ELEMENTS = 12
 lattice = random_dismantable_lattice(NUMBER_OF_ELEMENTS)
 
 binarized_lattice = binarize(lattice)
-flat_binarized_lattice = move_sup_irreducibles_to_atoms(binarized_lattice)
+flat_binarized_lattice = make_atomistic(binarized_lattice)
 
 context_matrix = ContextMatrix.from_lattice(flat_binarized_lattice)
 context_matrix.reorder_doubly_lexical_order()

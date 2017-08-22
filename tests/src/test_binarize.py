@@ -2,7 +2,7 @@ import unittest
 from TBS.graph import Graph
 from TBS.binarize import max_intersection, is_binary, element_is_binary, bottom_up_element_binarization, \
     binarize_element, binarize, bottom_up_binarization, top_down_binarization, bfs_binarization, \
-    move_sup_irreducibles_to_atoms, atoms, flat_contraction_order, is_flat, contraction_order, support_tree, \
+    make_atomistic, atoms, flat_contraction_order, is_flat, contraction_order, support_tree, \
     contract_edge, contraction_trees, dlo_support_tree_neighbour, dlo_support_tree, dlo_contraction_order, \
     successor_to_the_right_in_context_matrix, just_on_top_element, left_predecessor, on_top_successors, \
     on_the_top_and_left
@@ -187,7 +187,7 @@ class TestBinarize(unittest.TestCase):
             self.assertTrue(isa_lattice(binarized_lattice))
 
     def test_move_sup_irreducibles_to_atoms(self):
-        flat_lattice = move_sup_irreducibles_to_atoms(self.lattice)
+        flat_lattice = make_atomistic(self.lattice)
         self.assertSetEqual(atoms(flat_lattice), {1, 2, 3, 4, 10})
         self.assertListEqual(flat_lattice[10], [9])
 
@@ -245,7 +245,7 @@ class TestBinarize(unittest.TestCase):
         self.assertTrue(order.index(0) > order.index(5))
 
     def test_support_tree(self):
-        tree = support_tree(move_sup_irreducibles_to_atoms(self.lattice))
+        tree = support_tree(make_atomistic(self.lattice))
         self.assertTrue(tree.isa_edge(1, 2))
         self.assertTrue(tree.isa_edge(3, 2))
         self.assertTrue(tree.isa_edge(4, 2))
@@ -256,7 +256,7 @@ class TestBinarize(unittest.TestCase):
         self.assertFalse(tree.isa_edge(10, 1))
         self.assertFalse(tree.isa_edge(10, 3))
         self.assertFalse(tree.isa_edge(10, 2) and tree.isa_edge(10, 4))
-        tree = support_tree(move_sup_irreducibles_to_atoms(self.lattice), 'bottom')
+        tree = support_tree(make_atomistic(self.lattice), 'bottom')
         self.assertTrue(tree.isa_edge(1, 2))
         self.assertTrue(tree.isa_edge(3, 2))
         self.assertTrue(tree.isa_edge(4, 2))

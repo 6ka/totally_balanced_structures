@@ -120,7 +120,7 @@ def top_down_binarization(lattice):
     return dual_lattice(bottom_up_binarization(dual_lattice(lattice)))
 
 
-def move_sup_irreducibles_to_atoms(lattice):
+def make_atomistic(lattice):
     flat_lattice = lattice.copy()
     sup_irr = sup_irreducible(flat_lattice)
     bottom = get_bottom(flat_lattice)
@@ -216,7 +216,7 @@ def contraction_order(lattice):
     if not is_binary(lattice):
         lattice = binarize(lattice, ignored_elements={get_bottom(lattice)})
     if not is_flat(lattice):
-        lattice = move_sup_irreducibles_to_atoms(lattice)
+        lattice = make_atomistic(lattice)
     return flat_contraction_order(lattice)
 
 
