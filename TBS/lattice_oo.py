@@ -1,6 +1,8 @@
 from TBS.observer import Observable
 from TBS.graph import Graph
+from TBS.tree import radial_draw_tree
 import collections
+import random
 
 __author__ = "cchatel"
 
@@ -281,3 +283,257 @@ class Lattice(Graph, Observable):
         :return: the element which is the inf of element and other_element
         """
         return self.dual_lattice.sup(element, other_element)
+
+    def atoms(self):
+        """Returns atoms of the lattice
+
+        :return: set of vertices
+        """
+        bottom = self.get_bottom()
+        return set(self[bottom])
+
+    def is_binary(self):
+        """Checks whether the lattice is binary or not i.e if every vertex except the bottom covers maximum two elements
+         and is covered by maximum two elements
+
+        :return: True if the lattice is binary, False if not
+        """
+        bottom = self.get_bottom()
+        for element in self:
+            if element != bottom:
+                if len(self[element]) > 2 or len(self.dual_lattice[element]) > 2:
+                    return False
+        return True
+
+    def element_is_binary(self, element):
+        return len(self[element]) <= 2 and len(self.dual_lattice[element]) <= 2
+
+    def bottom_up_element_binarization(self, element):
+        """Binarize an element covered by more than two elements
+
+        :param element: a non binary vertex of the lattice
+        """
+        classes = self.inf_irreducible_clusters()
+        while not len(self[element]) <= 2:
+            antichain_indices = self[element]
+            antichain = [classes[antichain_element] for antichain_element in antichain_indices]
+            first_element_in_antichain, second_element_in_antichain = max_intersection(antichain)
+            first_element, second_element = antichain_indices[first_element_in_antichain], antichain_indices[
+                second_element_in_antichain]
+            union_index = len(self) - 1
+            classes[union_index] = classes[first_element].union(classes[second_element]).union({union_index})
+            edges_to_add = ((union_index, first_element), (union_index, second_element), (element, union_index))
+            edges_to_remove = ((element, first_element), (element, second_element))
+            self.update(edges_to_add + edges_to_remove)
+
+    def binarize_element(self, element):
+        """Binarize an element in both direction
+
+        :param element: an vertex of the lattice to binarize
+        """
+        self.bottom_up_element_binarization(element)
+        self.dual_lattice.bottom_up_element_binarization(element)
+
+    def binarize_bottom_up(self, ignored_elements={'BOTTOM'}):
+        import collections
+
+        bottom = self.get_bottom()
+
+        fifo = collections.deque((bottom,))
+        is_seen = {bottom}
+
+        while fifo:
+            vertex = fifo.pop()
+            if len(self[vertex]) > 2 and vertex not in ignored_elements:
+                self.binarize_element(vertex)
+            visit_list = self[vertex]
+            for neighbor in visit_list:
+                if neighbor not in is_seen:
+                    is_seen.add(neighbor)
+                    fifo.appendleft(neighbor)
+
+    def binarize_top_down(self, ignored_elements={'BOTTOM'}):
+        self.dual_lattice.binarize_bottom_up(ignored_elements=ignored_elements)
+
+    def binarize(self, ignored_elements={'BOTTOM'}):
+        self.binarize_bottom_up(ignored_elements=ignored_elements)
+        self.binarize_top_down(ignored_elements=ignored_elements)
+
+    def make_atomistic(self):
+        sup_irr = self.sup_irreducible()
+        bottom = self.get_bottom()
+        atoms = self.atoms()
+        current_element_index = len(self) - 1
+        for sup in sup_irr:
+            if sup not in atoms:
+                self.update(((bottom, current_element_index), (current_element_index, sup)))
+                current_element_index += 1
+
+    def is_atomistic(self):
+        return self.atoms() == self.sup_irreducible()
+
+    def other_successor(self, element, first_successor):
+        successors = self[element]
+        if len(successors) != 2:
+            raise ValueError("element is not binary in lattice")
+        elif successors[0] == first_successor:
+            return successors[1]
+        elif successors[1] == first_successor:
+            return successors[0]
+        else:
+            raise ValueError("first_successor is not a successor of element in lattice")
+
+    def contraction_order(self):
+        if not self.is_atomistic():
+            self.make_atomistic()
+        objects = self.atoms()
+        predecessors_exist = set()
+        take_after = set()
+        arrow_head = set()
+        arrows = {}
+        order = []
+        is_built = objects.copy()
+        for element in objects:
+            for successor in self[element]:
+                if self.dual_lattice.other_successor(successor, element) in objects:
+                    predecessors_exist.add(successor)
+        while len(predecessors_exist) > 0:
+            chosen_candidate = random.sample(predecessors_exist - take_after, 1)[0]
+            predecessors_exist.remove(chosen_candidate)
+            is_built.add(chosen_candidate)
+            order.append(chosen_candidate)
+            arrows[chosen_candidate] = []
+            for predecessor in self.dual_lattice[chosen_candidate]:
+                if len(self[predecessor]) == 2:
+                    other_succ = self.other_successor(predecessor, chosen_candidate)
+                    if other_succ not in is_built:
+                        arrow_head.add(chosen_candidate)
+                        arrows[chosen_candidate].append(predecessor)
+                    else:
+                        arrows[other_succ].remove(predecessor)
+                        if len(arrows[other_succ]) == 0:
+                            arrow_head.remove(other_succ)
+                            for successor in self[other_succ]:
+                                if self.dual_lattice.other_successor(successor, other_succ) not in arrow_head:
+                                    take_after.discard(successor)
+            for successor in self[chosen_candidate]:
+                if self.dual_lattice.other_successor(successor, chosen_candidate) in is_built:
+                    predecessors_exist.add(successor)
+                    for other_succ_pred in self.dual_lattice[successor]:
+                        if other_succ_pred in arrow_head:
+                            take_after.add(successor)
+        return order
+
+    def support_tree(self):
+        bottom = self.get_bottom()
+        class_order = self.topological_sort(bottom)
+        objects = self.atoms()
+        representatives = {element: element for element in objects}
+        classes = {element: {element} for element in objects}
+        tree = Graph(vertices=tuple(objects), directed=False)
+        n_connected_parts = len(objects)
+        colors = {object: i for i, object in enumerate(objects)}
+        next(class_order)
+        while n_connected_parts > 1:
+            current_class_index = next(class_order)
+            if current_class_index not in objects:
+                predecessors = self.dual_lattice[current_class_index]
+                first_class_representative = representatives[predecessors[0]]
+                second_class_representative = representatives[predecessors[1]]
+                representatives[current_class_index] = random.choice(
+                    [first_class_representative, second_class_representative])
+                if colors[first_class_representative] != colors[second_class_representative]:
+                    tree.update(((first_class_representative, second_class_representative),))
+                    color_to_change = colors[second_class_representative]
+                    color_to_keep = colors[first_class_representative]
+                    for element in colors:
+                        if colors[element] == color_to_change:
+                            colors[element] = color_to_keep
+                    n_connected_parts -= 1
+                classes[current_class_index] = classes[predecessors[0]].union(classes[predecessors[1]])
+        return tree
+
+    def contract_tree_edge(self, tree, class_to_create, already_created):
+        dual = self.dual_lattice
+        already_created.add(class_to_create)
+        tree.update(((dual[class_to_create][0], dual[class_to_create][1]),))
+        edges_to_update = tuple(())
+        tree.add(class_to_create)
+        for predecessor in dual[class_to_create]:
+            if len(self[predecessor]) == 1:
+                for neighbor in tree[predecessor]:
+                    edges_to_update += ((neighbor, class_to_create),)
+                tree.remove(predecessor)
+            elif len(self[predecessor]) == 2:
+                if self[predecessor][0] == class_to_create:
+                    other_succ = self[predecessor][1]
+                elif self[predecessor][1] == class_to_create:
+                    other_succ = self[predecessor][0]
+                else:
+                    raise ValueError("Lattice is not binary")
+                if other_succ not in already_created:
+                    edges_to_update += ((predecessor, class_to_create),)
+                    for neighbor in tree[predecessor]:
+                        if self.sup_filter(neighbor).intersection(
+                                self.sup_filter(predecessor)) <= self.sup_filter(
+                                class_to_create):
+                            edges_to_update += ((neighbor, predecessor), (neighbor, class_to_create))
+                else:
+                    for neighbor in tree[predecessor]:
+                        edges_to_update += ((neighbor, class_to_create),)
+                    tree.remove(predecessor)
+            else:
+                raise ValueError("Lattice is not binary")
+        tree.update(edges_to_update)
+        return tree
+
+    def contraction_trees(self, order=None):
+        tree = self.support_tree()
+        if not order:
+            order = iter(self.contraction_order())
+        trees = [tree.copy()]
+        already_created = set()
+        for vertex in order:
+            tree = self.contract_tree_edge(tree, vertex, already_created)
+            trees.append(tree.copy())
+        return trees
+
+    def draw_binarisation_trees(self, order=None, show=True, save=None):
+        if not order:
+            order = self.contraction_order()
+        trees = self.contraction_trees(order)
+        directory = save
+        if save:
+            save = directory + "0"
+        radial_draw_tree(trees[0], self, highlighted_edge={tuple(self.dual_lattice[order[0]])}, show=show, save=save)
+        for i in range(1, len(trees) - 1):
+            if save:
+                save = directory + str(i)
+            radial_draw_tree(trees[i], self, highlighted_edge={tuple(self.dual_lattice[order[i]])},
+                             highlighted_node={order[i - 1]},
+                             show=show, save=save)
+        if save:
+            save = directory + str(len(trees) - 1)
+        radial_draw_tree(trees[-1], self, highlighted_node={order[-1]}, show=show, save=save)
+
+
+def max_intersection(antichain):
+    n_elements = len(antichain)
+    indices_map = [i for i in range(n_elements)]
+    random.shuffle(indices_map)
+    i, j = 0, 1
+    first_element, second_element = antichain[indices_map[i]], antichain[indices_map[j]]
+    current_max = first_element.intersection(second_element)
+    k = 2
+    while k < n_elements:
+        if current_max < first_element.intersection(antichain[indices_map[k]]):
+            j = k
+            second_element = antichain[indices_map[j]]
+            current_max = first_element.intersection(second_element)
+        elif current_max < second_element.intersection(antichain[indices_map[k]]):
+            i = k
+            first_element = antichain[indices_map[i]]
+            current_max = first_element.intersection(second_element)
+        k += 1
+    return indices_map[i], indices_map[j]
+
