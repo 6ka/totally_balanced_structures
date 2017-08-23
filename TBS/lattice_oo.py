@@ -57,9 +57,6 @@ class Lattice(Graph, Observable):
     def get_top(self):
         """Return the largest element.
 
-        :param lattice: a lattice
-        :type lattice: :class:`TBS.graph.Graph`
-
         :rtype: a element of the lattice.
         """
         for x in self:
@@ -71,9 +68,6 @@ class Lattice(Graph, Observable):
     def get_bottom(self):
         """Return the smallest element.
 
-        :param lattice: a lattice
-        :type lattice: TBS.graph.Graph :class:`TBS.graph.Graph`
-
         :rtype: a element of the lattice.
         """
 
@@ -81,9 +75,6 @@ class Lattice(Graph, Observable):
 
     def get_order(self):
         """Return the order associated with the lattice.
-
-        :param lattice: a lattice
-        :type lattice: TBS.graph.Graph :class:`TBS.graph.Graph`
 
         :rtype: TBS.graph.Graph :class:`TBS.graph.Graph`
         """
@@ -128,9 +119,6 @@ class Lattice(Graph, Observable):
     def inf_irreducible(self):
         """ Inf-irreductibles elements of the cover graph.
 
-        :param lattice: a cover graph (may or may not have a bottom).
-        :type lattice: :class:`TBS.graph.Graph`
-
         :return: the inf-irreducibles elements of *cover_graph*
         :rtype: :class:`frozenset`.
         """
@@ -144,9 +132,6 @@ class Lattice(Graph, Observable):
     def sup_irreducible(self):
         """ Sup-irreductibles elements of the cover graph.
 
-        :param cover_graph: a cover graph (may or may not have a top).
-        :type cover_graph: :class:`TBS.graph.Graph`
-
         :return: the sup-irreducibles elements of *cover_graph*
         :rtype: :class:`frozenset`.
         """
@@ -155,9 +140,6 @@ class Lattice(Graph, Observable):
 
     def sup_irreducible_clusters(self):
         """ Sup-irreducibles correspondance.
-
-        :param lattice: a cover graph.
-        :type lattice: TBS.graph.Graph :class:`TBS.graph.Graph`
 
         :return: a dict associating each element to the sup-irreducible elements smaller than him.
         :rtype: :class:`dict`.
@@ -181,11 +163,9 @@ class Lattice(Graph, Observable):
     def inf_irreducible_clusters(self):
         """ Inf-irrerducibles correspondance.
 
-        :param lattice: a cover graph.
-        :type lattice: TBS.graph.Graph :class:`TBS.graph.Graph`
-
         :return: a dict associating each element to the inf-irreducible elements smaller than him.
         :rtype: :class:`dict`.
         """
 
         return self.dual_lattice.sup_irreducible_clusters()
+
