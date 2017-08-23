@@ -1,5 +1,6 @@
 from TBS.observer import Observable
 from TBS.graph import Graph
+import collections
 
 __author__ = "cchatel"
 
@@ -53,6 +54,14 @@ class Lattice(Graph, Observable):
         :param edges: Each edge is a pair `(x, y)`
         """
         Graph.update(self, ((y, x) for (x, y) in edges))
+
+    def remove(self, x):
+        """Remove vertex in lattice
+
+        :param x: Vertex to remove
+        """
+        Graph.remove(self, x)
+        Graph.remove(self.dual_lattice, x)
 
     def get_top(self):
         """Return the largest element.
@@ -169,3 +178,106 @@ class Lattice(Graph, Observable):
 
         return self.dual_lattice.sup_irreducible_clusters()
 
+    def sup_filter(self, element):
+        """Return {y | y >= element}
+
+        :param element: vertex of the lattice cover graph
+        :type element: a vertex
+        :rtype: :class:`frozenset`
+        """
+
+        element_filter = set()
+        self.dfs(element, lambda vertex: element_filter.add(vertex))
+
+        return frozenset(element_filter)
+
+    def is_a_lattice(self):
+        """Is the graph possible_lattice a lattice.
+
+        :rtype: class:`bool`
+        """
+
+        elements = list(self)
+
+        for i in range(len(elements)):
+            for j in range(i + 1, len(elements)):
+                x = elements[i]
+                y = elements[j]
+                for graph in (self, self.dual_lattice):
+                    filter_x = graph.sup_filter(x)
+                    filter_y = graph.sup_filter(y)
+                    unique_generator = False
+                    intersection = filter_x.intersection(filter_y)
+                    for possible_generator in intersection:
+                        if graph.sup_filter(possible_generator) == intersection:
+                            unique_generator = True
+                            break
+                    if not unique_generator:
+                        return False
+        return True
+
+    def delete_join_irreducible(self, join_irreducible):
+        """Delete a join irreducible element from lattice.
+
+        :param join_irreducible: a join irreducible element from the lattice.
+        """
+        v = self[join_irreducible][0]
+        u = None
+        for u in self:
+            if join_irreducible in self[u]:
+                break
+
+        self.remove(join_irreducible)
+        if not self.path(u, v):
+            self.update([(u, v)])
+
+    def compute_height(self):
+        """Index for vertices.
+
+        if u covers v then index[u] < index[v]
+        index[bottom] = 0 and for any u covering bottom index[u] = 1.
+
+        :rtype: class:`dict`
+        """
+
+        bottom = self.get_bottom()
+
+        number_remaining_predecessors = {}
+        for u, v in self.edges():
+            number_remaining_predecessors[v] = number_remaining_predecessors.get(v, 0) + 1
+
+        height = {bottom: 0}
+
+        fifo = collections.deque((bottom,))
+        while fifo:
+            vertex = fifo.pop()
+            for neighbor in self[vertex]:
+                number_remaining_predecessors[neighbor] -= 1
+                if not number_remaining_predecessors[neighbor]:
+                    height[neighbor] = height[vertex] + 1
+                    fifo.appendleft(neighbor)
+
+        return height
+
+    def sup(self, element, other_element):
+        """Computes the sup of two elements
+
+        :param element: a vertex of the lattice
+        :param other_element: another vertex of the lattice
+        :return: the element which is the sup of element and other_element
+        """
+        element_sup = self.sup_filter(element)
+        other_element_sup = self.sup_filter(other_element)
+        intersection_sup = element_sup.intersection(other_element_sup)
+        for element in intersection_sup:
+            if not frozenset(self.dual_lattice[element]).intersection(intersection_sup):
+                return element
+
+    def inf(self, element, other_element):
+        """Computes the inf of two elements
+
+        :param element: a vertex of the lattice
+        :param other_element: another vertex of the lattice
+        :return: the element which is the inf of element and other_element
+        """
+        return self.dual_lattice.sup(element, other_element)

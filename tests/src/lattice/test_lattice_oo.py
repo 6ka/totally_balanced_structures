@@ -1,5 +1,6 @@
 from TBS.lattice_oo import Lattice
 import unittest
+from TBS.randomize import random_dismantable_lattice
 
 
 class TestCoverGraph(unittest.TestCase):
@@ -28,12 +29,16 @@ class TestCoverGraph(unittest.TestCase):
 
     def test_init(self):
         self.assertSetEqual(frozenset(self.lattice.edges()), {("bottom", 1),
-                                                    ("bottom", 2), ("bottom", 3), ("bottom", 4), (1, 5), (2, 5), (2, 6),
-                                                    (2, 7), (3, 6), (4, 7), (5, 8), (6, 8), (7, 9), (8, "top"),
-                                                    (9, "top")})
+                                                              ("bottom", 2), ("bottom", 3), ("bottom", 4), (1, 5),
+                                                              (2, 5), (2, 6),
+                                                              (2, 7), (3, 6), (4, 7), (5, 8), (6, 8), (7, 9),
+                                                              (8, "top"),
+                                                              (9, "top")})
         self.assertSetEqual(frozenset(self.lattice.dual_lattice.edges()), {(1, "bottom"),
-                                                                           (2, "bottom"), (3, "bottom"), (4, "bottom"), (5, 1), (5, 2), (6, 2),
-                                                                           (7, 2), (6, 3), (7, 4), (8, 5), (8, 6), (9, 7), ("top", 8),
+                                                                           (2, "bottom"), (3, "bottom"), (4, "bottom"),
+                                                                           (5, 1), (5, 2), (6, 2),
+                                                                           (7, 2), (6, 3), (7, 4), (8, 5), (8, 6),
+                                                                           (9, 7), ("top", 8),
                                                                            ("top", 9)})
 
     def test_update(self):
@@ -42,6 +47,11 @@ class TestCoverGraph(unittest.TestCase):
         self.assertIn((9, 10), self.lattice.dual_lattice.edges())
         self.assertIn(("bottom", 10), self.lattice.edges())
         self.assertIn((10, "bottom"), self.lattice.dual_lattice.edges())
+
+    def test_remove(self):
+        self.lattice.remove(4)
+        self.assertSetEqual(frozenset({"bottom", "top", 1, 2, 3, 5, 6, 7, 8, 9}), frozenset(self.lattice))
+        self.assertSetEqual(frozenset({"bottom", "top", 1, 2, 3, 5, 6, 7, 8, 9}), frozenset(self.lattice.dual_lattice))
 
     def test_get_top(self):
         self.assertEqual(self.lattice.get_top(), "top")
@@ -88,3 +98,56 @@ class TestCoverGraph(unittest.TestCase):
     def test_sup_irreducible_without_top(self):
         self.lattice.remove("top")
         self.assertEqual(frozenset([1, 2, 3, 4, 9]), self.lattice.sup_irreducible())
+
+    def test_filter(self):
+        sup_filter = self.lattice.sup_filter("bottom")
+        self.assertEqual(frozenset(self.lattice), sup_filter)
+        sup_filter = self.lattice.sup_filter("top")
+        self.assertEqual(frozenset(["top"]), sup_filter)
+
+    def test_isa_lattice(self):
+        self.assertTrue(self.lattice.is_a_lattice())
+
+    def test_is_not_a_lattice(self):
+        not_a_lattice = Lattice()
+        not_a_lattice.update([("bottom", 1),
+                              ("bottom", 2),
+                              (1, 3),
+                              (2, 3),
+                              (1, 4),
+                              (2, 4),
+                              (3, "top"),
+                              (4, "top")])
+        self.assertFalse(not_a_lattice.is_a_lattice())
+
+    def test_delete_join_irreducible(self):
+        self.lattice.delete_join_irreducible(4)
+        self.assertEqual(frozenset({"bottom", "top", 1, 2, 3, 5, 6, 7, 8, 9}), set(self.lattice))
+        self.assertEqual(frozenset({"bottom", "top", 1, 2, 3, 5, 6, 7, 8, 9}), set(self.lattice.dual_lattice))
+
+    def test_dismantle(self):
+        join_irreducible = self.lattice.inf_irreducible().intersection(self.lattice.sup_irreducible())
+        while join_irreducible:
+            for join in join_irreducible:
+                self.lattice.delete_join_irreducible(join)
+                self.assertTrue(self.lattice.is_a_lattice())
+            join_irreducible = self.lattice.inf_irreducible().intersection(self.lattice.sup_irreducible())
+        self.assertEqual(frozenset(["bottom", "top"]), set(self.lattice))
+
+    def test_compute_height(self):
+        self.assertEqual(4, self.lattice.compute_height()["top"])
+        self.assertEqual(0, self.lattice.compute_height()["bottom"])
+        self.assertEqual(1, self.lattice.compute_height()[4])
+        self.assertEqual(3, self.lattice.compute_height()[8])
+
+    def test_sup(self):
+        self.assertEqual(self.lattice.sup(1, 2), 5)
+        self.assertEqual(self.lattice.sup(1, 4), "top")
+        self.assertEqual(self.lattice.sup(1, 3), 8)
+        self.assertEqual(self.lattice.sup(1, 5), 5)
+
+    def test_inf(self):
+        self.assertEqual(self.lattice.inf(5, 6), 2)
+        self.assertEqual(self.lattice.inf(5, 9), 2)
+        self.assertEqual(self.lattice.inf(5, 8), 5)
+        self.assertEqual(self.lattice.inf(5, 4), "bottom")
