@@ -4,13 +4,21 @@ from TBS.tree import radial_draw_tree
 import collections
 import random
 
-__author__ = "cchatel"
+__author__ = "cchatel", "fbrucker"
 
 
 class Lattice(Graph, Observable):
-    """Lattice class seen as the oriented cover graph of the actual lattice"""
+    """
+    Lattice class seen as the oriented cover graph of the actual lattice
+    """
 
     def __init__(self, vertices=tuple(), edges=tuple(), dual=None):
+        """Creates a lattice object with vertices vertices and edges edges.
+
+        :param vertices: a tuple of vertices to initialize the lattice
+        :param edges: a tuple of edges to initialize the lattice
+        :param dual: used to maintain dual up to date, not to be used
+        """
         Observable.__init__(self)
         Graph.__init__(self, directed=True)
         if dual is None:
@@ -18,13 +26,37 @@ class Lattice(Graph, Observable):
         else:
             self.dual_lattice = dual
         self.attach(self.dual_lattice)
-        self._neighborhood = {}
 
+        self._neighborhood = {}
         for x in vertices:
             self._neighborhood[x] = {}
-
         if edges:
             self.update(edges)
+
+    @classmethod
+    def random_dismantlable_lattice(cls, n_vertices):
+        """Alternative constructor to create a random dismantlable lattice.
+
+        :param n_vertices: the number of vertices (excluding bottom and top)
+        :return: a random dismantlable lattice with n_vertices vertices
+        """
+        crown_free = cls()
+        bottom = "BOTTOM"
+        top = "TOP"
+        crown_free.update([(bottom, top)])
+
+        all_elements = [bottom]
+        for current_element in range(n_vertices):
+            u = random.sample(all_elements, 1)[0]
+            v = random.sample(crown_free.sup_filter(u) - {u}, 1)[0]
+            crown_free.update([(u, current_element), (current_element, v)])
+            all_elements.append(current_element)
+
+        for u, v in crown_free.edges():
+            crown_free.update([(u, v)])
+            if not crown_free.path(u, v):
+                crown_free.update([(u, v)])
+        return crown_free
 
     def update(self, edges=tuple(), node_creation=True, delete=True):
         """Add/remove edges and keep dual object up to date.

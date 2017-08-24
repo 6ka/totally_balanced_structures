@@ -48,6 +48,11 @@ class TestCoverGraph(unittest.TestCase):
         self.assertIn(("bottom", 10), self.lattice.edges())
         self.assertIn((10, "bottom"), self.lattice.dual_lattice.edges())
 
+    def test_random_tb_init(self):
+        random_lattice = Lattice.random_dismantlable_lattice(n_vertices=10)
+        self.assertTrue(random_lattice.is_a_lattice())
+        self.assertEqual(len(random_lattice), 12)
+
     def test_remove(self):
         self.lattice.remove(4)
         self.assertSetEqual(frozenset({"bottom", "top", 1, 2, 3, 5, 6, 7, 8, 9}), frozenset(self.lattice))
