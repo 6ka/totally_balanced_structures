@@ -230,7 +230,7 @@ class Lattice(Graph, Observable):
     def is_a_lattice(self):
         """Is the graph possible_lattice a lattice.
 
-        :rtype: class:`bool`
+        :rtype: :class:`bool`
         """
 
         elements = list(self)
@@ -273,7 +273,7 @@ class Lattice(Graph, Observable):
         if u covers v then index[u] < index[v]
         index[bottom] = 0 and for any u covering bottom index[u] = 1.
 
-        :rtype: class:`dict`
+        :rtype: :class:`dict`
         """
 
         bottom = self.get_bottom()
@@ -331,7 +331,7 @@ class Lattice(Graph, Observable):
          and is covered by maximum two elements
 
         :return: True if the lattice is binary, False if not
-        :rtype: class:`bool`
+        :rtype: :class:`bool`
         """
         bottom = self.get_bottom()
         for element in self:
