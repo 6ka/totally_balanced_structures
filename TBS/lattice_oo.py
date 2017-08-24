@@ -16,8 +16,11 @@ class Lattice(Graph, Observable):
         """Creates a lattice object with vertices vertices and edges edges.
 
         :param vertices: a tuple of vertices to initialize the lattice
+        :type vertices: iterable
         :param edges: a tuple of edges to initialize the lattice
+        :type edges: iterable
         :param dual: used to maintain dual up to date, not to be used
+        :type dual: :class:`TBS.lattice_oo.Lattice`
         """
         Observable.__init__(self)
         Graph.__init__(self, directed=True)
@@ -38,6 +41,7 @@ class Lattice(Graph, Observable):
         """Alternative constructor to create a random dismantlable lattice.
 
         :param n_vertices: the number of vertices (excluding bottom and top)
+        :type n_vertices: int
         :return: a random dismantlable lattice with n_vertices vertices
         """
         crown_free = cls()
@@ -86,13 +90,14 @@ class Lattice(Graph, Observable):
         """Add/remove edges in dual lattice.
 
         :param edges: Each edge is a pair `(x, y)`
+        :type edges: iterable
         """
         Graph.update(self, ((y, x) for (x, y) in edges))
 
     def remove(self, x):
         """Remove vertex in lattice
 
-        :param x: Vertex to remove
+        :param x: name of the vertex to remove
         """
         Graph.remove(self, x)
         Graph.remove(self.dual_lattice, x)
@@ -100,7 +105,7 @@ class Lattice(Graph, Observable):
     def get_top(self):
         """Return the largest element.
 
-        :rtype: a element of the lattice.
+        :rtype: an element of the lattice.
         """
         for x in self:
             if not self[x]:
@@ -111,7 +116,7 @@ class Lattice(Graph, Observable):
     def get_bottom(self):
         """Return the smallest element.
 
-        :rtype: a element of the lattice.
+        :rtype: an element of the lattice.
         """
 
         return self.dual_lattice.get_top()
@@ -137,10 +142,7 @@ class Lattice(Graph, Observable):
         The return function takes two parameters and returns True if the first parameter is smaller than the second one
         for the given lattice.
         This function computes the lattice order (long). Should only be used for generic lattices where no other solution
-        is avaliable.
-
-        :param lattice: a lattice
-        :type lattice: TBS.graph.Graph :class:`TBS.graph.Graph`
+        is available.
 
         :rtype: function
         """
@@ -160,9 +162,9 @@ class Lattice(Graph, Observable):
         return smaller_than
 
     def inf_irreducible(self):
-        """ Inf-irreductibles elements of the cover graph.
+        """ Inf-irreductibles elements of the lattice.
 
-        :return: the inf-irreducibles elements of *cover_graph*
+        :return: the inf-irreducibles elements of the lattice
         :rtype: :class:`frozenset`.
         """
         irreducible = set()
@@ -173,9 +175,9 @@ class Lattice(Graph, Observable):
         return frozenset(irreducible)
 
     def sup_irreducible(self):
-        """ Sup-irreductibles elements of the cover graph.
+        """ Sup-irreductibles elements of the lattice.
 
-        :return: the sup-irreducibles elements of *cover_graph*
+        :return: the sup-irreducibles elements of the lattice
         :rtype: :class:`frozenset`.
         """
 
@@ -215,7 +217,7 @@ class Lattice(Graph, Observable):
     def sup_filter(self, element):
         """Return {y | y >= element}
 
-        :param element: vertex of the lattice cover graph
+        :param element: vertex of the lattice
         :type element: a vertex
         :rtype: :class:`frozenset`
         """
@@ -329,6 +331,7 @@ class Lattice(Graph, Observable):
          and is covered by maximum two elements
 
         :return: True if the lattice is binary, False if not
+        :rtype: class:`bool`
         """
         bottom = self.get_bottom()
         for element in self:
@@ -367,6 +370,11 @@ class Lattice(Graph, Observable):
         self.dual_lattice.bottom_up_element_binarization(element)
 
     def binarize_bottom_up(self, ignored_elements={'BOTTOM'}):
+        """Modifies the lattice such that no element is covered by more than two elements.
+
+        :param ignored_elements: elements not to binarize
+        :type ignored_elements: iterable
+        """
         import collections
 
         bottom = self.get_bottom()
@@ -384,14 +392,25 @@ class Lattice(Graph, Observable):
                     is_seen.add(neighbor)
                     fifo.appendleft(neighbor)
 
-    def binarize_top_down(self, ignored_elements={'BOTTOM'}):
+    def binarize_top_down(self, ignored_elements=set()):
+        """Modifies the lattice such that no element covers more than two elements.
+
+        :param ignored_elements: elements not to binarize
+        :type ignored_elements: iterable
+        """
         self.dual_lattice.binarize_bottom_up(ignored_elements=ignored_elements)
 
     def binarize(self, ignored_elements={'BOTTOM'}):
+        """Modifies the lattice such that it is binary
+
+        :param ignored_elements: elements not to binarize
+        """
         self.binarize_bottom_up(ignored_elements=ignored_elements)
         self.binarize_top_down(ignored_elements=ignored_elements)
 
     def make_atomistic(self):
+        """Makes the lattice atomistic i.e all objects are atoms.
+        """
         sup_irr = self.sup_irreducible()
         bottom = self.get_bottom()
         atoms = self.atoms()
@@ -402,6 +421,10 @@ class Lattice(Graph, Observable):
                 current_element_index += 1
 
     def is_atomistic(self):
+        """Check whether the lattice is atomistic or not
+
+        :rtype: :class:`bool`
+        """
         return self.atoms() == self.sup_irreducible()
 
     def other_successor(self, element, first_successor):
@@ -416,6 +439,11 @@ class Lattice(Graph, Observable):
             raise ValueError("first_successor is not a successor of element in lattice")
 
     def contraction_order(self):
+        """Computes a compatible contraction order.
+
+        :return: ordered list of all the vertices
+        :rtype: list
+        """
         if not self.is_atomistic():
             self.make_atomistic()
         objects = self.atoms()
@@ -457,6 +485,11 @@ class Lattice(Graph, Observable):
         return order
 
     def support_tree(self):
+        """Builds a support tree of an atomistic lattice.
+
+        :return: a support tree
+        :rtype: :class:`TBS.graph.Graph`
+        """
         bottom = self.get_bottom()
         class_order = self.topological_sort(bottom)
         objects = self.atoms()
@@ -520,6 +553,13 @@ class Lattice(Graph, Observable):
         return tree
 
     def contraction_trees(self, order=None):
+        """Returns a family of trees creating all the vertices of the lattice.
+
+        :param order: an order to create vertices
+        :type order: iterable
+        :return: a list of trees creating all vertices
+        :rtype: list
+        """
         tree = self.support_tree()
         if not order:
             order = iter(self.contraction_order())
