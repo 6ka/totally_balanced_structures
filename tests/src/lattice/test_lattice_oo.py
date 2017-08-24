@@ -407,3 +407,7 @@ class TestCoverGraph(unittest.TestCase):
         trees = binary_atomistic_lattice.contraction_trees(order=[9, 1, 5, 0, 6, 8, 4, 2, 7, 11, 'TOP'])
         print(trees[-1], [vertex for vertex in trees[-1]])
         self.assertEqual(len(trees[-1]), 1)
+
+
+if __name__ == "__main__":
+    unittest.main()
