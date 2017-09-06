@@ -1,8 +1,7 @@
-
 from PIL import Image
 import colorsys
 
-from lattice import Lattice
+from TBS.lattice import Lattice
 
 __all__ = ["create_image_from_dlo_gamma_free_matrix"]
 

@@ -34,7 +34,7 @@ class ContextMatrix(object):
         the attributes the inf-irreducibles elements
 
         :param lattice: cover graph of some lattice.
-        :type lattice: directed :class:`CTK.graph.Graph`
+        :type lattice: directed :class:`CTK.lattice.Lattice`
 
         :param inf: inf-irreducible order
         :type inf: tuple

@@ -1,6 +1,5 @@
-from TBS.lattice import Lattice, max_intersection
-from TBS.graph import Graph
 import unittest
+from TBS.lattice import Lattice
 
 
 class TestLattice(unittest.TestCase):

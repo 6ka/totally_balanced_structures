@@ -1,7 +1,4 @@
 import unittest
-
-from TBS.graph import Graph
-
 from TBS.clusters.ClusterLineFromMatrix import ClusterLineFromMatrix
 from TBS.clusters import from_dlo_gamma_free_matrix
 
@@ -60,19 +57,3 @@ class TestMatrixClusterAndBoxes(unittest.TestCase):
                           c3: ((1, 3), (1, 3)),
                           c4: ((2, 2), (2, 3))},
                          boxes)
-
-    def test_lattice(self):
-        c1 = ((0, 0), (0, 1))
-        c2 = ((1, 0), (1, 1))
-        c3 = ((1, 3), (1, 3))
-        c4 = ((2, 2), (2, 3))
-
-        cover_graph = Graph(directed=True).update([(c1, "TOP"),
-                                                   (c3, "TOP"),
-                                                   (c2, c1),
-                                                   (c2, c3),
-                                                   (c4, c3),
-                                                   ("BOTTOM", c2),
-                                                   ("BOTTOM", c4)])
-
-        self.assertEqual(cover_graph, from_dlo_gamma_free_matrix.lattice(self.matrix))
