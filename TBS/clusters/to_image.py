@@ -2,7 +2,7 @@
 from PIL import Image
 import colorsys
 
-from lattice_oo import Lattice
+from lattice import Lattice
 
 __all__ = ["create_image_from_dlo_gamma_free_matrix"]
 

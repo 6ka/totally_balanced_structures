@@ -2,7 +2,7 @@
 
 import unittest
 from TBS.contextmatrix import ContextMatrix
-from TBS.lattice_oo import Lattice
+from TBS.lattice import Lattice
 
 
 class TestMatrixCreate(unittest.TestCase):

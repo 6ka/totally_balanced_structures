@@ -25,7 +25,7 @@ class Lattice(Graph, Observable):
         :param edges: a tuple of edges to initialize the lattice
         :type edges: iterable
         :param dual: used to maintain dual up to date, not to be used
-        :type dual: :class:`TBS.lattice_oo.Lattice`
+        :type dual: :class:`TBS.lattice.Lattice`
         """
         Observable.__init__(self)
         Graph.__init__(self, directed=True)

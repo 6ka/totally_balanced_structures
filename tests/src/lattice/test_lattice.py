@@ -1,4 +1,4 @@
-from TBS.lattice_oo import Lattice, max_intersection
+from TBS.lattice import Lattice, max_intersection
 from TBS.graph import Graph
 import unittest
 
