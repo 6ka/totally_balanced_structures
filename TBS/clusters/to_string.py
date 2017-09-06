@@ -1,21 +1,5 @@
 import math
 
-from TBS.clusters import from_dlo_gamma_free_matrix
-
-
-__all__ = ["from_dlo_gamma_free_context_matrix"]
-
-
-def from_dlo_gamma_free_context_matrix(context_matrix):
-    lattice = from_dlo_gamma_free_matrix.lattice(context_matrix.matrix)
-    boxes = from_dlo_gamma_free_matrix.boxes(context_matrix.matrix)
-
-    return BoxesToString(boxes.values(),
-                         context_matrix.elements, context_matrix.attributes,
-                         {value: context_matrix.attributes[value[0][1]] for value in
-                          boxes.values()},
-                         lattice).run()
-
 
 class BoxesToString(object):
     def __init__(self, boxes, line_labels, column_labels, boxes_labels, lattice=None):

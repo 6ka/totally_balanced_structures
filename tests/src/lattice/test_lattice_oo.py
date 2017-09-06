@@ -408,6 +408,45 @@ class TestCoverGraph(unittest.TestCase):
         print(trees[-1], [vertex for vertex in trees[-1]])
         self.assertEqual(len(trees[-1]), 1)
 
+    def test_from_context_matrix(self):
+        matrix = [[1, 1, 0, 0],
+                  [1, 1, 0, 1],
+                  [0, 0, 1, 1]]
+
+        c1 = ((0, 0), (0, 1))
+        c2 = ((1, 0), (1, 1))
+        c3 = ((1, 3), (1, 3))
+        c4 = ((2, 2), (2, 3))
+
+        cover_graph = Lattice()
+        cover_graph.update([(c1, "TOP"),
+                           (c3, "TOP"),
+                           (c2, c1),
+                           (c2, c3),
+                           (c4, c3),
+                           ("BOTTOM", c2),
+                           ("BOTTOM", c4)])
+
+        self.assertEqual(cover_graph, Lattice.from_dlo_matrix(matrix))
+
+    def test_print_boxes(self):
+        string_repr = self.lattice.print_boxes()
+
+        result = " |4 3 7 9 6 1 5 8 " + "\n" +\
+                "-+-+-+-+-+-+-+-+-+" + "\n" +\
+                "9|. . .|9|. . . . " + "\n" +\
+                " +-+ +---+        " + "\n" +\
+                "4|4|-| 7 |. . . . " + "\n" +\
+                " +-+-+---+-+   +-+" + "\n" +\
+                "3|.|3|-*-|6|---|8|" + "\n" +\
+                " + +-+-----+ +---+" + "\n" +\
+                "2|. .|  7  |-| 5 |" + "\n" +\
+                " +   +-----+-----+" + "\n" +\
+                "1|. . . . .|  1  |" + "\n" +\
+                " +         +-----+"
+
+        self.assertEqual(string_repr, result)
+
 
 if __name__ == "__main__":
     unittest.main()

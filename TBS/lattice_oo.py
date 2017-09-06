@@ -67,6 +67,79 @@ class Lattice(Graph, Observable):
                 crown_free.update([(u, v)])
         return crown_free
 
+    @classmethod
+    def from_dlo_matrix(cls, matrix, bottom="BOTTOM", top="TOP"):
+        """ Lattice.
+
+        Vertices are the boxes (see :func:`boxes`).
+
+        :param matrix: doubly lexically ordered and Gamma free 0/1 matrix
+        :param bottom: bottom element
+        :param top: top element
+        :return: :class:`Graph` associated lattice.
+        """
+
+        box_lattice = cls()
+
+        cluster_correspondence = ClusterLineFromMatrix.boxes(matrix)
+
+        last_line = last_line_not_0_for_matrix(matrix)
+        last_clusters = [None] * len(matrix[0])
+        line_iterator = ClusterLineFromMatrix(matrix)
+
+        for i, current_line in enumerate(line_iterator):
+            for j, elem in enumerate(current_line):
+                if elem is None:
+                    continue
+
+            j = len(current_line) - 1
+            while j >= 0:
+                if current_line[j] is None or current_line[j] in box_lattice:
+                    j -= 1
+                    continue
+
+                current_cluster = current_line[j]
+                # connect to bottom
+                if i == last_line[j]:
+                    box_lattice.update([(bottom, cluster_correspondence[current_cluster])])
+
+                # successor in line
+                right_successor = True
+                j_next = j + 1
+                while j_next < len(current_line) and current_line[j_next] is None:
+                    j_next += 1
+
+                if j_next == len(current_line):
+                    right_successor = False
+                if i > 0 and line_iterator.previous_line[j] is not None:
+                    if j_next == len(current_line) or current_line[j_next] == line_iterator.previous_line[j_next]:
+                        right_successor = False
+                if right_successor:
+                    box_lattice.update([(cluster_correspondence[current_cluster],
+                                         cluster_correspondence[current_line[j_next]])])
+
+                # successor before line
+                while j >= 0 and current_line[j] == current_cluster:
+                    if last_clusters[j] is not None and last_clusters[j] != current_cluster:
+                        box_lattice.update([(cluster_correspondence[current_cluster],
+                                             cluster_correspondence[last_clusters[j]])])
+                        successor = last_clusters[j]
+                        while j >= 0 and last_clusters[j] == successor:
+                            j -= 1
+                    else:
+                        break
+
+                while j >= 0 and current_line[j] == current_cluster:
+                    j -= 1
+
+            last_clusters = [new_cluster or old_cluster for new_cluster, old_cluster in
+                             zip(current_line, last_clusters)]
+
+        for vertex in set(x for x in box_lattice if box_lattice.degree(x) == 0):
+            box_lattice.update([(vertex, top)])
+
+        return box_lattice
+
     def update(self, edges=tuple(), node_creation=True, delete=True):
         """Add/remove edges and keep dual object up to date.
 
@@ -685,6 +758,7 @@ class Lattice(Graph, Observable):
 
     def print_boxes(self):
         context_matrix = ContextMatrix.from_lattice(self)
+        context_matrix.reorder_doubly_lexical_order()
         lattice = self.to_box_lattice()
         boxes = self.boxes()
 
