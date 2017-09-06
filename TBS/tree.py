@@ -2,7 +2,6 @@ import math
 import random
 import matplotlib.collections
 from matplotlib import pyplot
-from TBS.lattice import sup
 
 
 def find_root(tree):
@@ -51,7 +50,7 @@ def radial_draw_tree(tree, lattice, root=None, order=None, highlighted_edge=set(
     green_lines = []
     for vertex in tree:
         for neighbour in tree[vertex]:
-            edge_sup = sup(lattice, vertex, neighbour)
+            edge_sup = lattice.sup(vertex, neighbour)
             if edge_sup == vertex or edge_sup == neighbour:
                 red_lines.append((coordinates[vertex], coordinates[neighbour]))
             else:

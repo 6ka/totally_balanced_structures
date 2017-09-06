@@ -2,8 +2,7 @@
 from PIL import Image
 import colorsys
 
-from . import from_dlo_gamma_free_matrix
-from ..hierarchical_decomposition import hierarchical_height_from_lattice
+from lattice_oo import Lattice
 
 __all__ = ["create_image_from_dlo_gamma_free_matrix"]
 
@@ -24,7 +23,8 @@ def color_space_grey(number_colors):
 
 def create_image_from_dlo_gamma_free_matrix(matrix, color_space=color_space_colors, pixel_size=1):
 
-    height = hierarchical_height_from_lattice(from_dlo_gamma_free_matrix.lattice(matrix))
+    # height = hierarchical_height_from_lattice(from_dlo_gamma_free_matrix.lattice(matrix))
+    height = Lattice.from_dlo_matrix(matrix).hierarchical_height()
     height_colors = color_space(max(height.values()) + 1)
 
     image_matrix = Image.new("RGB", (len(matrix[0]) * pixel_size, len(matrix) * pixel_size), "white")

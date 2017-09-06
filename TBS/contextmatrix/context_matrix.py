@@ -1,7 +1,5 @@
 from TBS import orders
 
-from TBS.lattice import *
-
 
 class ContextMatrix(object):
     """Context matrix."""
@@ -46,12 +44,12 @@ class ContextMatrix(object):
 
         """
         if inf is None:
-            inf = list(inf_irreducible(lattice))
+            inf = list(lattice.inf_irreducible())
         else:
             inf = list(inf)
         inf_indices = {x: i for i, x in enumerate(inf)}
         if sup is None:
-            sup = list(sup_irreducible(lattice))
+            sup = list(lattice.sup_irreducible())
         else:
             sup = list(sup)
         sup_indices = {x: i for i, x in enumerate(sup)}

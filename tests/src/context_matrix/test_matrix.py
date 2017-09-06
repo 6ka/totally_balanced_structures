@@ -2,8 +2,7 @@
 
 import unittest
 from TBS.contextmatrix import ContextMatrix
-from TBS.graph import Graph
-import TBS.lattice
+from TBS.lattice_oo import Lattice
 
 
 class TestMatrixCreate(unittest.TestCase):
@@ -97,7 +96,7 @@ class TestDoublyLexicalOrdering(unittest.TestCase):
 
 class TestFromCoverGraph(unittest.TestCase):
     def new_lattice(self):
-        lattice = Graph(directed=True)
+        lattice = Lattice()
         lattice.update([("bottom", 1),
                         ("bottom", 2),
                         ("bottom", 3),
@@ -121,8 +120,8 @@ class TestFromCoverGraph(unittest.TestCase):
     def test_inf_sup(self):
         context_matrix = ContextMatrix.from_lattice(self.lattice)
 
-        self.assertEqual(frozenset(context_matrix.attributes), frozenset(TBS.lattice.inf_irreducible(self.lattice)))
-        self.assertEqual(frozenset(context_matrix.elements), frozenset(TBS.lattice.sup_irreducible(self.lattice)))
+        self.assertEqual(frozenset(context_matrix.attributes), frozenset(self.lattice.inf_irreducible()))
+        self.assertEqual(frozenset(context_matrix.elements), frozenset(self.lattice.sup_irreducible()))
 
     def test_matrix(self):
         context_matrix = ContextMatrix.from_lattice(self.lattice)

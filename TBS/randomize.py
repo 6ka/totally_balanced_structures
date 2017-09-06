@@ -22,8 +22,6 @@ import random
 
 from . import gamma_free
 from .contextmatrix import ContextMatrix
-from .graph import Graph
-from .lattice import sup_filter
 
 
 __author__ = 'fbrucker'
@@ -72,29 +70,6 @@ def randomize_edges(graph, probability_of_remaining_an_edge=0.5, probability_of_
                 if random.random() < probability_of_being_an_edge:
                     result._update([(x, y)])
     return result
-
-
-def random_dismantable_lattice(number_of_elements, bottom="BOTTOM", top="TOP"):
-    """Random dismantable lattice.
-
-    :param number_of_elements: final number of elements
-    :type number_of_elements: class:`int`
-    """
-    crown_free = Graph(directed=True)
-    crown_free.update([(bottom, top)])
-
-    all_elements = [bottom]
-    for current_element in range(number_of_elements):
-        u = random.sample(all_elements, 1)[0]
-        v = random.sample(sup_filter(crown_free, u) - {u}, 1)[0]
-        crown_free.update([(u, current_element), (current_element, v)])
-        all_elements.append(current_element)
-
-    for u, v in crown_free.edges():
-        crown_free.update([(u, v)])
-        if not crown_free.path(u, v):
-            crown_free.update([(u, v)])
-    return crown_free
 
 
 def random_01_matrix(number_lines, number_column, probability_of_1=.5):

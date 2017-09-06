@@ -665,7 +665,7 @@ class Lattice(Graph, Observable):
             save = directory + str(len(trees) - 1)
         radial_draw_tree(trees[-1], self, highlighted_node={order[-1]}, show=show, save=save)
 
-    def hierarchical_height_from_lattice(self):
+    def hierarchical_height(self):
         """ Decompose the lattice into hierarchy.
 
         Every dismantable lattice can be decomposed into hierarchy.
@@ -710,7 +710,7 @@ class Lattice(Graph, Observable):
             current_height += 1
 
             sup_irreducibles.difference_update(deleted_sup_irreducibles)
-            vertex_height["BOTTOM"] = max(vertex_height.values()) + 1
+            vertex_height[self.get_bottom()] = max(vertex_height.values()) + 1
         return vertex_height
 
     def draw(self):
@@ -718,11 +718,11 @@ class Lattice(Graph, Observable):
         matrix = ContextMatrix.from_lattice(formal_context_lattice).matrix
         point_transformation = point_transformation_square(len(matrix))
         representant = {box: box[0] for box in formal_context_lattice if box not in ("BOTTOM", "TOP")}
-        representant["BOTTOM"] = (len(matrix), 0)
-        representant["TOP"] = (0, len(matrix))
+        representant[self.get_bottom()] = (len(matrix), 0)
+        representant[self.get_top()] = (0, len(matrix))
         objects = formal_context_lattice.sup_irreducible()
         attributes = formal_context_lattice.inf_irreducible()
-        hierarchy_association = formal_context_lattice.hierarchical_height_from_lattice()
+        hierarchy_association = formal_context_lattice.hierarchical_height()
 
         for elem in formal_context_lattice:
             x, y = point_transformation(*representant[elem])
@@ -748,7 +748,7 @@ class Lattice(Graph, Observable):
         pyplot.show()
 
     def edge_color(self, vertex1, vertex2=None):
-        hierarchy_association = self.hierarchical_height_from_lattice()
+        hierarchy_association = self.hierarchical_height()
         number_hierarchies = max(hierarchy_association.values()) + 1
         colors = matplotlib.cm.rainbow([0. + 1.0 * x / (number_hierarchies - 1) for x in range(number_hierarchies)])
         if vertex2 is None:
