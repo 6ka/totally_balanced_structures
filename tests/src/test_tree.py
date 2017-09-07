@@ -1,6 +1,6 @@
 import unittest
 from TBS.graph import Graph
-from tree import find_root
+from TBS.tree import find_root
 
 
 class TestTree(unittest.TestCase):

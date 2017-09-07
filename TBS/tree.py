@@ -4,6 +4,20 @@ import matplotlib.collections
 from matplotlib import pyplot
 
 
+def random_tree(number_vertices):
+    tree = dict({x: set() for x in range(number_vertices)})
+
+    name_random = list(range(number_vertices))
+    random.shuffle(name_random)
+    for i in range(number_vertices - 1):
+        x = name_random[i]
+        y = name_random[random.randint(i + 1, number_vertices - 1)]
+        tree[x].add(y)
+        tree[y].add(x)
+
+    return tree
+
+
 def find_root(tree):
     pruned_tree = tree.copy()
     while len(pruned_tree) > 2:
