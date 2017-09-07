@@ -1,6 +1,7 @@
 from TBS.graph.binary_mixed_tree import BinaryMixedTree
 from TBS.graph.mixed_graph import MixedGraph
 import random
+from TBS.lattice import Lattice
 
 
 class DecompositionBTB:
@@ -8,7 +9,9 @@ class DecompositionBTB:
         self.tree = BinaryMixedTree(initial_tree)
 
         self.history = []
-        self.clusters = [x for x in self.tree.vertices]
+        self.lattice = Lattice()
+        for x in self.tree.vertices:
+            self.lattice.update((("BOTTOM", str(x)), ))
         self.store()
 
     def store(self):
@@ -19,7 +22,7 @@ class DecompositionBTB:
             x, y = self.tree.get_edge()
             self.step(x, y)
             self.store()
-            self.clusters.append(x.union(y))
+            self.lattice.update(((str(x), str(x.union(y))), (str(y), str(x.union(y)))))
 
     def step(self, x, y):
         xy = self.tree.add_union(x, y)
