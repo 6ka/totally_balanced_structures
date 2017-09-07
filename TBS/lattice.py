@@ -8,6 +8,7 @@ from TBS.contextmatrix import ContextMatrix
 from matplotlib import pyplot
 import matplotlib
 from TBS.clusters.to_string import BoxesToString
+import TBS.tree_decomposition
 
 __author__ = "cchatel", "fbrucker"
 
@@ -596,39 +597,6 @@ class Lattice(Graph, Observable):
                 classes[current_class_index] = classes[predecessors[0]].union(classes[predecessors[1]])
         return tree
 
-    def contract_tree_edge(self, tree, class_to_create, already_created):
-        dual = self.dual_lattice
-        already_created.add(class_to_create)
-        tree.update(((dual[class_to_create][0], dual[class_to_create][1]),))
-        edges_to_update = tuple(())
-        tree.add(class_to_create)
-        for predecessor in dual[class_to_create]:
-            if len(self[predecessor]) == 1:
-                for neighbor in tree[predecessor]:
-                    edges_to_update += ((neighbor, class_to_create),)
-                tree.remove(predecessor)
-            elif len(self[predecessor]) == 2:
-                if self[predecessor][0] == class_to_create:
-                    other_succ = self[predecessor][1]
-                elif self[predecessor][1] == class_to_create:
-                    other_succ = self[predecessor][0]
-                else:
-                    raise ValueError("Lattice is not binary")
-                if other_succ not in already_created:
-                    edges_to_update += ((predecessor, class_to_create),)
-                    for neighbor in tree[predecessor]:
-                        if self.sup_filter(neighbor).intersection(
-                                self.sup_filter(predecessor)) <= self.sup_filter(class_to_create):
-                            edges_to_update += ((neighbor, predecessor), (neighbor, class_to_create))
-                else:
-                    for neighbor in tree[predecessor]:
-                        edges_to_update += ((neighbor, class_to_create),)
-                    tree.remove(predecessor)
-            else:
-                raise ValueError("Lattice is not binary")
-        tree.update(edges_to_update)
-        return tree
-
     def contraction_trees(self, order=None):
         """Returns a family of trees creating all the vertices of the lattice.
 
@@ -640,12 +608,9 @@ class Lattice(Graph, Observable):
         tree = self.support_tree()
         if not order:
             order = iter(self.contraction_order())
-        trees = [tree.copy()]
-        already_created = set()
-        for vertex in order:
-            tree = self.contract_tree_edge(tree, vertex, already_created)
-            trees.append(tree.copy())
-        return trees
+        decomposition = TBS.tree_decomposition.DecompositionBTB.init_from_graph(tree)
+        decomposition.algo_from_lattice(self, order)
+        return decomposition
 
     def draw_binarisation_trees(self, order=None, show=True, save=None):
         if not order:

@@ -1,16 +1,18 @@
 from TBS.graph.binary_mixed_tree import BinaryMixedTree
 from TBS.graph.mixed_graph import MixedGraph
 import random
-
-from TBS.lattice import Lattice
+import TBS.lattice
 
 
 class DecompositionBTB:
-    def __init__(self, initial_tree):
+    def __init__(self, initial_tree, lattice=None):
         self.tree = BinaryMixedTree(initial_tree)
 
         self.history = []
-        self.lattice = Lattice()
+        if lattice is None:
+            self.lattice = TBS.lattice.Lattice()
+        else:
+            self.lattice = lattice
         for x in self.tree.vertices:
             self.lattice.update((("BOTTOM", str(x)),))
         self.store()
@@ -60,6 +62,7 @@ class DecompositionBTB:
         already_created = set()
         for vertex in order:
             self.contract_tree_edge_from_lattice(vertex, already_created, lattice)
+            already_created.add(vertex)
             self.store()
 
     def contract_tree_edge_from_lattice(self, class_to_create, already_created, lattice):
