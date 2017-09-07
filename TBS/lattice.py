@@ -573,7 +573,7 @@ class Lattice(Graph, Observable):
         objects = self.atoms()
         representatives = {element: element for element in objects}
         classes = {element: {element} for element in objects}
-        tree = Graph(vertices=tuple(objects), directed=False)
+        tree = Graph(vertices=tuple(frozenset({o}) for o in objects), directed=False)
         n_connected_parts = len(objects)
         colors = {object: i for i, object in enumerate(objects)}
         next(class_order)
@@ -586,7 +586,7 @@ class Lattice(Graph, Observable):
                 representatives[current_class_index] = random.choice(
                     [first_class_representative, second_class_representative])
                 if colors[first_class_representative] != colors[second_class_representative]:
-                    tree.update(((first_class_representative, second_class_representative),))
+                    tree.update(((frozenset({first_class_representative}), frozenset({second_class_representative})),))
                     color_to_change = colors[second_class_representative]
                     color_to_keep = colors[first_class_representative]
                     for element in colors:

@@ -15,6 +15,12 @@ class DecompositionBTB:
             self.lattice.update((("BOTTOM", str(x)),))
         self.store()
 
+    @classmethod
+    def init_from_graph(cls, initial_tree):
+        decomposition = DecompositionBTB({})
+        decomposition.tree = BinaryMixedTree.from_tree(initial_tree)
+        return decomposition
+
     def store(self):
         self.history.append(MixedGraph(self.tree))
 

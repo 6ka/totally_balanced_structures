@@ -19,8 +19,11 @@ class MixedGraph:
     @classmethod
     def init_from_graph(cls, graph):
         mixed_graph = MixedGraph()
-        mixed_graph.vertices = {vertex for vertex in graph}
-        mixed_graph.undirected = {vertex: set(graph[vertex]) for vertex in graph}
+        for vertex in graph:
+            mixed_graph.add_vertex(vertex)
+        for vertex in graph:
+            for neighbour in graph[vertex]:
+                mixed_graph.add_undirected(vertex, neighbour)
         return mixed_graph
 
     def __eq__(self, other):

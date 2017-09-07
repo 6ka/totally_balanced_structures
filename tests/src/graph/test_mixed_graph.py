@@ -218,5 +218,5 @@ class TestMixedGraphInit(unittest.TestCase):
         self.assertSetEqual(mixed_graph.undirected[2], {1, 3, 4})
         self.assertSetEqual(mixed_graph.undirected[3], {2})
         self.assertSetEqual(mixed_graph.undirected[4], {2})
-        self.assertDictEqual(mixed_graph.directed, dict())
+        self.assertDictEqual(mixed_graph.directed, {i: set() for i in range(1, 5)})
         self.assertSetEqual(mixed_graph.vertices, {1, 2, 3, 4})

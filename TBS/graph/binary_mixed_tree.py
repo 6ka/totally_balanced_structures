@@ -12,6 +12,16 @@ class BinaryMixedTree(MixedGraph):
             for y in neighbor:
                 self.add_undirected(frozenset([x]), frozenset([y]))
 
+    @classmethod
+    def from_tree(cls, tree):
+        mixed_graph = BinaryMixedTree({})
+        for vertex in tree:
+            mixed_graph.add_vertex(vertex)
+        for vertex in tree:
+            for neighbour in tree[vertex]:
+                mixed_graph.add_undirected(vertex, neighbour)
+        return mixed_graph
+
     def get_edge(self):
         for x, neighbors in self.undirected.items():
             for y in neighbors:

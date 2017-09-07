@@ -213,40 +213,40 @@ class TestLatticeBinarize(unittest.TestCase):
         self.assertFalse(contract_23_tree.isa_vertex(2))
         self.assertTrue(len(tree.edges()) == 4)
 
-    def test_contraction_trees(self):
-        small_binary_lattice = Lattice((1, 2, 3, 4, 5, 'bottom', 'top'), (
-            ('bottom', 1), ('bottom', 2), ('bottom', 3), (1, 4), (2, 4), (2, 5), (3, 5), (4, 'top'), (5, 'top')))
-        trees = small_binary_lattice.contraction_trees()
-        support = Graph((1, 2, 3), ((1, 2), (2, 3)))
-        self.assertEqual(trees[0], support)
-        first_1 = Graph((4, 2, 3), ((4, 2), (2, 3)))
-        first_2 = Graph((1, 2, 5), ((1, 2), (2, 5)))
-        self.assertTrue(trees[1] == first_1 or trees[1] == first_2)
-        second = Graph((4, 5), ((4, 5),))
-        self.assertEqual(trees[2], second)
-        last = Graph(('top',), ())
-        self.assertEqual(trees[3], last)
+    # def test_contraction_trees(self):
+    #     small_binary_lattice = Lattice((1, 2, 3, 4, 5, 'bottom', 'top'), (
+    #         ('bottom', 1), ('bottom', 2), ('bottom', 3), (1, 4), (2, 4), (2, 5), (3, 5), (4, 'top'), (5, 'top')))
+    #     trees = small_binary_lattice.contraction_trees()
+    #     support = Graph((1, 2, 3), ((1, 2), (2, 3)))
+    #     self.assertEqual(trees[0], support)
+    #     first_1 = Graph((4, 2, 3), ((4, 2), (2, 3)))
+    #     first_2 = Graph((1, 2, 5), ((1, 2), (2, 5)))
+    #     self.assertTrue(trees[1] == first_1 or trees[1] == first_2)
+    #     second = Graph((4, 5), ((4, 5),))
+    #     self.assertEqual(trees[2], second)
+    #     last = Graph(('top',), ())
+    #     self.assertEqual(trees[3], last)
 
-    def test_contraction_trees_more_specific_order(self):
-        binary_atomistic_lattice = Lattice(
-            vertices=['BOTTOM', 16, 17, 18, 3, 4, 1, 14, 19, 15, 0, 5, 11, 12, 2, 6, 9, 8, 13, 7],
-            edges=[('BOTTOM', 16), ('BOTTOM', 17), ('BOTTOM', 18), ('BOTTOM', 3), ('BOTTOM', 4), ('BOTTOM', 1),
-                   ('BOTTOM', 14), ('BOTTOM', 19), ('BOTTOM', 15), (4, 0), (1, 0), (1, 5), (14, 5), (5, 11), (11, 6),
-                   (19, 11), (15, 6), (0, 12), (11, 12), (12, 2), (3, 2), (2, 9), (18, 9), (9, 8), (17, 8), (8, 13),
-                   (6, 13), (13, 'TOP'), (7, 'TOP'), (5, 7), (16, 7)])
-        trees = binary_atomistic_lattice.contraction_trees()
-        self.assertEqual(len(trees[-1]), 1)
-
-    def test_contraction_trees_move_edge(self):
-        binary_atomistic_lattice = Lattice(
-            vertices=['BOTTOM', 'TOP', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18],
-            edges=[('BOTTOM', 3), ('BOTTOM', 12), ('BOTTOM', 13), ('BOTTOM', 14),
-                   ('BOTTOM', 15), ('BOTTOM', 16), ('BOTTOM', 17), ('BOTTOM', 18), (0, 6),
-                   (6, 8), (1, 4), (1, 5), (2, 11), (3, 1), (3, 9), (4, 2),
-                   (4, 7), (5, 0), (6, 2), (7, 'TOP'), (8, 11), (9, 8),
-                   (11, 'TOP'), (12, 0), (13, 1), (14, 4), (15, 5), (16, 6),
-                   (17, 7), (18, 9)])
-        trees = binary_atomistic_lattice.contraction_trees(order=[9, 1, 5, 0, 6, 8, 4, 2, 7, 11, 'TOP'])
-        print(trees[-1], [vertex for vertex in trees[-1]])
-        self.assertEqual(len(trees[-1]), 1)
+    # def test_contraction_trees_more_specific_order(self):
+    #     binary_atomistic_lattice = Lattice(
+    #         vertices=['BOTTOM', 16, 17, 18, 3, 4, 1, 14, 19, 15, 0, 5, 11, 12, 2, 6, 9, 8, 13, 7],
+    #         edges=[('BOTTOM', 16), ('BOTTOM', 17), ('BOTTOM', 18), ('BOTTOM', 3), ('BOTTOM', 4), ('BOTTOM', 1),
+    #                ('BOTTOM', 14), ('BOTTOM', 19), ('BOTTOM', 15), (4, 0), (1, 0), (1, 5), (14, 5), (5, 11), (11, 6),
+    #                (19, 11), (15, 6), (0, 12), (11, 12), (12, 2), (3, 2), (2, 9), (18, 9), (9, 8), (17, 8), (8, 13),
+    #                (6, 13), (13, 'TOP'), (7, 'TOP'), (5, 7), (16, 7)])
+    #     trees = binary_atomistic_lattice.contraction_trees()
+    #     self.assertEqual(len(trees[-1]), 1)
+    #
+    # def test_contraction_trees_move_edge(self):
+    #     binary_atomistic_lattice = Lattice(
+    #         vertices=['BOTTOM', 'TOP', 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 12, 13, 14, 15, 16, 17, 18],
+    #         edges=[('BOTTOM', 3), ('BOTTOM', 12), ('BOTTOM', 13), ('BOTTOM', 14),
+    #                ('BOTTOM', 15), ('BOTTOM', 16), ('BOTTOM', 17), ('BOTTOM', 18), (0, 6),
+    #                (6, 8), (1, 4), (1, 5), (2, 11), (3, 1), (3, 9), (4, 2),
+    #                (4, 7), (5, 0), (6, 2), (7, 'TOP'), (8, 11), (9, 8),
+    #                (11, 'TOP'), (12, 0), (13, 1), (14, 4), (15, 5), (16, 6),
+    #                (17, 7), (18, 9)])
+    #     trees = binary_atomistic_lattice.contraction_trees(order=[9, 1, 5, 0, 6, 8, 4, 2, 7, 11, 'TOP'])
+    #     print(trees[-1], [vertex for vertex in trees[-1]])
+    #     self.assertEqual(len(trees[-1]), 1)
 
