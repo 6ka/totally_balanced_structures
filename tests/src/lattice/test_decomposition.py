@@ -1,9 +1,34 @@
 import unittest
+
+from TBS.graph.binary_mixed_tree import BinaryMixedTree
 from TBS.tree_decomposition import DecompositionBTB
 from TBS.tree import random_tree
-
+from TBS.lattice import Lattice
 
 class TestDecomposition(unittest.TestCase):
+    @staticmethod
+    def new_lattice():
+        lattice = Lattice()
+        lattice.update([("bottom", 1),
+                        ("bottom", 2),
+                        ("bottom", 3),
+                        ("bottom", 4),
+                        (1, 5),
+                        (2, 5),
+                        (2, 6),
+                        (2, 7),
+                        (3, 6),
+                        (4, 7),
+                        (5, 8),
+                        (6, 8),
+                        (7, 9),
+                        (8, "top"),
+                        (9, "top")])
+        return lattice
+
+    def setUp(self):
+        self.lattice = self.new_lattice()
+
     def test_algo(self):
         decomposition = DecompositionBTB(random_tree(10))
         decomposition.algo()
@@ -54,3 +79,111 @@ class TestDecomposition(unittest.TestCase):
 
         self.assertEqual(set(frozenset([x]) for x in [1, 4, 6, 8, 9]),
                          decomposition.tree.undirected[frozenset([3, 5])])
+
+    def test_contract_edge_one_disappears(self):
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
+        tree = {1: [2],
+                2: [12, 1, 3, 4],
+                3: [2],
+                4: [2, 10],
+                10: [4],
+                12: [2]}
+        decomposition = DecompositionBTB(tree)
+        decomposition.contract_tree_edge_from_lattice(7, set(), self.lattice)
+        # contract_24_tree = self.lattice.contract_tree_edge(tree, 7, set())
+        self.assertIn(frozenset({1}), decomposition.tree.undirected[frozenset({2})])
+        self.assertIn(frozenset({12}), decomposition.tree.undirected[frozenset({2})])
+        self.assertIn(frozenset({3}), decomposition.tree.undirected[frozenset({2})])
+        self.assertIn(frozenset({2, 4}), decomposition.tree.undirected[frozenset({10})])
+        self.assertNotIn(frozenset({4}), decomposition.tree.vertices)
+        self.assertEqual(len(decomposition.tree.vertices), 6)
+
+    def test_contract_edge_both_disappear(self):
+        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
+        binary_tree = BinaryMixedTree({})
+        binary_tree.add_vertex(frozenset({1, 2, 12}))
+        binary_tree.add_vertex(frozenset({3, 2, 12}))
+        binary_tree.add_vertex(frozenset({2, 4}))
+        binary_tree.add_vertex(frozenset({10}))
+        binary_tree.add_undirected(frozenset({1, 2, 12}), frozenset({2, 3, 12}))
+        binary_tree.add_undirected(frozenset({3, 2, 12}), frozenset({2, 4}))
+        binary_tree.add_undirected(frozenset({2, 4}), frozenset({10}))
+        decomposition = DecompositionBTB({})
+        decomposition.tree = binary_tree
+        decomposition.contract_tree_edge_from_lattice(8, {5, 6, 7, 11}, self.lattice)
+        self.assertIn(frozenset({1, 2, 3, 12}), decomposition.tree.undirected[frozenset({2, 4})])
+        self.assertIn(frozenset({10}), decomposition.tree.undirected[frozenset({2, 4})])
+        self.assertNotIn(frozenset({1, 2, 12}), decomposition.tree.vertices)
+        self.assertNotIn(frozenset({2, 3, 12}), decomposition.tree.vertices)
+        self.assertTrue(len(decomposition.tree.vertices) == 3)
+
+    def test_contract_edge_both_stay(self):
+        self.lattice.update(((2, 7), ('bottom', 10), (10, 9), (3, 7)))
+        tree = {1: [2],
+                2: [1, 3],
+                3: [2, 4, 10],
+                4: [3],
+                10: [3]}
+        decomposition = DecompositionBTB(tree)
+        decomposition.contract_tree_edge_from_lattice(6, set(), self.lattice)
+        self.assertIn(frozenset({1}), decomposition.tree.undirected[frozenset({2})])
+        self.assertIn(frozenset({2, 3}), decomposition.tree.directed[frozenset({2})])
+        self.assertIn(frozenset({2, 3}), decomposition.tree.directed[frozenset({3})])
+        self.assertIn(frozenset({3}), decomposition.tree.undirected[frozenset({10})])
+        self.assertIn(frozenset({3}), decomposition.tree.undirected[frozenset({4})])
+        self.assertNotIn(frozenset({2}), decomposition.tree.undirected[frozenset({3})])
+
+    def test_contract_edge_one_already_used(self):
+        self.lattice.update(((2, 7), ('bottom', 10), (10, 9), (3, 7)))
+        binary_tree = BinaryMixedTree({})
+        binary_tree.add_vertex(frozenset({2}))
+        binary_tree.add_vertex(frozenset({3}))
+        binary_tree.add_vertex(frozenset({4}))
+        binary_tree.add_vertex(frozenset({10}))
+        binary_tree.add_vertex(frozenset({1, 2}))
+        binary_tree.add_undirected(frozenset({2}), frozenset({1, 2}))
+        binary_tree.add_undirected(frozenset({2}), frozenset({3}))
+        binary_tree.add_undirected(frozenset({3}), frozenset({4}))
+        binary_tree.add_undirected(frozenset({3}), frozenset({10}))
+        decomposition = DecompositionBTB({})
+        decomposition.tree = binary_tree
+        decomposition.contract_tree_edge_from_lattice(6, {5}, self.lattice)
+        self.assertIn(frozenset({1, 2}), decomposition.tree.undirected[frozenset({2, 3})])
+        self.assertIn(frozenset({2, 3}), decomposition.tree.directed[frozenset({3})])
+        self.assertIn(frozenset({3}), decomposition.tree.undirected[frozenset({10})])
+        self.assertIn(frozenset({3}), decomposition.tree.undirected[frozenset({4})])
+        self.assertNotIn(frozenset({2}), decomposition.tree.vertices)
+
+    def test_contraction_trees(self):
+        small_binary_lattice = Lattice((1, 2, 3, 4, 5, 'bottom', 'top'), (
+            ('bottom', 1), ('bottom', 2), ('bottom', 3), (1, 4), (2, 4), (2, 5), (3, 5), (4, 'top'), (5, 'top')))
+        tree = {1: [2],
+                2: [1, 3],
+                3: [2]}
+        decomposition = DecompositionBTB(tree)
+        decomposition.algo_from_lattice(small_binary_lattice)
+        support = BinaryMixedTree(tree)
+        self.assertEqual(decomposition.history[0], support)
+        first_1 = BinaryMixedTree({})
+        first_1.add_vertex(frozenset({1, 2}))
+        first_1.add_vertex(frozenset({2}))
+        first_1.add_vertex(frozenset({3}))
+        first_1.add_directed(frozenset({2}), frozenset({1, 2}))
+        first_1.add_undirected(frozenset({2}), frozenset({3}))
+        first_2 = BinaryMixedTree({})
+        first_2.add_vertex(frozenset({2, 3}))
+        first_2.add_vertex(frozenset({2}))
+        first_2.add_vertex(frozenset({1}))
+        first_2.add_directed(frozenset({2}), frozenset({2, 3}))
+        first_2.add_undirected(frozenset({1}), frozenset({2}))
+        self.assertTrue(decomposition.history[1] == first_1 or decomposition.history[1] == first_2)
+        second = BinaryMixedTree({})
+        second.add_vertex(frozenset({1, 2}))
+        second.add_vertex(frozenset({3, 2}))
+        second.add_undirected(frozenset({1, 2}), frozenset({2, 3}))
+        self.assertEqual(decomposition.history[2], second)
+        last = BinaryMixedTree({})
+        last.add_vertex(frozenset({1, 2, 3}))
+        self.assertEqual(decomposition.history[3], last)
