@@ -16,6 +16,13 @@ class MixedGraph:
         self.directed = {k: set(v) for k, v in other.directed.items()}
         self.directed_dual = {k: set(v) for k, v in other.directed_dual.items()}
 
+    @classmethod
+    def init_from_graph(cls, graph):
+        mixed_graph = MixedGraph()
+        mixed_graph.vertices = {vertex for vertex in graph}
+        mixed_graph.undirected = {vertex: set(graph[vertex]) for vertex in graph}
+        return mixed_graph
+
     def __eq__(self, other):
         return self.vertices == other.vertices and self.undirected == other.undirected and self.directed == other.directed
 

@@ -1,5 +1,6 @@
 import unittest
 from TBS.graph.mixed_graph import MixedGraph
+from TBS.graph import Graph
 
 
 class TestMixedGraph(unittest.TestCase):
@@ -208,3 +209,14 @@ class TestMixedGraphInit(unittest.TestCase):
 
         self.assertNotEquals(mixed_copy, mixed_copy2)
         self.assertEqual(self.mixed, mixed_copy)
+
+    def test_init_from_graph(self):
+        graph = Graph()
+        graph.update(((1, 2), (2, 3), (2, 4)))
+        mixed_graph = MixedGraph.init_from_graph(graph)
+        self.assertSetEqual(mixed_graph.undirected[1], {2})
+        self.assertSetEqual(mixed_graph.undirected[2], {1, 3, 4})
+        self.assertSetEqual(mixed_graph.undirected[3], {2})
+        self.assertSetEqual(mixed_graph.undirected[4], {2})
+        self.assertDictEqual(mixed_graph.directed, dict())
+        self.assertSetEqual(mixed_graph.vertices, {1, 2, 3, 4})
