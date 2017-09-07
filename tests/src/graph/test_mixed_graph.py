@@ -1,6 +1,5 @@
 import unittest
 from TBS.graph.mixed_graph import MixedGraph
-from TBS.tree import random_tree
 
 
 class TestMixedGraph(unittest.TestCase):

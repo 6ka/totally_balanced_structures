@@ -1,8 +1,32 @@
 import unittest
 from TBS.tree_decomposition import DecompositionBTB
+from TBS.tree import random_tree
 
 
 class TestDecomposition(unittest.TestCase):
+    def test_algo(self):
+        decomposition = DecompositionBTB(random_tree(10))
+        decomposition.algo()
+        self.assertTrue(decomposition.lattice.is_binary())
+        self.assertTrue(decomposition.lattice.is_a_lattice())
+
+    def test_random_choice(self):
+        tree = {7: [5],
+                5: [7, 2, 3],
+                3: [5, 6, 8, 4, 1, 9],
+                0: [9],
+                6: [3],
+                8: [3],
+                4: [3],
+                1: [3],
+                2: [5],
+                9: [3, 0]
+                }
+
+        decomposition = DecompositionBTB(tree)
+        self.assertTrue(
+            set(decomposition.random_choice(frozenset({3}))).issubset({frozenset({element}) for element in tree[3]}))
+
     def test_remove_directed(self):
         tree = {7: [5],
                 5: [7, 2, 3],
