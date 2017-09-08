@@ -100,3 +100,4 @@ class DecompositionBTB:
                     self.tree.remove_vertex(clusters[predecessor])
             else:
                 raise ValueError("Lattice is not binary")
+

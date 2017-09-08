@@ -21,10 +21,10 @@ class BinaryMixedTree(MixedGraph):
     def from_tree(cls, tree):
         mixed_graph = BinaryMixedTree({})
         for vertex in tree:
-            mixed_graph.add_vertex(vertex)
+            mixed_graph.add_vertex(frozenset({vertex}))
         for vertex in tree:
             for neighbour in tree[vertex]:
-                mixed_graph.add_undirected(vertex, neighbour)
+                mixed_graph.add_undirected(frozenset({vertex}), frozenset({neighbour}))
         return mixed_graph
 
     def get_edge(self):

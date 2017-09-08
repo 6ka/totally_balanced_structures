@@ -119,18 +119,17 @@ class TestLattice(unittest.TestCase):
     def test_support_tree(self):
         self.lattice.make_atomistic()
         tree = self.lattice.support_tree()
-        self.assertTrue(tree.isa_edge(frozenset({1}), frozenset({2})))
-        self.assertTrue(tree.isa_edge(frozenset({3}), frozenset({2})))
-        self.assertTrue(tree.isa_edge(frozenset({4}), frozenset({2})))
-        self.assertTrue(
-            tree.isa_edge(frozenset({10}), frozenset({2})) or tree.isa_edge(frozenset({10}), frozenset({4})))
-        self.assertFalse(tree.isa_edge(frozenset({1}), frozenset({3})))
-        self.assertFalse(tree.isa_edge(frozenset({1}), frozenset({4})))
-        self.assertFalse(tree.isa_edge(frozenset({3}), frozenset({4})))
-        self.assertFalse(tree.isa_edge(frozenset({10}), frozenset({1})))
-        self.assertFalse(tree.isa_edge(frozenset({10}), frozenset({3})))
+        self.assertTrue(tree.isa_edge(1, 2))
+        self.assertTrue(tree.isa_edge(3, 2))
+        self.assertTrue(tree.isa_edge(4, 2))
+        self.assertTrue(tree.isa_edge(10, 2) or tree.isa_edge(10, 4))
+        self.assertFalse(tree.isa_edge(1, 3))
+        self.assertFalse(tree.isa_edge(1, 4))
+        self.assertFalse(tree.isa_edge(3, 4))
+        self.assertFalse(tree.isa_edge(10, 1))
+        self.assertFalse(tree.isa_edge(10, 3))
         self.assertFalse(
-            tree.isa_edge(frozenset({10}), frozenset({2})) and tree.isa_edge(frozenset({10}), frozenset({4})))
+            tree.isa_edge(10, 2) and tree.isa_edge(10, 4))
 
     def test_from_context_matrix(self):
         matrix = [[1, 1, 0, 0],
