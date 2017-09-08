@@ -67,7 +67,7 @@ class DecompositionBTB:
         """
         self.lattice = lattice
         if not order:
-            order = iter(lattice.contraction_order())
+            order = iter(lattice.decomposition_order())
         clusters = self.lattice.sup_irreducible_clusters()
         already_created = set()
         for vertex in order:

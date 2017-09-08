@@ -134,7 +134,7 @@ class TestLatticeBinarize(unittest.TestCase):
     def test_atomistic_contraction_order(self):
         self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
         self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
-        order = self.lattice.contraction_order()
+        order = self.lattice.decomposition_order()
         self.assertTrue(order.index(8) > order.index(5))
         self.assertTrue(order.index(8) > order.index(6))
         self.assertTrue(order.index(5) > order.index(11))
@@ -147,7 +147,7 @@ class TestLatticeBinarize(unittest.TestCase):
         self.assertNotIn(10, order)
 
     def test_contraction_order(self):
-        order = self.lattice.contraction_order()
+        order = self.lattice.decomposition_order()
         self.assertTrue(order.index(8) > order.index(5))
         self.assertTrue(order.index(8) > order.index(6))
         self.assertTrue(order.index(9) > order.index(7))
@@ -158,7 +158,7 @@ class TestLatticeBinarize(unittest.TestCase):
                                          ('BOTTOM', 14), ('BOTTOM', 15), (0, 9), (1, 5), (1, 8), (2, 'TOP'), (3, 1),
                                          (3, 4), (4, 2), (5, 'TOP'), (6, 9), (8, 0), (8, 6), (9, 2), (10, 0), (11, 1),
                                          (12, 4), (13, 5), (14, 6), (15, 8)))
-        order = binary_atomistic_lattice.contraction_order()
+        order = binary_atomistic_lattice.decomposition_order()
         for i in [0, 2, 5, 6, 8, 9]:
             self.assertTrue(order.index(1) < order.index(i))
             self.assertTrue(order.index(4) < order.index(i))
@@ -172,7 +172,7 @@ class TestLatticeBinarize(unittest.TestCase):
                    ('BOTTOM', 14), ('BOTTOM', 19), ('BOTTOM', 15), (4, 0), (1, 0), (1, 5), (14, 5), (5, 11), (11, 6),
                    (19, 11), (15, 6), (0, 12), (11, 12), (12, 2), (3, 2), (2, 9), (18, 9), (9, 8), (17, 8), (8, 13),
                    (6, 13), (13, 'TOP'), (7, 'TOP'), (5, 7), (16, 7)])
-        decomposition = binary_atomistic_lattice.contraction_trees()
+        decomposition = binary_atomistic_lattice.decomposition()
         print(len(decomposition.history))
         self.assertSetEqual(decomposition.history[-1].vertices, {frozenset({16, 17, 18, 3, 4, 1, 14, 19, 15})})
 

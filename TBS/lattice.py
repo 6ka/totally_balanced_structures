@@ -529,7 +529,7 @@ class Lattice(Graph, Observable):
         else:
             raise ValueError("first_successor is not a successor of element in lattice")
 
-    def contraction_order(self):
+    def decomposition_order(self):
         """Computes a compatible contraction order.
 
         :return: ordered list of all the vertices
@@ -611,7 +611,7 @@ class Lattice(Graph, Observable):
                 classes[current_class_index] = classes[predecessors[0]].union(classes[predecessors[1]])
         return tree
 
-    def contraction_trees(self, order=None):
+    def decomposition(self, order=None):
         """Returns an object representing a family of trees creating all the vertices of the lattice.
 
         :param order: an order to create vertices
@@ -622,7 +622,7 @@ class Lattice(Graph, Observable):
         """
         tree = self.support_tree()
         if not order:
-            order = iter(self.contraction_order())
+            order = iter(self.decomposition_order())
         decomposition = TBS.tree_decomposition.DecompositionBTB(tree)
         decomposition.build_from_lattice(self, order)
         return decomposition
@@ -637,8 +637,8 @@ class Lattice(Graph, Observable):
         :param save: if not None, figures are saved to specified file
         """
         if not order:
-            order = iter(self.contraction_order())
-        trees = self.contraction_trees(order)
+            order = iter(self.decomposition_order())
+        trees = self.decomposition(order)
         trees.draw(show=show, save=save)
 
     def hierarchical_height(self):
