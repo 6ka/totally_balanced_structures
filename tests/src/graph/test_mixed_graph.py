@@ -177,34 +177,34 @@ class TestMixedGraphInit(unittest.TestCase):
         self.mixed.add_undirected(0, 2)
 
     def test_init_from_mixed_graph_copy_equal(self):
-        mixed_copy = MixedGraph(self.mixed)
+        mixed_copy = self.mixed.copy()
         self.assertEqual(self.mixed, mixed_copy)
 
     def test_init_from_mixed_graph_copy_remove_vertex(self):
-        mixed_copy = MixedGraph(self.mixed)
+        mixed_copy = self.mixed.copy()
         self.assertEqual(self.mixed, mixed_copy)
 
-        mixed_copy2 = MixedGraph(mixed_copy)
+        mixed_copy2 = mixed_copy.copy()
         mixed_copy2.remove_vertex(0)
 
         self.assertNotEquals(mixed_copy, mixed_copy2)
         self.assertEqual(self.mixed, mixed_copy)
 
     def test_init_from_mixed_graph_copy_remove_undirect(self):
-        mixed_copy = MixedGraph(self.mixed)
+        mixed_copy = self.mixed.copy()
         self.assertEqual(self.mixed, mixed_copy)
 
-        mixed_copy2 = MixedGraph(mixed_copy)
+        mixed_copy2 = mixed_copy.copy()
         mixed_copy2.remove_undirected(0, 2)
 
         self.assertNotEquals(mixed_copy, mixed_copy2)
         self.assertEqual(self.mixed, mixed_copy)
 
     def test_init_from_mixed_graph_copy_remove_direct(self):
-        mixed_copy = MixedGraph(self.mixed)
+        mixed_copy = self.mixed.copy()
         self.assertEqual(self.mixed, mixed_copy)
 
-        mixed_copy2 = MixedGraph(mixed_copy)
+        mixed_copy2 = mixed_copy.copy()
         mixed_copy2.remove_directed(1, 2)
 
         self.assertNotEquals(mixed_copy, mixed_copy2)

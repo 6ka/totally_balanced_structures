@@ -27,6 +27,14 @@ class BinaryMixedTree(MixedGraph):
                 mixed_graph.add_undirected(frozenset({vertex}), frozenset({neighbour}))
         return mixed_graph
 
+    def copy(self):
+        copy = BinaryMixedTree({})
+        copy.vertices = set(self.vertices)
+        copy.undirected = {k: set(v) for k, v in self.undirected.items()}
+        copy.directed = {k: set(v) for k, v in self.directed.items()}
+        copy.directed_dual = {k: set(v) for k, v in self.directed_dual.items()}
+        return copy
+
     def get_edge(self):
         for x, neighbors in self.undirected.items():
             for y in neighbors:
@@ -64,6 +72,8 @@ class BinaryMixedTree(MixedGraph):
     def to_graph(self):
         tree = Graph(directed=False)
         for vertex in self.vertices:
+            if vertex not in tree:
+                tree.add(vertex)
             for neighbour in self.directed[vertex]:
                 if not tree.isa_edge(neighbour, vertex):
                     tree.update(((vertex, neighbour),))

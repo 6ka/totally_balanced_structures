@@ -9,12 +9,14 @@ class MixedGraph:
         if mixed_graph is not None:
             self.init_from_mixed_graph(mixed_graph)
 
-    def init_from_mixed_graph(self, other):
-        self.vertices = set(other.vertices)
+    def copy(self):
+        other = MixedGraph()
+        other.vertices = set(self.vertices)
 
-        self.undirected = {k: set(v) for k, v in other.undirected.items()}
-        self.directed = {k: set(v) for k, v in other.directed.items()}
-        self.directed_dual = {k: set(v) for k, v in other.directed_dual.items()}
+        other.undirected = {k: set(v) for k, v in self.undirected.items()}
+        other.directed = {k: set(v) for k, v in self.directed.items()}
+        other.directed_dual = {k: set(v) for k, v in self.directed_dual.items()}
+        return other
 
     @classmethod
     def init_from_graph(cls, graph):
