@@ -6,6 +6,7 @@ from TBS.tree import random_tree
 from TBS.lattice import Lattice
 from TBS.graph import Graph
 
+
 class TestDecomposition(unittest.TestCase):
     @staticmethod
     def new_lattice():
@@ -194,8 +195,9 @@ class TestDecomposition(unittest.TestCase):
         last = BinaryMixedTree({})
         last.add_vertex(frozenset({1, 2, 3}))
         self.assertEqual(decomposition.history[3], last)
-        self.assertTrue(decomposition.order == [frozenset({1, 2}), frozenset({2, 3}), frozenset({1, 2, 3})]
-                        or decomposition.order == [frozenset({3, 2}), frozenset({2, 1}), frozenset({1, 2, 3})])
+        ordered_clusters = [edge[0].union(edge[1]) for edge in decomposition.order]
+        self.assertTrue(ordered_clusters == [frozenset({1, 2}), frozenset({2, 3}), frozenset({1, 2, 3})]
+                        or ordered_clusters == [frozenset({3, 2}), frozenset({2, 1}), frozenset({1, 2, 3})])
 
     def test_contraction_trees_more_specific_order(self):
         binary_atomistic_lattice = Lattice(
@@ -228,5 +230,7 @@ class TestDecomposition(unittest.TestCase):
         tree.update(((1, 2), (2, 3)))
         decomposition = DecompositionBTB.init_from_graph_object(tree)
         decomposition.algo()
-        self.assertSetEqual(decomposition.order[-1], frozenset({1, 2, 3}))
-        self.assertTrue(decomposition.order[0] == frozenset({1, 2}) or decomposition.order[0] == frozenset({2, 3}))
+        self.assertSetEqual(decomposition.order[-1][0].union(decomposition.order[-1][1]), frozenset({1, 2, 3}))
+        self.assertTrue(decomposition.order[0][0].union(
+            decomposition.order[0][1]) == frozenset({1, 2}) or decomposition.order[0][0].union(
+                decomposition.order[0][1] == frozenset({2, 3})))

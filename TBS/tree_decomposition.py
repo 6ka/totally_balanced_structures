@@ -32,7 +32,7 @@ class DecompositionBTB:
         while len(self.tree) > 1:
             x, y = self.tree.get_edge()
             self.step(x, y)
-            self.order.append(x.union(y))
+            self.order.append((x, y))
             self.store()
             self.lattice.update(((str(x), str(x.union(y))), (str(y), str(x.union(y)))))
 
@@ -69,7 +69,8 @@ class DecompositionBTB:
             self.contract_tree_edge_from_lattice(vertex, already_created, lattice)
             already_created.add(vertex)
             self.store()
-            self.order.append(clusters[vertex])
+            pred1, pred2 = self.lattice.dual_lattice[vertex][0], self.lattice.dual_lattice[vertex][1]
+            self.order.append((clusters[pred1], clusters[pred2]))
 
     def contract_tree_edge_from_lattice(self, class_to_create, already_created, lattice):
         clusters = lattice.sup_irreducible_clusters()
@@ -107,7 +108,19 @@ class DecompositionBTB:
             else:
                 raise ValueError("Lattice is not binary")
 
-    def draw(self):
-        for tree in self.history:
-            tree.draw()
+    def draw(self, save=None, show=True):
+        n_steps = len(self.history)
+        for i in range(n_steps):
+            if save:
+                save_i = save + '_i'
+            else:
+                save_i = None
+            tree = self.history[i]
+            highlighted_edge = set()
+            highlighted_node = set()
+            if i != 0:
+                highlighted_node = [self.order[i-1][0].union(self.order[i-1][1])]
+            if i != n_steps - 1:
+                highlighted_edge = [self.order[i]]
+            tree.draw(highlighted_edge=highlighted_edge, highlighted_node=highlighted_node, save=save_i, show=show)
 

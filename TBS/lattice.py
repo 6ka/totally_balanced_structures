@@ -613,7 +613,7 @@ class Lattice(Graph, Observable):
         if not order:
             order = iter(self.contraction_order())
         trees = self.contraction_trees(order)
-        trees.draw()
+        trees.draw(show=show, save=save)
 
     def hierarchical_height(self):
         """ Decompose the lattice into hierarchy.
