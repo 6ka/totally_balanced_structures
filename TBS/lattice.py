@@ -697,7 +697,7 @@ class Lattice(Graph, Observable):
         point_transformation = point_transformation_square(len(matrix))
         representant = {box: box[0] for box in formal_context_lattice if box not in ("BOTTOM", "TOP")}
         representant[self.get_bottom()] = (len(matrix), 0)
-        representant[self.get_top()] = (0, len(matrix))
+        representant[self.get_top()] = (0, len(matrix[0]))
         objects = formal_context_lattice.sup_irreducible()
         attributes = formal_context_lattice.inf_irreducible()
         hierarchy_association = formal_context_lattice.hierarchical_height()
