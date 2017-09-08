@@ -22,6 +22,8 @@ class DecompositionBTB:
         decomposition = DecompositionBTB({})
         decomposition.history = []
         decomposition.tree = BinaryMixedTree.from_graph_object(initial_tree)
+        for x in initial_tree:
+            decomposition.lattice.update((("BOTTOM", str(frozenset({x}))),))
         decomposition.store()
         return decomposition
 

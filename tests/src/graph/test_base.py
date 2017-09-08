@@ -231,3 +231,4 @@ class TestGraphBase(unittest.TestCase):
 
         self.assertEqual(dual_g, g.dual())
 
+

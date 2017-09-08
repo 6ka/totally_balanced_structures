@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import random
 
 __author__ = 'fbrucker'
 
@@ -40,6 +41,17 @@ class Graph(object):
 
         if edges:
             self.update(edges)
+
+    @classmethod
+    def random_tree(cls, number_vertices):
+        tree = Graph(directed=False)
+        name_random = list(range(number_vertices))
+        random.shuffle(name_random)
+        for i in range(number_vertices - 1):
+            x = name_random[i]
+            y = name_random[random.randint(i + 1, number_vertices - 1)]
+            tree.update(((x, y), ))
+        return tree
 
     def __str__(self):
         """Edge representation."""

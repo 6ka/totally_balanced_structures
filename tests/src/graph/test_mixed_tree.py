@@ -1,4 +1,3 @@
-from TBS.tree import random_tree
 from TBS.graph.binary_mixed_tree import BinaryMixedTree
 from TBS.graph import Graph
 import unittest
@@ -6,21 +5,19 @@ import unittest
 
 class TestMixedTree(unittest.TestCase):
     def test_two_vertices_random_tree(self):
-        tree = random_tree(2)
-        zero = 0
-        one = 1
+        tree = Graph.random_tree(2)
         self.assertEqual(2,
                          len(tree))
-
-        self.assertEqual({zero: {one},
-                          one: {zero},
-                          },
-                         tree)
+        graph = Graph(directed=False)
+        graph.update(((0, 1), ))
+        self.assertEqual(graph, tree)
 
     def test_two_vertices(self):
-        tree = BinaryMixedTree(random_tree(2))
+        tree = BinaryMixedTree.from_graph_object(Graph.random_tree(2))
         zero = frozenset([0])
         one = frozenset([1])
+        print(tree.vertices)
+        print(tree.undirected)
 
         self.assertEqual(2,
                          len(tree))
