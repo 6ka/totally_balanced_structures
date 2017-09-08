@@ -4,8 +4,8 @@ from setuptools import setup, find_packages
 setup(
     name="Gamma-Free ordering",
     version="0.1",
-    author="Francois Brucker",
-    author_email="francois.brucker@gmail.com",
+    author="Francois Brucker, Célia Châtel",
+    author_email="francois.brucker@gmail.com, celia.chatel@lif.univ-mrs.fr",
     description="Tools for classification and data analysis",
     keywords="classification dissimilarity lattice",
     packages=find_packages(),
@@ -17,5 +17,5 @@ setup(
         "Programming Language :: Python :: 3",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    requires=['pillow', 'PIL' , 'matplotlib'],
+    requires=['pillow', 'PIL', 'matplotlib'],
 )
