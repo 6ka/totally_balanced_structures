@@ -1,31 +1,20 @@
-from TBS.graph.binary_mixed_tree import BinaryMixedTree
 import random
 import TBS.lattice
+from graph.binary_mixed_tree import BinaryMixedTree
 
 
 class DecompositionBTB:
     def __init__(self, initial_tree, lattice=None):
         self.tree = BinaryMixedTree(initial_tree)
-
         self.history = []
         self.order = []
         if lattice is None:
             self.lattice = TBS.lattice.Lattice()
         else:
             self.lattice = lattice
-        for x in self.tree.vertices:
-            self.lattice.update((("BOTTOM", str(x)),))
-        self.store()
-
-    @classmethod
-    def init_from_graph_object(cls, initial_tree):
-        decomposition = DecompositionBTB({})
-        decomposition.history = []
-        decomposition.tree = BinaryMixedTree.from_graph_object(initial_tree)
         for x in initial_tree:
-            decomposition.lattice.update((("BOTTOM", str(frozenset({x}))),))
-        decomposition.store()
-        return decomposition
+            self.lattice.update((("BOTTOM", str(frozenset({x}))), ))
+        self.store()
 
     def store(self):
         self.history.append(self.tree.copy())

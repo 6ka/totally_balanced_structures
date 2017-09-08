@@ -9,23 +9,11 @@ import math
 class BinaryMixedTree(MixedGraph):
     def __init__(self, tree):
         super().__init__()
-
-        for x in tree:
-            self.add_vertex(frozenset([x]))
-
-        for x, neighbor in tree.items():
-            for y in neighbor:
-                self.add_undirected(frozenset([x]), frozenset([y]))
-
-    @classmethod
-    def from_graph_object(cls, tree):
-        mixed_graph = BinaryMixedTree({})
         for vertex in tree:
-            mixed_graph.add_vertex(frozenset({vertex}))
+            self.add_vertex(frozenset({vertex}))
         for vertex in tree:
             for neighbour in tree[vertex]:
-                mixed_graph.add_undirected(frozenset({vertex}), frozenset({neighbour}))
-        return mixed_graph
+                self.add_undirected(frozenset({vertex}), frozenset({neighbour}))
 
     def copy(self):
         copy = BinaryMixedTree({})

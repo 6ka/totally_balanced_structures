@@ -1,13 +1,10 @@
 class MixedGraph:
-    def __init__(self, mixed_graph=None):
+    def __init__(self):
 
         self.vertices = set()
         self.undirected = {}
         self.directed = dict()  # x -> y means y in dict[x]
         self.directed_dual = dict()  # x -> y means x in dict[y]
-
-        if mixed_graph is not None:
-            self.init_from_mixed_graph(mixed_graph)
 
     def copy(self):
         other = MixedGraph()

@@ -607,7 +607,7 @@ class Lattice(Graph, Observable):
         tree = self.support_tree()
         if not order:
             order = iter(self.contraction_order())
-        decomposition = TBS.tree_decomposition.DecompositionBTB.init_from_graph_object(tree)
+        decomposition = TBS.tree_decomposition.DecompositionBTB(tree)
         decomposition.algo_from_lattice(self, order)
         return decomposition
 
