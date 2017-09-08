@@ -568,6 +568,8 @@ class Lattice(Graph, Observable):
         :return: a support tree
         :rtype: :class:`TBS.graph.Graph`
         """
+        if not self.is_atomistic():
+            raise ValueError("lattice is not atomistic")
         bottom = self.get_bottom()
         class_order = self.topological_sort(bottom)
         objects = self.atoms()
