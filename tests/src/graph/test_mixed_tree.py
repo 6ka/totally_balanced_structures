@@ -100,12 +100,12 @@ class TestMixedTree(unittest.TestCase):
 
     def test_find_root(self):
         tree = Graph(vertices=[0, 1, 2, 3, 4, 5, 6], edges=((0, 1), (0, 2), (0, 3), (1, 4), (2, 5), (3, 6)))
-        binary_mixed_tree = BinaryMixedTree.from_tree(tree)
+        binary_mixed_tree = BinaryMixedTree.from_graph_object(tree)
         root = binary_mixed_tree.find_root_as_undirected()
         print(root)
         self.assertEqual(root, frozenset({0}))
         tree = Graph(vertices=[0, 1, 2, 3, 4, 5], edges=((0, 1), (0, 2), (0, 3), (1, 4), (1, 5)))
-        binary_mixed_tree = BinaryMixedTree.from_tree(tree)
+        binary_mixed_tree = BinaryMixedTree.from_graph_object(tree)
         root = binary_mixed_tree.find_root_as_undirected()
         print(root)
         self.assertTrue(root == frozenset({0}) or root == frozenset({1}))

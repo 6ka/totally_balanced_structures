@@ -18,7 +18,7 @@ class BinaryMixedTree(MixedGraph):
                 self.add_undirected(frozenset([x]), frozenset([y]))
 
     @classmethod
-    def from_tree(cls, tree):
+    def from_graph_object(cls, tree):
         mixed_graph = BinaryMixedTree({})
         for vertex in tree:
             mixed_graph.add_vertex(frozenset({vertex}))

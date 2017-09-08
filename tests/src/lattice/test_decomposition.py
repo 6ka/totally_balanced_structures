@@ -4,6 +4,7 @@ from TBS.graph.binary_mixed_tree import BinaryMixedTree
 from TBS.tree_decomposition import DecompositionBTB
 from TBS.tree import random_tree
 from TBS.lattice import Lattice
+from TBS.graph import Graph
 
 class TestDecomposition(unittest.TestCase):
     @staticmethod
@@ -28,6 +29,12 @@ class TestDecomposition(unittest.TestCase):
 
     def setUp(self):
         self.lattice = self.new_lattice()
+
+    def test_init_from_graph(self):
+        tree = Graph(vertices=[0, 1, 2, 3, 4, 5, 6], edges=((0, 1), (0, 2), (0, 3), (1, 4), (2, 5), (3, 6)))
+        decomposition = DecompositionBTB.init_from_graph_object(tree)
+        self.assertEqual(len(decomposition.history), 1)
+        self.assertEqual(decomposition.history[0], BinaryMixedTree.from_graph_object(tree))
 
     def test_algo(self):
         decomposition = DecompositionBTB(random_tree(10))
@@ -196,7 +203,7 @@ class TestDecomposition(unittest.TestCase):
                    (19, 11), (15, 6), (0, 12), (11, 12), (12, 2), (3, 2), (2, 9), (18, 9), (9, 8), (17, 8), (8, 13),
                    (6, 13), (13, 'TOP'), (7, 'TOP'), (5, 7), (16, 7)])
         support_tree = binary_atomistic_lattice.support_tree()
-        decomposition = DecompositionBTB.init_from_graph(support_tree)
+        decomposition = DecompositionBTB.init_from_graph_object(support_tree)
         decomposition.algo_from_lattice(binary_atomistic_lattice)
         self.assertEqual(len(decomposition.history[-1]), 1)
 
@@ -210,6 +217,6 @@ class TestDecomposition(unittest.TestCase):
                    (11, 'TOP'), (12, 0), (13, 1), (14, 4), (15, 5), (16, 6),
                    (17, 7), (18, 9)])
         support_tree = binary_atomistic_lattice.support_tree()
-        decomposition = DecompositionBTB.init_from_graph(support_tree)
+        decomposition = DecompositionBTB.init_from_graph_object(support_tree)
         decomposition.algo_from_lattice(binary_atomistic_lattice)
         self.assertEqual(len(decomposition.history[-1]), 1)

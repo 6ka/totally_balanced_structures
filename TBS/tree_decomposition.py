@@ -1,5 +1,4 @@
 from TBS.graph.binary_mixed_tree import BinaryMixedTree
-from TBS.graph.mixed_graph import MixedGraph
 import random
 import TBS.lattice
 
@@ -18,13 +17,15 @@ class DecompositionBTB:
         self.store()
 
     @classmethod
-    def init_from_graph(cls, initial_tree):
+    def init_from_graph_object(cls, initial_tree):
         decomposition = DecompositionBTB({})
-        decomposition.tree = BinaryMixedTree.from_tree(initial_tree)
+        decomposition.history = []
+        decomposition.tree = BinaryMixedTree.from_graph_object(initial_tree)
+        decomposition.store()
         return decomposition
 
     def store(self):
-        self.history.append(MixedGraph(self.tree))
+        self.history.append(self.tree.copy())
 
     def algo(self):
         while len(self.tree) > 1:
@@ -100,4 +101,5 @@ class DecompositionBTB:
                     self.tree.remove_vertex(clusters[predecessor])
             else:
                 raise ValueError("Lattice is not binary")
+
 
