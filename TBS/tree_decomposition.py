@@ -19,7 +19,7 @@ class DecompositionBTB:
     def store(self):
         self.history.append(self.tree.copy())
 
-    def algo(self):
+    def build_binary_lattice(self):
         while len(self.tree) > 1:
             x, y = self.tree.get_edge()
             self.step(x, y)
@@ -50,7 +50,7 @@ class DecompositionBTB:
 
         return population[:k]
 
-    def algo_from_lattice(self, lattice, order=None):
+    def build_from_lattice(self, lattice, order=None):
         self.lattice = lattice
         if not order:
             order = iter(lattice.contraction_order())

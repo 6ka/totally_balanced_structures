@@ -38,7 +38,7 @@ class TestDecomposition(unittest.TestCase):
 
     def test_algo(self):
         decomposition = DecompositionBTB(Graph.random_tree(2))
-        decomposition.algo()
+        decomposition.build_binary_lattice()
         self.assertTrue(decomposition.lattice.is_binary())
         self.assertTrue(decomposition.lattice.is_a_lattice())
 
@@ -141,7 +141,7 @@ class TestDecomposition(unittest.TestCase):
         tree = Graph(directed=False)
         tree.update(((1, 2), (2, 3)))
         decomposition = DecompositionBTB(tree)
-        decomposition.algo_from_lattice(small_binary_lattice)
+        decomposition.build_from_lattice(small_binary_lattice)
         support = BinaryMixedTree(tree)
         self.assertEqual(decomposition.history[0], support)
         first_1 = BinaryMixedTree({})
@@ -178,7 +178,7 @@ class TestDecomposition(unittest.TestCase):
                    (6, 13), (13, 'TOP'), (7, 'TOP'), (5, 7), (16, 7)])
         support_tree = binary_atomistic_lattice.support_tree()
         decomposition = DecompositionBTB(support_tree)
-        decomposition.algo_from_lattice(binary_atomistic_lattice)
+        decomposition.build_from_lattice(binary_atomistic_lattice)
         self.assertEqual(len(decomposition.history[-1]), 1)
 
     def test_contraction_trees_move_edge(self):
@@ -192,14 +192,14 @@ class TestDecomposition(unittest.TestCase):
                    (17, 7), (18, 9)])
         support_tree = binary_atomistic_lattice.support_tree()
         decomposition = DecompositionBTB(support_tree)
-        decomposition.algo_from_lattice(binary_atomistic_lattice)
+        decomposition.build_from_lattice(binary_atomistic_lattice)
         self.assertEqual(len(decomposition.history[-1]), 1)
 
     def test_order(self):
         tree = Graph(directed=False)
         tree.update(((1, 2), (2, 3)))
         decomposition = DecompositionBTB(tree)
-        decomposition.algo()
+        decomposition.build_binary_lattice()
         self.assertSetEqual(decomposition.order[-1][0].union(decomposition.order[-1][1]), frozenset({1, 2, 3}))
         self.assertTrue(decomposition.order[0][0].union(
             decomposition.order[0][1]) == frozenset({1, 2}) or decomposition.order[0][0].union(

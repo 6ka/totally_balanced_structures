@@ -624,7 +624,7 @@ class Lattice(Graph, Observable):
         if not order:
             order = iter(self.contraction_order())
         decomposition = TBS.tree_decomposition.DecompositionBTB(tree)
-        decomposition.algo_from_lattice(self, order)
+        decomposition.build_from_lattice(self, order)
         return decomposition
 
     def draw_binarisation_trees(self, order=None, show=True, save=None):
