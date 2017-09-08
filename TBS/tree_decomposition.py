@@ -8,6 +8,7 @@ class DecompositionBTB:
         self.tree = BinaryMixedTree(initial_tree)
 
         self.history = []
+        self.order = []
         if lattice is None:
             self.lattice = TBS.lattice.Lattice()
         else:
@@ -31,6 +32,7 @@ class DecompositionBTB:
         while len(self.tree) > 1:
             x, y = self.tree.get_edge()
             self.step(x, y)
+            self.order.append(x.union(y))
             self.store()
             self.lattice.update(((str(x), str(x.union(y))), (str(y), str(x.union(y)))))
 
@@ -58,13 +60,16 @@ class DecompositionBTB:
         return population[:k]
 
     def algo_from_lattice(self, lattice, order=None):
+        self.lattice = lattice
         if not order:
             order = iter(lattice.contraction_order())
+        clusters = self.lattice.sup_irreducible_clusters()
         already_created = set()
         for vertex in order:
             self.contract_tree_edge_from_lattice(vertex, already_created, lattice)
             already_created.add(vertex)
             self.store()
+            self.order.append(clusters[vertex])
 
     def contract_tree_edge_from_lattice(self, class_to_create, already_created, lattice):
         clusters = lattice.sup_irreducible_clusters()
@@ -102,4 +107,7 @@ class DecompositionBTB:
             else:
                 raise ValueError("Lattice is not binary")
 
+    def draw(self):
+        for tree in self.history:
+            tree.draw()
 

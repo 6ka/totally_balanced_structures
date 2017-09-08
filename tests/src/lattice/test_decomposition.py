@@ -194,6 +194,8 @@ class TestDecomposition(unittest.TestCase):
         last = BinaryMixedTree({})
         last.add_vertex(frozenset({1, 2, 3}))
         self.assertEqual(decomposition.history[3], last)
+        self.assertTrue(decomposition.order == [frozenset({1, 2}), frozenset({2, 3}), frozenset({1, 2, 3})]
+                        or decomposition.order == [frozenset({3, 2}), frozenset({2, 1}), frozenset({1, 2, 3})])
 
     def test_contraction_trees_more_specific_order(self):
         binary_atomistic_lattice = Lattice(
@@ -220,3 +222,11 @@ class TestDecomposition(unittest.TestCase):
         decomposition = DecompositionBTB.init_from_graph_object(support_tree)
         decomposition.algo_from_lattice(binary_atomistic_lattice)
         self.assertEqual(len(decomposition.history[-1]), 1)
+
+    def test_order(self):
+        tree = Graph(directed=False)
+        tree.update(((1, 2), (2, 3)))
+        decomposition = DecompositionBTB.init_from_graph_object(tree)
+        decomposition.algo()
+        self.assertSetEqual(decomposition.order[-1], frozenset({1, 2, 3}))
+        self.assertTrue(decomposition.order[0] == frozenset({1, 2}) or decomposition.order[0] == frozenset({2, 3}))

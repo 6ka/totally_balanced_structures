@@ -173,5 +173,6 @@ class TestLatticeBinarize(unittest.TestCase):
                    (19, 11), (15, 6), (0, 12), (11, 12), (12, 2), (3, 2), (2, 9), (18, 9), (9, 8), (17, 8), (8, 13),
                    (6, 13), (13, 'TOP'), (7, 'TOP'), (5, 7), (16, 7)])
         decomposition = binary_atomistic_lattice.contraction_trees()
+        print(len(decomposition.history))
         self.assertSetEqual(decomposition.history[-1].vertices, {frozenset({16, 17, 18, 3, 4, 1, 14, 19, 15})})
 

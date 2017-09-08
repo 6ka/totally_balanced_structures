@@ -1,6 +1,5 @@
 from TBS.observer import Observable
 from TBS.graph import Graph
-from TBS.tree import radial_draw_tree
 import collections
 import random
 from TBS.clusters import ClusterLineFromMatrix
@@ -602,8 +601,6 @@ class Lattice(Graph, Observable):
 
         :param order: an order to create vertices
         :type order: iterable
-        :return: a list of trees creating all vertices
-        :rtype: list
         """
         tree = self.support_tree()
         if not order:
@@ -614,21 +611,9 @@ class Lattice(Graph, Observable):
 
     def draw_binarisation_trees(self, order=None, show=True, save=None):
         if not order:
-            order = self.contraction_order()
+            order = iter(self.contraction_order())
         trees = self.contraction_trees(order)
-        directory = save
-        if save:
-            save = directory + "0"
-        radial_draw_tree(trees[0], self, highlighted_edge={tuple(self.dual_lattice[order[0]])}, show=show, save=save)
-        for i in range(1, len(trees) - 1):
-            if save:
-                save = directory + str(i)
-            radial_draw_tree(trees[i], self, highlighted_edge={tuple(self.dual_lattice[order[i]])},
-                             highlighted_node={order[i - 1]},
-                             show=show, save=save)
-        if save:
-            save = directory + str(len(trees) - 1)
-        radial_draw_tree(trees[-1], self, highlighted_node={order[-1]}, show=show, save=save)
+        trees.draw()
 
     def hierarchical_height(self):
         """ Decompose the lattice into hierarchy.
