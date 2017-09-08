@@ -4,14 +4,19 @@ from graph.binary_mixed_tree import BinaryMixedTree
 
 
 class DecompositionBTB:
-    def __init__(self, initial_tree, lattice=None):
+    """
+    Tree decomposition of binary lattices.
+    """
+    def __init__(self, initial_tree):
+        """Creates a decomposition beginning from an initial_tree and a lattice if needed.
+        
+        :param initial_tree: the tree to begin with
+        :type initial_tree: class:`TBS.graph.Graph`
+        """
         self.tree = BinaryMixedTree(initial_tree)
         self.history = []
         self.order = []
-        if lattice is None:
-            self.lattice = TBS.lattice.Lattice()
-        else:
-            self.lattice = lattice
+        self.lattice = TBS.lattice.Lattice()
         for x in initial_tree:
             self.lattice.update((("BOTTOM", str(frozenset({x}))), ))
         self.store()
@@ -20,6 +25,8 @@ class DecompositionBTB:
         self.history.append(self.tree.copy())
 
     def build_binary_lattice(self):
+        """Creates a decomposition of a binary lattice (found in self.history) and the associated lattice (self.lattice)
+        """
         while len(self.tree) > 1:
             x, y = self.tree.get_edge()
             self.step(x, y)
@@ -51,6 +58,13 @@ class DecompositionBTB:
         return population[:k]
 
     def build_from_lattice(self, lattice, order=None):
+        """Decomposes a lattice.
+        
+        :param lattice: the lattice to decompose
+        :type lattice: class: `TBS.lattice.Lattice`
+        :param order: an order to build the lattice. If None, a compatible order is computed.
+        :type order: iterable
+        """
         self.lattice = lattice
         if not order:
             order = iter(lattice.contraction_order())
@@ -100,6 +114,12 @@ class DecompositionBTB:
                 raise ValueError("Lattice is not binary")
 
     def draw(self, save=None, show=True):
+        """Draw all trees contained in history
+        
+        :param save: if not None, the file to save figures
+        :param show: if True, figures are shown
+        :type show: :class:`bool`
+        """
         n_steps = len(self.history)
         for i in range(n_steps):
             if save:
