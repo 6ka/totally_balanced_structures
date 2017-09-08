@@ -71,7 +71,7 @@ class Lattice(Graph, Observable):
     def from_dlo_matrix(cls, matrix, bottom="BOTTOM", top="TOP"):
         """ Lattice.
 
-        Vertices are the boxes (see :func:`boxes`).
+        Vertices are the boxes
 
         :param matrix: doubly lexically ordered and Gamma free 0/1 matrix
         :param bottom: bottom element
@@ -419,6 +419,12 @@ class Lattice(Graph, Observable):
         return True
 
     def element_is_binary(self, element):
+        """Checks whether a given element is binary or not i.e if it covers maximum two elements
+         and is covered by maximum two elements
+
+        :return: True if the lattice is binary, False if not
+        :rtype: :class:`bool`
+        """
         return len(self[element]) <= 2 and len(self.dual_lattice[element]) <= 2
 
     def bottom_up_element_binarization(self, element):
@@ -506,6 +512,13 @@ class Lattice(Graph, Observable):
         return self.atoms() == self.sup_irreducible()
 
     def other_successor(self, element, first_successor):
+        """Returns the successor of element different from first_successor in a binary lattice
+        
+        :param element: vertex
+        :type first_successor: vertex
+
+        :return: the other successor of element
+        """
         successors = self[element]
         if len(successors) != 2:
             raise ValueError("element is not binary in lattice")
@@ -599,10 +612,13 @@ class Lattice(Graph, Observable):
         return tree
 
     def contraction_trees(self, order=None):
-        """Returns a family of trees creating all the vertices of the lattice.
+        """Returns an object representing a family of trees creating all the vertices of the lattice.
 
         :param order: an order to create vertices
         :type order: iterable
+        
+        :return: a decomposition
+        :rtype: :class:`TBS.tree_decomposition.DecompositionBTB`
         """
         tree = self.support_tree()
         if not order:
@@ -612,6 +628,14 @@ class Lattice(Graph, Observable):
         return decomposition
 
     def draw_binarisation_trees(self, order=None, show=True, save=None):
+        """Draws a possible sequence of trees to build the lattice
+
+        :param order: an order to create vertices
+        :type order: iterable
+        :param show: if True, figures appear
+        :type show: :class:`bool`
+        :param save: if not None, figures are saved to specified file
+        """
         if not order:
             order = iter(self.contraction_order())
         trees = self.contraction_trees(order)
@@ -666,6 +690,8 @@ class Lattice(Graph, Observable):
         return vertex_height
 
     def draw(self):
+        """Draws the lattice
+        """
         formal_context_lattice = self.to_box_lattice()
         matrix = ContextMatrix.from_lattice(formal_context_lattice).matrix
         point_transformation = point_transformation_square(len(matrix))
@@ -709,6 +735,9 @@ class Lattice(Graph, Observable):
         return colors[max(hierarchy_association[vertex1], hierarchy_association[vertex2])]
 
     def print_boxes(self):
+        """Returns an object to print the lattice in the terminal.
+
+        """
         context_matrix = ContextMatrix.from_lattice(self)
         context_matrix.reorder_doubly_lexical_order()
         lattice = self.to_box_lattice()
