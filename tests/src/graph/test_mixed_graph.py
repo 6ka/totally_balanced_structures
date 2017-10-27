@@ -7,9 +7,9 @@ class TestMixedGraph(unittest.TestCase):
     def test_len(self):
         mixed = MixedGraph()
 
-        self.assertEquals(0, len(mixed))
+        self.assertEqual(0, len(mixed))
         mixed.add_vertex(1)
-        self.assertEquals(1, len(mixed))
+        self.assertEqual(1, len(mixed))
         self.assertIn(1, mixed.vertices)
         self.assertIn(1, mixed.undirected)
         self.assertIn(1, mixed.directed)
@@ -187,7 +187,7 @@ class TestMixedGraphInit(unittest.TestCase):
         mixed_copy2 = mixed_copy.copy()
         mixed_copy2.remove_vertex(0)
 
-        self.assertNotEquals(mixed_copy, mixed_copy2)
+        self.assertNotEqual(mixed_copy, mixed_copy2)
         self.assertEqual(self.mixed, mixed_copy)
 
     def test_init_from_mixed_graph_copy_remove_undirect(self):
@@ -197,7 +197,7 @@ class TestMixedGraphInit(unittest.TestCase):
         mixed_copy2 = mixed_copy.copy()
         mixed_copy2.remove_undirected(0, 2)
 
-        self.assertNotEquals(mixed_copy, mixed_copy2)
+        self.assertNotEqual(mixed_copy, mixed_copy2)
         self.assertEqual(self.mixed, mixed_copy)
 
     def test_init_from_mixed_graph_copy_remove_direct(self):
@@ -207,7 +207,7 @@ class TestMixedGraphInit(unittest.TestCase):
         mixed_copy2 = mixed_copy.copy()
         mixed_copy2.remove_directed(1, 2)
 
-        self.assertNotEquals(mixed_copy, mixed_copy2)
+        self.assertNotEqual(mixed_copy, mixed_copy2)
         self.assertEqual(self.mixed, mixed_copy)
 
     def test_init_from_graph(self):

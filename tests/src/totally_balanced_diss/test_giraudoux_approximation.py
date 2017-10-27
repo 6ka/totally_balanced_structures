@@ -13,7 +13,9 @@ class TestDissGiraudouxApproximation(unittest.TestCase):
         import os.path
 
         filename = os.path.join(os.path.dirname(__file__), "../../resources/giraudoux.mat")
-        self.diss = TBS.diss.file_io.load(open(filename))
+        f = open(filename)
+        self.diss = TBS.diss.file_io.load(f)
+        f.close()
 
     def test_chordal_approximation(self):
         self.assertFalse(isa_chordal_diss(self.diss))

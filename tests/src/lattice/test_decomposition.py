@@ -203,4 +203,4 @@ class TestDecomposition(unittest.TestCase):
         self.assertSetEqual(decomposition.order[-1][0].union(decomposition.order[-1][1]), frozenset({1, 2, 3}))
         self.assertTrue(decomposition.order[0][0].union(
             decomposition.order[0][1]) == frozenset({1, 2}) or decomposition.order[0][0].union(
-            decomposition.order[0][1] == frozenset({2, 3})))
+            decomposition.order[0][1]) == frozenset({2, 3}))

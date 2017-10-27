@@ -32,6 +32,7 @@ class TestDissImpexport(unittest.TestCase):
         self.assertEqual(d, self.d)
         f = open("../resources/test_load_4.mat")
         self.assertRaises(ValueError, TBS.diss.file_io.load, f)
+        f.close()
         f = open("../resources/test_load_5.mat")
         d = TBS.diss.file_io.load(f)
         f.close()

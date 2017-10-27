@@ -16,8 +16,6 @@ class TestMixedTree(unittest.TestCase):
         tree = BinaryMixedTree(Graph.random_tree(2))
         zero = frozenset([0])
         one = frozenset([1])
-        print(tree.vertices)
-        print(tree.undirected)
 
         self.assertEqual(2,
                          len(tree))
@@ -99,10 +97,8 @@ class TestMixedTree(unittest.TestCase):
         tree = Graph(vertices=[0, 1, 2, 3, 4, 5, 6], edges=((0, 1), (0, 2), (0, 3), (1, 4), (2, 5), (3, 6)))
         binary_mixed_tree = BinaryMixedTree(tree)
         root = binary_mixed_tree.find_root_as_undirected()
-        print(root)
         self.assertEqual(root, frozenset({0}))
         tree = Graph(vertices=[0, 1, 2, 3, 4, 5], edges=((0, 1), (0, 2), (0, 3), (1, 4), (1, 5)))
         binary_mixed_tree = BinaryMixedTree(tree)
         root = binary_mixed_tree.find_root_as_undirected()
-        print(root)
         self.assertTrue(root == frozenset({0}) or root == frozenset({1}))
