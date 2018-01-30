@@ -170,35 +170,6 @@ class TestGraphBase(unittest.TestCase):
         self.assertTrue(g.isa_edge(3, 0))
         self.assertTrue(g.isa_edge(1, 3))
         self.assertTrue(g.isa_edge(2, 3))
-        
-    def test_string(self):
-        """String representations."""
-        
-        g = Graph(range(6))
-        g.update(((1, 2), (3, 4), (0, 4)))
-        grep1 = "({0, 1, 2, 3, 4, 5}, {{1, 2}, {0, 4}, {3, 4}})"
-        grep2 = "({0, 1, 2, 3, 4, 5}, {(0, 4), (1, 2), (2, 1), (3, 4), (4, 0), (4, 3)})"
-
-        edges = "1 2\n0 4\n3 4\n5"
-        edgesNb = "3\n1 2\n0 4 42\n3 4\n5"
-        edgesNb2 = "3\n0 4\n1 2\n3 4\n5"
-        dotBasic1 = 'strict graph {\n\"1\" -- \"2\"\n\"0\" -- \"4\"\n\"3\" -- \"4\"\n\"5\"\n}'
-        dotBasic2 = "digraph {\n\"0\" -> \"4\"\n\"1\" -> \"2\"\n\"3\" -> \"4\"\n\"5\"\n}"
-        self.assertEqual(to_string(g, "graph"), grep1)
-        g.directed = True
-        self.assertEqual(to_string(g, "graph"), grep2)
-        g.update([(2, 1), (4, 0), (4, 3)])
-        self.assertEqual(to_string(g, "edgesNb"), edgesNb2)
-        g.directed = False
-        
-        self.assertEqual(str(g), edges)
-        self.assertEqual(to_string(g, "dotBasic"), dotBasic1)
-        g.directed = True
-        g.update([(2, 1), (4, 0), (4, 3)])
-        self.assertEqual(to_string(g, "dotBasic"), dotBasic2)
-        g.directed = False
-        g.update([(0, 4, 42)])
-        self.assertEqual(to_string(g, "edgesNb"), edgesNb)
 
     def test_repr(self):
         g = Graph([0], directed=True)
