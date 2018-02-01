@@ -44,10 +44,12 @@ class DecompositionBTB:
                 self.tree.add_undirected(xy, other_successor)
                 self.tree.remove_directed(u, other_successor)
                 self.tree.move_undirected_from_to(u, xy)
+                self.tree.move_directed_from_to(u, xy)
             else:
                 self.tree.move_undirected_from_to(u, xy, self.random_choice(u))
 
             if len(self.tree.undirected[u]) == 0:
+                self.tree.move_directed_from_to(u, xy)
                 self.tree.remove_vertex(u)
 
     def random_choice(self, u):
