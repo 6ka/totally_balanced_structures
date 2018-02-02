@@ -27,6 +27,7 @@ class Lattice(Graph, Observable):
         :param dual: used to maintain dual up to date, not to be used
         :type dual: :class:`TBS.lattice.Lattice`
         """
+
         Observable.__init__(self)
         Graph.__init__(self, directed=True)
         if dual is None:

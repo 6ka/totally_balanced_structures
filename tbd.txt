@@ -1,1 +1,3 @@
 - change graph str() method. sort edges?
+
+- change TBS into tbs

@@ -10,7 +10,7 @@ Submodules
 ----------
 
 .. autosummary::
-    :toctree:
+    :toctree: generated/tbs
 
     diss
     graph

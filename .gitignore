@@ -1,8 +1,8 @@
 doc/build/
 *.pyc
 .coverage
-gamma_free.iml
 .idea
+
 .DS_Store
 *.orig
 doc/source/generated

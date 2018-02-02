@@ -1,6 +1,15 @@
 - build html:
 make html
 
+- generate all doc
+    * manually :
+        * delete file beginning with TBS in TBS directory
+        * make clean
+        * make html (or any other supported format)
+    * ./clean.sh; make html
+
+
+
 - extensions: add to conf.py
 extensions = [
     'sphinx.ext.autodoc',
