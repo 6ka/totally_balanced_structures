@@ -37,7 +37,7 @@ class TestDecomposition(unittest.TestCase):
         self.assertEqual(decomposition.history[0], BinaryMixedTree(tree))
 
     def test_algo(self):
-        decomposition = DecompositionBTB(Graph.random_tree(2))
+        decomposition = DecompositionBTB(Graph.random_tree(20))
         decomposition.build_binary_lattice()
         self.assertTrue(decomposition.lattice.is_binary())
         self.assertTrue(decomposition.lattice.is_a_lattice())

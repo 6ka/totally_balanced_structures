@@ -80,6 +80,56 @@ class TestMixedTree(unittest.TestCase):
         self.assertEqual(set(frozenset([x]) for x in [5, 6]), mixed.undirected[frozenset([3])])
         self.assertEqual(set(frozenset([x]) for x in [0, 1, 4, 8]), mixed.undirected[frozenset([9])])
 
+    def test_move_directed_edges_all(self):
+        tree = {7: [5],
+                5: [7, 2, 3],
+                3: [5, 6, 8, 4, 1, 9],
+                0: [9],
+                6: [3],
+                8: [3],
+                4: [3],
+                1: [3],
+                2: [5],
+                9: [3, 0]
+                }
+        mixed = BinaryMixedTree(tree)
+
+        mixed.remove_undirected(frozenset([3]), frozenset([1]))
+        mixed.remove_undirected(frozenset([3]), frozenset([4]))
+        mixed.add_directed(frozenset([1]), frozenset([3]))
+        mixed.add_directed(frozenset([4]), frozenset([3]))
+
+        mixed.move_directed_from_to(frozenset([3]), frozenset([9]))
+
+        self.assertEqual(0, len(mixed.directed_dual[frozenset([3])]))
+        self.assertEqual({frozenset([1]), frozenset([4])}, mixed.directed_dual[frozenset([9])])
+        self.assertEqual(set(frozenset([x]) for x in [5, 6, 8, 9]), mixed.undirected[frozenset([3])])
+
+    def test_move_directed_edges_some(self):
+        tree = {7: [5],
+                5: [7, 2, 3],
+                3: [5, 6, 8, 4, 1, 9],
+                0: [9],
+                6: [3],
+                8: [3],
+                4: [3],
+                1: [3],
+                2: [5],
+                9: [3, 0]
+                }
+        mixed = BinaryMixedTree(tree)
+
+        mixed.remove_undirected(frozenset([3]), frozenset([1]))
+        mixed.remove_undirected(frozenset([3]), frozenset([4]))
+        mixed.add_directed(frozenset([1]), frozenset([3]))
+        mixed.add_directed(frozenset([4]), frozenset([3]))
+
+        mixed.move_directed_from_to(frozenset([3]), frozenset([9]), [frozenset([1])])
+
+        self.assertEqual({frozenset([1])}, mixed.directed_dual[frozenset([9])])
+        self.assertEqual({frozenset([4])}, mixed.directed_dual[frozenset([3])])
+        self.assertEqual(set(frozenset([x]) for x in [5, 6, 8, 9]), mixed.undirected[frozenset([3])])
+
     def test_to_graph(self):
         mixed = BinaryMixedTree({})
         for i in range(7):

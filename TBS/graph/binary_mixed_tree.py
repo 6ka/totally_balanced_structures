@@ -26,8 +26,7 @@ class BinaryMixedTree(MixedGraph):
     def get_edge(self):
         for x, neighbors in self.undirected.items():
             for y in neighbors:
-                if not self.directed_dual[x] and not self.directed_dual[y]:
-                    return x, y
+                return x, y
 
     def add_union(self, x, y):
         xy = x.union(y)
@@ -56,6 +55,14 @@ class BinaryMixedTree(MixedGraph):
         for z in edges:
             self.remove_undirected(x, z)
             self.add_undirected(y, z)
+
+    def move_directed_from_to(self, x, y, edges=None):
+        if edges is None:
+            edges = set(self.directed_dual[x])
+
+        for z in edges:
+            self.remove_directed(z, x)
+            self.add_directed(z, y)
 
     def to_graph(self):
         tree = Graph(directed=False)
