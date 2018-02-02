@@ -1,9 +1,9 @@
 
 import unittest
 
-from TBS.contextmatrix import ContextMatrix
-from TBS.contextmatrix import conversion
-from TBS.diss import Diss
+from tbs.contextmatrix import ContextMatrix
+from tbs.contextmatrix import conversion
+from tbs.diss import Diss
 
 
 class TestDissConversion(unittest.TestCase):

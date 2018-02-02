@@ -2,7 +2,7 @@
 
 import random
 import unittest
-from TBS.diss import Diss
+from tbs.diss import Diss
 
 
 class TestDissBase(unittest.TestCase):        

@@ -1,7 +1,7 @@
-from TBS.lattice import Lattice, max_intersection
-from TBS.graph import Graph
+from tbs.lattice import Lattice, max_intersection
+from tbs.graph import Graph
 import unittest
-from TBS.tree_decomposition import DecompositionBTB
+from tbs.tree_decomposition import DecompositionBTB
 
 
 class TestLatticeBinarize(unittest.TestCase):

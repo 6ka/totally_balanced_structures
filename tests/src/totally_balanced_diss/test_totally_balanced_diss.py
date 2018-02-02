@@ -1,8 +1,8 @@
 import unittest
 
-from TBS.diss import Diss
-from TBS.totally_balanced_diss.chordal_diss import isa_chordal_diss
-from TBS.totally_balanced_diss.totally_balanced_diss import isa_totally_balanced_diss, approximation_totally_balanced_diss
+from tbs.diss import Diss
+from tbs.totally_balanced_diss.chordal_diss import isa_chordal_diss
+from tbs.totally_balanced_diss.totally_balanced_diss import isa_totally_balanced_diss, approximation_totally_balanced_diss
 
 
 class TestIsaTotallyBalancedDiss(unittest.TestCase):

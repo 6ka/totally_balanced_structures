@@ -2,8 +2,8 @@
 
 import unittest
 import os
-from TBS.contextmatrix import file_io
-from TBS.contextmatrix.conversion import to_string
+from tbs.contextmatrix import file_io
+from tbs.contextmatrix.conversion import to_string
 
 
 class TestImport(unittest.TestCase):

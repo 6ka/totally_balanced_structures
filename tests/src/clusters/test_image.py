@@ -1,6 +1,6 @@
 import unittest
 
-from TBS.clusters.to_image import create_image_from_dlo_gamma_free_matrix
+from tbs.clusters.to_image import create_image_from_dlo_gamma_free_matrix
 
 
 class TestToString(unittest.TestCase):

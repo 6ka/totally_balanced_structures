@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from TBS.contextmatrix import ContextMatrix
-from TBS.lattice import Lattice
+from tbs.contextmatrix import ContextMatrix
+from tbs.lattice import Lattice
 
 
 class TestMatrixCreate(unittest.TestCase):

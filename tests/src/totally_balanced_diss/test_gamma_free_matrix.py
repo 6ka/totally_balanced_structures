@@ -1,8 +1,8 @@
 import unittest
 
-from TBS.diss import Diss
-from TBS.totally_balanced_diss.gamma_free_matrix import diss_from_valued_gamma_free_matrix
-from TBS.totally_balanced_diss.totally_balanced_diss import isa_totally_balanced_diss
+from tbs.diss import Diss
+from tbs.totally_balanced_diss.gamma_free_matrix import diss_from_valued_gamma_free_matrix
+from tbs.totally_balanced_diss.totally_balanced_diss import isa_totally_balanced_diss
 
 
 class TestDissFromGammaFreeMatrix(unittest.TestCase):

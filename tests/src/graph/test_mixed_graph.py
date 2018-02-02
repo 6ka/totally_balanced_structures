@@ -1,6 +1,6 @@
 import unittest
-from TBS.graph.mixed_graph import MixedGraph
-from TBS.graph import Graph
+from tbs.graph.mixed_graph import MixedGraph
+from tbs.graph import Graph
 
 
 class TestMixedGraph(unittest.TestCase):

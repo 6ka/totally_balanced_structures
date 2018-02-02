@@ -1,9 +1,9 @@
 import unittest
 
-from TBS.diss import Diss
-from TBS.orders.order_finder import all_min_map_count, order_by_map_partition
-from TBS.orders.order_finder import has_order_by_map
-from TBS.orders.order_finder import init_map_count, min_map_count, update_map_count, order_by_map
+from tbs.diss import Diss
+from tbs.orders.order_finder import all_min_map_count, order_by_map_partition
+from tbs.orders.order_finder import has_order_by_map
+from tbs.orders.order_finder import init_map_count, min_map_count, update_map_count, order_by_map
 
 
 class TestOrderByMap(unittest.TestCase):

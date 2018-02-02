@@ -36,6 +36,7 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.imgmath',
     'sphinx.ext.autosummary',
+    'sphinxcontrib.napoleon',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -346,3 +347,5 @@ texinfo_documents = [
 # texinfo_no_detailmenu = False
 
 autosummary_generate = True
+
+autodoc_default_flags = []

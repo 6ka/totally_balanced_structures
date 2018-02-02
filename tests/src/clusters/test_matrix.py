@@ -1,6 +1,6 @@
 import unittest
-from TBS.clusters.ClusterLineFromMatrix import ClusterLineFromMatrix
-from TBS.clusters import from_dlo_gamma_free_matrix
+from tbs.clusters.ClusterLineFromMatrix import ClusterLineFromMatrix
+from tbs.clusters import from_dlo_gamma_free_matrix
 
 
 class TestMatrixClusterBase(unittest.TestCase):

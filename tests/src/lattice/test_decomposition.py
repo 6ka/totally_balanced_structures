@@ -1,9 +1,9 @@
 import unittest
 
-from TBS.graph.binary_mixed_tree import BinaryMixedTree
-from TBS.tree_decomposition import DecompositionBTB
-from TBS.lattice import Lattice
-from TBS.graph import Graph
+from tbs.graph.binary_mixed_tree import BinaryMixedTree
+from tbs.tree_decomposition import DecompositionBTB
+from tbs.lattice import Lattice
+from tbs.graph import Graph
 
 
 class TestDecomposition(unittest.TestCase):

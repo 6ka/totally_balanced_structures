@@ -1,9 +1,9 @@
 
 import unittest
 
-from TBS.clusters.from_chordal import chordal_clusters, chordal_context_matrix, sort_clusters_by_order
-from TBS.diss import Diss
-from TBS.contextmatrix import ContextMatrix
+from tbs.clusters.from_chordal import chordal_clusters, chordal_context_matrix, sort_clusters_by_order
+from tbs.diss import Diss
+from tbs.contextmatrix import ContextMatrix
 
 
 class TestChordalCLusters(unittest.TestCase):

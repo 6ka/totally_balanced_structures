@@ -1,7 +1,7 @@
 import unittest
 
-from TBS.gamma_free import gamma_free_matrix_top_down, gamma_free_matrix_bottom_up, context_matrix_approximation
-from TBS.contextmatrix import ContextMatrix
+from tbs.gamma_free import gamma_free_matrix_top_down, gamma_free_matrix_bottom_up, context_matrix_approximation
+from tbs.contextmatrix import ContextMatrix
 
 
 class TestIsGammaFree(unittest.TestCase):

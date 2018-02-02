@@ -1,8 +1,8 @@
 import unittest
 
-from TBS.totally_balanced_diss.chordal_diss import approximate_chordal_diss, isa_chordal_diss
-from TBS.diss import Diss
-from TBS.contextmatrix import ContextMatrix
+from tbs.totally_balanced_diss.chordal_diss import approximate_chordal_diss, isa_chordal_diss
+from tbs.diss import Diss
+from tbs.contextmatrix import ContextMatrix
 
 
 class TestIsaChordalDiss(unittest.TestCase):

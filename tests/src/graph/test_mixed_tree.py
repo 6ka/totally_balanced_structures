@@ -1,5 +1,5 @@
-from TBS.graph.binary_mixed_tree import BinaryMixedTree
-from TBS.graph import Graph
+from tbs.graph.binary_mixed_tree import BinaryMixedTree
+from tbs.graph import Graph
 import unittest
 
 

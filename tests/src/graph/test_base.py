@@ -2,8 +2,8 @@
 
 import unittest
 
-from TBS.graph import Graph
-from TBS.graph.conversion import to_string
+from tbs.graph import Graph
+from tbs.graph.conversion import to_string
 
 
 class TestGraphBase(unittest.TestCase):

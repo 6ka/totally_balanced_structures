@@ -1,5 +1,5 @@
 import unittest
-from TBS.lattice import Lattice
+from tbs.lattice import Lattice
 
 
 class TestLattice(unittest.TestCase):

@@ -1,6 +1,6 @@
 import unittest
 
-from TBS.orders.doubly_lexical import Node, ColumnBlock, RowBlock, row_ordering_from_last_row_block, \
+from tbs.orders.doubly_lexical import Node, ColumnBlock, RowBlock, row_ordering_from_last_row_block, \
     column_ordering_from_last_column_block, doubly_lexical_order, is_doubly_lexical_ordered
 
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-from TBS.graph import Graph, CircuitError
+from tbs.graph import Graph, CircuitError
 
 
 class TestUtils(unittest.TestCase):
