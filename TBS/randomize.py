@@ -10,7 +10,6 @@ Module content
     :toctree:
 
     randomize_edges
-    random_dismantable_lattice
     random_01_matrix
     shuffle_line_and_column_from_context_matrix
     random_gamma_free_01_matrix
@@ -27,7 +26,6 @@ from .contextmatrix import ContextMatrix
 __author__ = 'fbrucker'
 
 __all__ = ["randomize_edges",
-           "random_dismantable_lattice",
            "random_01_matrix",
            "shuffle_line_and_column_from_context_matrix",
            "random_gamma_free_01_matrix"]

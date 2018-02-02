@@ -19,12 +19,10 @@ Submodules
     gamma_free
     randomize
     clusters
-    hierarchical_decomposition
     progress_bar
 
 
 """
 
 __all__ = ["diss", "graph", "contextmatrix", "orders", "gamma_free", "randomize", "clusters",
-           "hierarchical_decomposition"
            "progress_bar"]
