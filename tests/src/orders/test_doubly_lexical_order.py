@@ -1,7 +1,9 @@
 import unittest
 
 from tbs.orders.doubly_lexical import Node, ColumnBlock, RowBlock, row_ordering_from_last_row_block, \
-    column_ordering_from_last_column_block, doubly_lexical_order, is_doubly_lexical_ordered
+    column_ordering_from_last_column_block
+
+from tbs.orders.doubly_lexical import doubly_lexical_order, is_doubly_lexical_ordered
 
 
 class TestNode(unittest.TestCase):

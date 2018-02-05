@@ -1,8 +1,22 @@
 import unittest
 
 from tbs.diss import Diss
+from tbs.graph import Graph
 from tbs.totally_balanced_diss.chordal_diss import isa_chordal_diss
-from tbs.totally_balanced_diss.totally_balanced_diss import isa_totally_balanced_diss, approximation_totally_balanced_diss
+from tbs.totally_balanced_diss.totally_balanced_diss import isa_totally_balanced_diss, \
+    approximation_totally_balanced_diss, isa_strongly_chordal_graph
+
+
+class TestIsaStronglyChordalGraph(unittest.TestCase):
+    def test_isa_strongly_chordal_graph(self):
+        g = Graph(edges=((1, 2), (2, 3)))
+        self.assertTrue(isa_strongly_chordal_graph(g))
+
+        g = Graph(edges=((1, 4), (1, 5),
+                         (2, 5), (2, 6),
+                         (3, 4), (3, 6),
+                         (4, 5), (5, 6), (6, 4)))
+        self.assertFalse(isa_strongly_chordal_graph(g))
 
 
 class TestIsaTotallyBalancedDiss(unittest.TestCase):

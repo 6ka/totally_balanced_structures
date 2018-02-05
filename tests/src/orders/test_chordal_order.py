@@ -15,12 +15,12 @@ class TestIsaChordalOrder(unittest.TestCase):
         self.chordal_order = ["x", "z", "t", "y", "u"]
 
     def test_isa_chordal_order(self):
-        self.assertTrue(isa_chordal_order(self.chordal_order, self.diss))
+        self.assertTrue(isa_chordal_order(self.diss, self.chordal_order))
 
     def test_is_not_a_chordal_order_subset(self):
-        self.assertFalse(isa_chordal_order(["x", "z"], self.diss))
+        self.assertFalse(isa_chordal_order(self.diss, ["x", "z"]))
 
     def test_is_not_a_chordal_order(self):
-        self.assertFalse(isa_chordal_order(["y", "z", "t", "x", "u"], self.diss))
+        self.assertFalse(isa_chordal_order(self.diss, ["y", "z", "t", "x", "u"]))
 
 

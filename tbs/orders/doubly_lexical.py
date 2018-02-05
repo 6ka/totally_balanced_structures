@@ -59,9 +59,11 @@ def is_doubly_lexical_ordered(matrix):
 def doubly_lexical_order(matrix, order=None):
     """Return a doubly lexical order.
 
-    :param order: prefered line order.
+    Uses a linear is the size of the matrix algorithm from Sprinrad (REF?).
+
     :param matrix: O/1 matrix
     :type matrix: list of list of 0/1 elements
+    :param order: prefered line order.
 
     If choice between rows, the smallest one is taken first.
 

@@ -7,6 +7,10 @@ from ..diss import Diss
 from ..gamma_free import is_gamma_free, approximate_gamma_free
 
 
+def isa_strongly_chordal_graph(graph):
+    return isa_totally_balanced_diss(Diss(graph).update(lambda x, y: graph.isa_edge(x, y) and 1 or 2))
+
+
 def isa_totally_balanced_diss(diss):
     if not isa_chordal_diss(diss):
         return False

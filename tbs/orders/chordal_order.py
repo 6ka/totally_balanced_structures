@@ -34,7 +34,18 @@ def chordal_order_partition(diss):
     return order_by_map_partition(diss, lambda x, y, z: diss(y, z) > max(diss(x, y), diss(x, z)) and 1 or 0)
 
 
-def isa_chordal_order(possible_order, diss):
+def isa_chordal_order(diss, possible_order):
+    """ Check if a *possible_order* is an elimination one for a given *diss*.
+
+    Args:
+        diss(Diss): a dissimilarity
+        possible_order(list): vertices order
+
+    Returns:
+        :class:`bool`
+
+    """
+
     if set(possible_order) != set(diss):
         return False
 

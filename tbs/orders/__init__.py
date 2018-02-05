@@ -8,10 +8,13 @@ Several orders useful for totally balanced structures.
 Module content
 --------------
 
+    doubly_lexical
+    chordal_order
+    chordal_graph
+
 """
 
-__all__ = ["is_doubly_lexical_ordered", "doubly_lexical_order",
-           "chordal_order", "chordal_order_partition", "isa_chordal_order"]
+__all__ = ["doubly_lexical",
+           "chordal_order",
+           "chordal_graph"]
 
-from .doubly_lexical import is_doubly_lexical_ordered, doubly_lexical_order
-from .chordal_order import chordal_order, chordal_order_partition, isa_chordal_order

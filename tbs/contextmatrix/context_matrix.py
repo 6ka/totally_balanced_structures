@@ -1,4 +1,4 @@
-from tbs import orders
+from ..orders.doubly_lexical import doubly_lexical_order
 
 
 class ContextMatrix(object):
@@ -240,7 +240,7 @@ class ContextMatrix(object):
         return ContextMatrix(submatrix, submatrix_elements, self.attributes)
 
     def reorder_doubly_lexical_order(self):
-        lines, columns = orders.doubly_lexical_order(self._matrix)
+        lines, columns = doubly_lexical_order(self._matrix)
 
         line_permutation = [0] * len(self._matrix)
         for i, index in enumerate(lines):
