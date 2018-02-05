@@ -68,6 +68,8 @@ def doubly_lexical_order(matrix, order=None):
     :rtype: couple of line and column permutation
     """
     column_partition = ColumnBlock(range(len(matrix[0])))
+    row_partition = None
+
     if order is None:
         row_partition = RowBlock(range(len(matrix)), column_partition)
     else:
@@ -168,11 +170,8 @@ class ColumnBlock(Node):
         Split a block according to remaining rows.
         If a new block is created, it's attached to the left.
 
-        :param last_column_bock: First rowBlock
-        :param end_column_block: first block not to consider
-        :param remaining_rows:
-
-        :return: New block if created, self otherwise.
+        Returns:
+             New block if created, self otherwise.
         """
 
         new_columns = self.columns - columns
@@ -217,5 +216,3 @@ class RowBlock(Node):
             self.add_pred(RowBlock(rows, column_block))
         self.rows = rows_ordering[-1][0]
         self.columns_block = rows_ordering[-1][1]
-
-

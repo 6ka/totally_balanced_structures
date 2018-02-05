@@ -10,7 +10,8 @@ def chordal_order(diss):
     Args:
         diss(Diss):
 
-    Returns: A vertex ordering in a `list`
+    Returns:
+        A vertex ordering in a `list`
 
     """
 
@@ -25,7 +26,8 @@ def chordal_order_partition(diss):
     Args:
         diss(Diss):
 
-    Returns: A vertex ordering in a `list`
+    Returns:
+        A vertex ordering in a `list`
 
     """
 

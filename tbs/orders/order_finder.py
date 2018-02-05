@@ -74,7 +74,7 @@ def all_min_map_count(map_count):
     min_v = None
     for v in map_count:
         if (not v_star) or (map_count[v] < min_v):
-            v_star = set([v])
+            v_star = {v}
             min_v = map_count[v]
         elif map_count[v] == min_v:
             v_star.add(v)
