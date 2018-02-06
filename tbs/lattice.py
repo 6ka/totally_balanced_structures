@@ -591,7 +591,7 @@ class Lattice(Graph, Observable):
         classes = {element: {element} for element in objects}
         tree = Graph(vertices=tuple(o for o in objects), directed=False)
         n_connected_parts = len(objects)
-        colors = {object: i for i, object in enumerate(objects)}
+        colors = {obj: i for i, obj in enumerate(objects)}
         next(class_order)
         while n_connected_parts > 1:
             current_class_index = next(class_order)

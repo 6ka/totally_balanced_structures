@@ -1,7 +1,8 @@
 import unittest
 
 from tbs.graph import Graph
-from tbs.orders.chordal_graph import elimination_order, isa_elimination_order, isa_ultrametric_edge, simple_elimination_order
+from tbs.orders.chordal_graph import elimination_order, isa_elimination_order, isa_ultrametric_edge, simple_elimination_order, \
+    make_sets, simple_to_strong_elimination_order_partition, simple_to_strong_elimination_order
 
 
 class TestChordalGraph(unittest.TestCase):
@@ -30,3 +31,22 @@ class TestChordalGraph(unittest.TestCase):
         order = simple_elimination_order(self.g)
         self.assertEqual({1, 2, 3}, set(order))
         self.assertNotEqual(2, order[0])
+
+
+class TestSimpleToStrong(unittest.TestCase):
+
+    def setUp(self):
+        self.g = Graph(edges=(('a', 'f'),
+                              ('b', 'e'), ('b', 'f'), ('b', 'g'),
+                              ('c', 'd'), ('c', 'e'),
+                              ('d', 'e'), ('d', 'f'),
+                              ('e', 'f'), ('e', 'g'),
+                              ('f', 'g')))
+
+    def test_make_sets(self):
+        self.assertEqual([{'a'}, {'b', 'g'}, {'c'}, {'d', 'e', 'f'}], make_sets(self.g, "abcdefg"))
+
+    def test_simple_to_strong_elimination_order_partition(self):
+        self.assertEqual([{'a'}, {'b', 'g'}, {'c'}, {'f'}, {'d'}, {'e'}],
+                         simple_to_strong_elimination_order_partition(self.g, "abcdefg"))
+

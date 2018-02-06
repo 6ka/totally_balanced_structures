@@ -1,3 +1,4 @@
 - change graph str() method. sort edges?
 
 - use google docstring for all methods.
+-remove matplotlib as a requirement: use a sjon draw format instead
