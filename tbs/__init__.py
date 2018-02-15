@@ -19,9 +19,9 @@ Submodules
     gamma_free
     randomize
     clusters
-
+    conversion
 
 """
 
 __all__ = ["diss", "graph", "contextmatrix", "orders", "gamma_free", "randomize", "clusters",
-           "progress_bar"]
+           "progress_bar", "conversion"]

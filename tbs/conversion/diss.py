@@ -1,9 +1,42 @@
-# -*- coding: utf-8 -*-
+"""Convert :class:`tbs.diss.Diss` to various types.
 
-"""Conversion to :class:`str`.
+.. currentmodule:: tbs.conversion.diss
+
+Module content
+--------------
+
 """
 
-__author__ = 'fbrucker'
+__author__ = 'francois'
+__all__ = ["to_graph"]
+
+
+from ..graph import Graph
+
+
+def to_graph(dissimilarity, threshold=None):
+    """Threshold graph of *dissimilarity* at height *threshold*.
+
+    :param dissimilarity: to be converted in graph.
+    :type dissimilarity: :class:`diss.Diss`
+
+    :param threshold: If :const:`None`, the maximal value of *dissimilarity* is used.
+    :type threshold: must be `comparable` with *dissimilarity*'s values
+
+    :return: a graph with vertex set equal to the elements of *dissimilarity* and *xy*
+             is an edge iff *dissimilarity*\ (x, y) <= *threshold*.
+    :rtype: :class:`Graph`
+    """
+
+    elems = list(dissimilarity)
+    edges = []
+
+    for i, x in enumerate(elems):
+        for y in elems[i+1:]:
+            if threshold is None or dissimilarity(x, y) <= threshold:
+                edges.append((x, y, dissimilarity(x, y)))
+
+    return Graph(elems).update(edges)
 
 
 def to_string(dissimilarity, kind="square", sep=" ", alias=None):
@@ -45,13 +78,13 @@ def to_string(dissimilarity, kind="square", sep=" ", alias=None):
                 aff += str(elems_alias[x])
             else:
                 aff += str(elems_alias[x]).ljust(max_label)
-            if kind.endswith('l') or kind.startswith("square") or\
-               (x < len(elems) - 1 and kind.startswith("upper")) or (x != 0 and kind.startswith("lower")):
+            if kind.endswith('l') or kind.startswith("square") or \
+                    (x < len(elems) - 1 and kind.startswith("upper")) or (x != 0 and kind.startswith("lower")):
                 aff += sep
         for y in range(len(elems)):
             if y < x:
-                if (kind.endswith(('l', 'p')) and not kind.startswith("upper")) or\
-                   (not kind.endswith(('l', 'p')) and kind != "upper"):
+                if (kind.endswith(('l', 'p')) and not kind.startswith("upper")) or \
+                        (not kind.endswith(('l', 'p')) and kind != "upper"):
                     aff += str(dissimilarity(elems[x], elems[y])).rjust(my_max) + sep
                 elif kind.startswith("upper") and not (kind.endswith("p") and x == len(elems) - 1):
                     aff += str().rjust(my_max) + sep
@@ -63,8 +96,8 @@ def to_string(dissimilarity, kind="square", sep=" ", alias=None):
                     pass
                 else:
                     aff += str(dissimilarity(elems[x], elems[y])).rjust(my_max) + sep
-            elif (kind.endswith(('l', 'p')) and not kind.startswith("lower")) or\
-                 (not kind.endswith(('l', 'p')) and kind != "lower"):
+            elif (kind.endswith(('l', 'p')) and not kind.startswith("lower")) or \
+                    (not kind.endswith(('l', 'p')) and kind != "lower"):
                 aff += str(dissimilarity(elems[x], elems[y])).rjust(my_max)
                 aff += sep
         if aff.endswith(sep):

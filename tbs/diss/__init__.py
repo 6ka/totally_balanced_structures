@@ -21,14 +21,6 @@ Glossary
     real dissimilarity
         A dissimilarity taking their values from the set of real numbers.
 
-Submodules
-----------
-
-.. autosummary::
-    :toctree:
-
-    conversion
-    file_io
 
 Module content
 --------------
@@ -36,8 +28,10 @@ Module content
 """
 
 from .diss import Diss
+from .order import min, max, rank
+from .file_io import load, save
 
 __author__ = 'francois'
 
-__all__ = ["conversion", "file_io", "Diss"]
+__all__ = ["Diss", "min", "max", "rank", "load", "save"]
 
