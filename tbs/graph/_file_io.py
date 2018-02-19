@@ -7,8 +7,8 @@ Module content
 
 """
 
-from .conversion import to_string
-from .graph import Graph
+from ..conversion.graph import to_string
+from ._graph import Graph
 
 
 __author__ = 'fbrucker'

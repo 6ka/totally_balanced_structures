@@ -1,5 +1,5 @@
 from ..orders.doubly_lexical import doubly_lexical_order
-
+from ..graph import dfs
 
 class ContextMatrix(object):
     """Context matrix."""
@@ -75,7 +75,7 @@ class ContextMatrix(object):
             return action
 
         for vertex in sup:
-            lattice.dfs(vertex, get_attribute_action_for_sup(vertex))
+            dfs(lattice, vertex, get_attribute_action_for_sup(vertex))
 
         return ContextMatrix(matrix, sup, inf)
 

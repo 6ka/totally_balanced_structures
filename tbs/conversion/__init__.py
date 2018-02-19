@@ -9,9 +9,10 @@ Submodules
     :toctree: generated/tbs
 
     diss
+    graph
 """
 
-__all__ = ["diss"]
+__all__ = ["diss", "graph"]
 
 
 

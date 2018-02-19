@@ -3,7 +3,6 @@
 import unittest
 
 from tbs.graph import Graph
-from tbs.graph.conversion import to_string
 
 
 class TestGraphBase(unittest.TestCase):
@@ -69,7 +68,7 @@ class TestGraphBase(unittest.TestCase):
                 continue
             self.assertEqual(len(g._neighborhood[x]), 0)
 
-        g.update([(1, "toto", 42)])
+        g.update([(1, "toto", 42)], delete=True)
         self.assertEqual(len(g), 8)
         for x in g._neighborhood:
             if x in ("toto", "tutu"):
@@ -80,7 +79,7 @@ class TestGraphBase(unittest.TestCase):
         self.assertEqual(g._neighborhood[1]["toto"], None)
         g.update([(1, "toto", 42)])
         self.assertEqual(g._neighborhood[1]["toto"], 42)
-        g.update([(1, "toto")])
+        g.update([(1, "toto")], delete=True)
         self.assertEqual(len(g), 8)
         for x in g._neighborhood:
             if x in ("toto", "tutu"):
@@ -128,7 +127,7 @@ class TestGraphBase(unittest.TestCase):
         g.directed = True
         self.assertEqual(g.nb_edges(), 6)
         
-        g.update(((2,1),))
+        g.update(((2,1),), delete=True)
         self.assertEqual(g.nb_edges(), 5)
         g.directed = False
         
@@ -145,14 +144,14 @@ class TestGraphBase(unittest.TestCase):
         self.assertEqual(g.nb_edges(), 3)
         g2 = g.copy()
         self.assertEqual(g2, g)
-        g2.update([(1, 2)])
+        g2.update([(1, 2)], delete=True)
         self.assertNotEqual(g2, g)
         g3 = g.restriction([2, 3, 4])
         self.assertEqual(len(g3), 3)
         self.assertEqual(g3.nb_edges(), 1)
         self.assertEqual(frozenset(g3.edges()[0]), frozenset([3, 4]))
         g3.directed = True
-        g3.update([(3, 4)])
+        g3.update([(3, 4)], delete=True)
         self.assertEqual(g3.edges(), [(4, 3)])
         
         g = Graph(range(5))

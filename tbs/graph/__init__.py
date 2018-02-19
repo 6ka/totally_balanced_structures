@@ -37,24 +37,27 @@ Glossary
         Given a set `X`, a *graph* `G` is a couple (X, E) where E is a set of two element tuple
         of `X`.
 
-Submodules
-----------
-
-.. autosummary::
-    :toctree:
-
-    conversion
-    file_io
-
 Module content
 --------------
 
 """
 
-from .graph import Graph, CircuitError
-from .mst import mst_from_set
+from ._graph import Graph
+from ._file_io import load, save
+
+
+from ._mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
+
+from ._mst import mst_from_set
+from ._order import dfs, bfs, topological_sort
+
+from ._paths import path, paths_from, connected_parts, CircuitError
 
 __author__ = 'francois'
 
-__all__ = ["conversion", "file_io", "Graph",  "mst_from_set", "CircuitError"]
+__all__ = ["Graph", "load", "save",
+           "mst_from_set",
+           "MixedGraph", "UNDIRECTED_EDGE", "DIRECTED_EDGE",
+           "mst_from_set", "dfs", "bfs", "topological_sort",
+           "path", "paths_from", "connected_parts", "CircuitError"]
 

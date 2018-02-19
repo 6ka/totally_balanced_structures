@@ -1,6 +1,6 @@
 import unittest
 
-from tbs.graph.mixed_graph import MixedGraph, DIRECTED_EDGE, UNDIRECTED_EDGE
+from tbs.graph import MixedGraph, DIRECTED_EDGE, UNDIRECTED_EDGE
 
 
 class TestVerticesRawMixedGraph(unittest.TestCase):

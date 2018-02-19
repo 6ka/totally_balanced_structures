@@ -1,9 +1,14 @@
-# -*- coding: utf-8 -*-
+"""Convert :class:`tbs.diss.Graph` to various types.
 
-"""Conversion to :class:`str`.
+.. currentmodule:: tbs.conversion.graph
+
+Module content
+--------------
+
 """
 
-__author__ = 'fbrucker'
+__author__ = 'francois'
+__all__ = ["to_string"]
 
 
 def to_string(graph, kind="edges", sep=' '):

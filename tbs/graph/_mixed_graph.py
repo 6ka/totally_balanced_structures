@@ -343,7 +343,7 @@ class MixedGraph(object):
             x: a vertex to test.
 
         Returns(bool):
-            True if *x$ is a vertex, False otherwise.
+            True if *x* is a vertex, False otherwise.
         """
 
         return x in self._vertices

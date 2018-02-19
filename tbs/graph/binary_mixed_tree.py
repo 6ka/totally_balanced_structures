@@ -1,8 +1,8 @@
-from .mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
+from ._mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
 
 from matplotlib import pyplot
 import matplotlib
-from .graph import Graph
+from ._graph import Graph
 import random
 import math
 

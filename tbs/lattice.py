@@ -1,5 +1,5 @@
 from tbs.observer import Observable
-from tbs.graph import Graph
+from tbs.graph import Graph, dfs, topological_sort, path
 import collections
 import random
 from tbs.clusters import ClusterLineFromMatrix
@@ -64,7 +64,7 @@ class Lattice(Graph, Observable):
 
         for u, v in crown_free.edges():
             crown_free.update([(u, v)])
-            if not crown_free.path(u, v):
+            if not path(crown_free, u, v):
                 crown_free.update([(u, v)])
         return crown_free
 
@@ -171,7 +171,7 @@ class Lattice(Graph, Observable):
         :param edges: Each edge is a pair `(x, y)`
         :type edges: iterable
         """
-        Graph.update(self, ((y, x) for (x, y) in edges))
+        Graph.update(self, ((y, x) for (x, y) in edges), delete=True)
 
     def remove(self, x):
         """Remove vertex in lattice
@@ -209,7 +209,7 @@ class Lattice(Graph, Observable):
         bottom = self.get_bottom()
 
         dual_order = Graph([bottom], directed=True)
-        for vertex in self.topological_sort(bottom):
+        for vertex in topological_sort(self, bottom):
             for cover in self.dual_lattice[vertex]:
                 dual_order.update([(vertex, cover)])
                 dual_order.update([(vertex, y) for y in dual_order[cover]], delete=False)
@@ -273,7 +273,7 @@ class Lattice(Graph, Observable):
 
         correspondance = {bottom: set()}
 
-        for vertex in self.topological_sort(bottom):
+        for vertex in topological_sort(self, bottom):
             if vertex not in correspondance:
                 correspondance[vertex] = set()
             if self.dual_lattice.isa_leaf(vertex):
@@ -302,7 +302,7 @@ class Lattice(Graph, Observable):
         """
 
         element_filter = set()
-        self.dfs(element, lambda vertex: element_filter.add(vertex))
+        dfs(self, element, lambda vertex: element_filter.add(vertex))
 
         return frozenset(element_filter)
 
@@ -343,7 +343,7 @@ class Lattice(Graph, Observable):
                 break
 
         self.remove(join_irreducible)
-        if not self.path(u, v):
+        if not path(self, u, v):
             self.update([(u, v)])
 
     def compute_height(self):
@@ -585,7 +585,7 @@ class Lattice(Graph, Observable):
         if not self.is_atomistic():
             raise ValueError("lattice is not atomistic")
         bottom = self.get_bottom()
-        class_order = self.topological_sort(bottom)
+        class_order = topological_sort(self, bottom)
         objects = self.atoms()
         representatives = {element: element for element in objects}
         classes = {element: {element} for element in objects}
