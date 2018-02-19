@@ -44,6 +44,7 @@ class Graph(object):
 
     @classmethod
     def random_tree(cls, number_vertices):
+
         tree = Graph(directed=False)
         name_random = list(range(number_vertices))
         random.shuffle(name_random)
@@ -51,6 +52,7 @@ class Graph(object):
             x = name_random[i]
             y = name_random[random.randint(i + 1, number_vertices - 1)]
             tree.update(((x, y), ))
+
         return tree
 
     def __str__(self):

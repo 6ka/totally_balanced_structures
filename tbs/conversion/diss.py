@@ -8,7 +8,7 @@ Module content
 """
 
 __author__ = 'francois'
-__all__ = ["to_graph"]
+__all__ = ["to_graph", "to_string"]
 
 
 from ..graph import Graph

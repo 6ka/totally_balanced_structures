@@ -9,12 +9,12 @@ from tbs.totally_balanced_diss.totally_balanced_diss import isa_totally_balanced
 class TestDissGiraudouxApproximation(unittest.TestCase):
     def setUp(self):
 
-        import tbs.diss.file_io
+        import tbs.diss._file_io
         import os.path
 
         filename = os.path.join(os.path.dirname(__file__), "../../resources/giraudoux.mat")
         f = open(filename)
-        self.diss = tbs.diss.file_io.load(f)
+        self.diss = tbs.diss._file_io.load(f)
         f.close()
 
     def test_chordal_approximation(self):

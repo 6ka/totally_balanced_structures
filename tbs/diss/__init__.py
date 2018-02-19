@@ -27,9 +27,9 @@ Module content
 
 """
 
-from .diss import Diss
-from .order import min, max, rank
-from .file_io import load, save
+from ._diss import Diss
+from ._order import min, max, rank
+from ._file_io import load, save
 
 __author__ = 'francois'
 

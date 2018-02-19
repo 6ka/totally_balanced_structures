@@ -48,12 +48,12 @@ class DecompositionBTB:
             else:
                 self.tree.move_undirected_from_to(u, xy, self.random_choice(u))
 
-            if len(self.tree.undirected[u]) == 0:
+            if len(self.tree(u, undirected=True, begin=False, end=False)) == 0:
                 self.tree.move_directed_from_to(u, xy)
-                self.tree.remove_vertex(u)
+                self.tree.remove(u)
 
     def random_choice(self, u):
-        population = list(self.tree.undirected[u])
+        population = list(self.tree(u, undirected=True, begin=False, end=False))
         random.shuffle(population)
         k = random.randint(0, len(population))
 
@@ -86,13 +86,13 @@ class DecompositionBTB:
         already_created.add(class_to_create)
         pred1, pred2 = clusters[dual[class_to_create][0]], clusters[dual[class_to_create][1]]
         self.tree.remove_undirected(pred1, pred2)
-        self.tree.add_vertex(clusters[class_to_create])
+        self.tree.add(clusters[class_to_create])
         for predecessor in dual[class_to_create]:
             if len(lattice[predecessor]) == 1:
                 self.tree.move_undirected_from_to(clusters[predecessor], clusters[class_to_create])
-                for directed_neighbour in self.tree.directed[clusters[predecessor]]:
+                for directed_neighbour in self.tree(clusters[predecessor], undirected=False, begin=True, end=False):
                     self.tree.add_undirected(directed_neighbour, clusters[class_to_create])
-                self.tree.remove_vertex(clusters[predecessor])
+                self.tree.remove(clusters[predecessor])
             elif len(lattice[predecessor]) == 2:
                 if lattice[predecessor][0] == class_to_create:
                     other_succ = lattice[predecessor][1]
@@ -102,7 +102,7 @@ class DecompositionBTB:
                     raise ValueError("Lattice is not binary")
                 if other_succ not in already_created:
                     self.tree.add_directed(clusters[predecessor], clusters[class_to_create])
-                    neighbours_at_beginning = self.tree.undirected[clusters[predecessor]].copy()
+                    neighbours_at_beginning = self.tree(clusters[predecessor], undirected=True, begin=False, end=False).copy()
                     for undirected_neighbour in neighbours_at_beginning:
                         if lattice.sup_filter(lattice_index_correspondance[undirected_neighbour]).intersection(
                                         lattice.sup_filter(predecessor)) <= lattice.sup_filter(class_to_create):
@@ -111,7 +111,7 @@ class DecompositionBTB:
                 else:
                     self.tree.move_undirected_from_to(clusters[predecessor], clusters[class_to_create])
                     self.tree.add_undirected(clusters[other_succ], clusters[class_to_create])
-                    self.tree.remove_vertex(clusters[predecessor])
+                    self.tree.remove(clusters[predecessor])
             else:
                 raise ValueError("Lattice is not binary")
 

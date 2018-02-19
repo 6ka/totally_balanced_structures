@@ -1,7 +1,8 @@
-from tbs.graph.mixed_graph import MixedGraph
+from .mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
+
 from matplotlib import pyplot
 import matplotlib
-from tbs.graph import Graph
+from .graph import Graph
 import random
 import math
 
@@ -10,75 +11,86 @@ class BinaryMixedTree(MixedGraph):
     def __init__(self, tree):
         super().__init__()
         for vertex in tree:
-            self.add_vertex(frozenset({vertex}))
+            self.add(frozenset({vertex}))
         for vertex in tree:
             for neighbour in tree[vertex]:
-                self.add_undirected(frozenset({vertex}), frozenset({neighbour}))
+                self.update([(frozenset({vertex}), frozenset({neighbour}))], UNDIRECTED_EDGE)
 
     def copy(self):
         copy = BinaryMixedTree({})
-        copy.vertices = set(self.vertices)
-        copy.undirected = {k: set(v) for k, v in self.undirected.items()}
-        copy.directed = {k: set(v) for k, v in self.directed.items()}
-        copy.directed_dual = {k: set(v) for k, v in self.directed_dual.items()}
+        for vertex in self.vertices:
+            copy.add(vertex)
+
+        undirected, directed = self.edges
+        copy.update(undirected, UNDIRECTED_EDGE)
+        copy.update(directed, DIRECTED_EDGE)
         return copy
 
+    def add_undirected(self, x, y):
+        self.update([(x, y)], UNDIRECTED_EDGE)
+
+    def add_directed(self, x, y):
+        self.update([(x, y)], DIRECTED_EDGE)
+
+    def remove_undirected(self, x, y):
+        self.update([(x, y)], UNDIRECTED_EDGE, delete=True)
+
+    def remove_directed(self, x, y):
+        self.update([(x, y)], DIRECTED_EDGE, delete=True)
+
     def get_edge(self):
-        for x, neighbors in self.undirected.items():
-            for y in neighbors:
-                return x, y
+        return list(self.edges[0])[0]
 
     def add_union(self, x, y):
         xy = x.union(y)
 
-        self.remove_undirected(x, y)
-        self.add_vertex(xy)
+        self.update([(x, y)], UNDIRECTED_EDGE, delete=True)
+        self.add(xy)
 
-        self.add_directed(x, xy)
-        self.add_directed(y, xy)
+        self.update([(x, xy), (y, xy)], DIRECTED_EDGE)
 
         return xy
 
     def get_other_successor_or_none(self, x, successor):
-        if len(self.directed[x]) < 2:
+        if len(self(x, undirected=False, begin=True, end=False)) < 2:
             return None
         else:
-            other, s2 = self.directed[x]
+            other, s2 = self(x, undirected=False, begin=True, end=False)
             if other == successor:
                 other = s2
             return other
 
     def move_undirected_from_to(self, x, y, edges=None):
         if edges is None:
-            edges = set(self.undirected[x])
+            edges = set(self(x, undirected=True, begin=False, end=False))
 
         for z in edges:
-            self.remove_undirected(x, z)
-            self.add_undirected(y, z)
+            self.update([(x, z), (y, z)], UNDIRECTED_EDGE, delete=True)
 
     def move_directed_from_to(self, x, y, edges=None):
         if edges is None:
-            edges = set(self.directed_dual[x])
+            edges = set(self(x, undirected=False, begin=False, end=True))
 
         for z in edges:
-            self.remove_directed(z, x)
-            self.add_directed(z, y)
+            self.update([(z, x), (z, y)], DIRECTED_EDGE, delete=True)
 
     def to_graph(self):
         tree = Graph(directed=False)
         for vertex in self.vertices:
             if vertex not in tree:
                 tree.add(vertex)
-            for neighbour in self.directed[vertex]:
+            for neighbour in self(vertex, undirected=False, begin=True, end=False):
                 if not tree.isa_edge(neighbour, vertex):
                     tree.update(((vertex, neighbour),))
-            for neighbour in self.undirected[vertex]:
+            for neighbour in self(vertex, undirected=True, begin=False, end=False):
                 if not tree.isa_edge(neighbour, vertex):
                     tree.update(((vertex, neighbour),))
         return tree
 
     def find_root_as_undirected(self):
+
         pruned_tree = self.to_graph()
+
         while len(pruned_tree) > 2:
             leaves = [vertex for vertex in pruned_tree if pruned_tree.isa_leaf(vertex)]
             for leaf in leaves:
@@ -121,12 +133,12 @@ class BinaryMixedTree(MixedGraph):
         red_lines = []
         green_lines = []
         for vertex in self.vertices:
-            for neighbour in self.undirected[vertex]:
+            for neighbour in self(vertex, undirected=True, begin=False, end=False):
                 if (vertex, neighbour) not in highlighted_edge and (neighbour, vertex) not in highlighted_edge:
                     lines.append([tuple(coordinates[vertex]), tuple(coordinates[neighbour])])
                 else:
                     green_lines.append([tuple(coordinates[vertex]), tuple(coordinates[neighbour])])
-            for neighbour in self.directed[vertex]:
+            for neighbour in self(vertex, undirected=False, begin=True, end=False):
                 red_lines.append((coordinates[vertex], coordinates[neighbour]))
         line_collection = matplotlib.collections.LineCollection(lines)
         red_line_collection = matplotlib.collections.LineCollection(red_lines, colors="red")

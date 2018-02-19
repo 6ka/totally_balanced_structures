@@ -13,7 +13,7 @@ __author__ = 'fbrucker'
 
 __all__ = ["load", "save"]
 
-from .diss import Diss
+from ._diss import Diss
 from tbs.conversion.diss import to_string
 
 
