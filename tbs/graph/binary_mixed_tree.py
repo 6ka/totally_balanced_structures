@@ -1,8 +1,11 @@
+from ._graph import Graph
+from ._order import topological_sort
+
 from ._mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
 
 from matplotlib import pyplot
 import matplotlib
-from ._graph import Graph
+
 import random
 import math
 
@@ -33,10 +36,10 @@ class BinaryMixedTree(MixedGraph):
         self.update([(x, y)], DIRECTED_EDGE)
 
     def remove_undirected(self, x, y):
-        self.update([(x, y)], UNDIRECTED_EDGE, delete=True)
+        self.difference([(x, y)])
 
     def remove_directed(self, x, y):
-        self.update([(x, y)], DIRECTED_EDGE, delete=True)
+        self.difference([(x, y)])
 
     def get_edge(self):
         return list(self.edges[0])[0]
@@ -44,7 +47,7 @@ class BinaryMixedTree(MixedGraph):
     def add_union(self, x, y):
         xy = x.union(y)
 
-        self.update([(x, y)], UNDIRECTED_EDGE, delete=True)
+        self.difference([(x, y)])
         self.add(xy)
 
         self.update([(x, xy), (y, xy)], DIRECTED_EDGE)
@@ -65,14 +68,16 @@ class BinaryMixedTree(MixedGraph):
             edges = set(self(x, undirected=True, begin=False, end=False))
 
         for z in edges:
-            self.update([(x, z), (y, z)], UNDIRECTED_EDGE, delete=True)
+            self.difference([(x, z)])
+            self.update([(y, z)], UNDIRECTED_EDGE)
 
     def move_directed_from_to(self, x, y, edges=None):
         if edges is None:
             edges = set(self(x, undirected=False, begin=False, end=True))
 
         for z in edges:
-            self.update([(z, x), (z, y)], DIRECTED_EDGE, delete=True)
+            self.difference([(z, x)])
+            self.update([(z, y)], DIRECTED_EDGE)
 
     def to_graph(self):
         tree = Graph(directed=False)
@@ -105,7 +110,7 @@ class BinaryMixedTree(MixedGraph):
         if not root:
             root = self.find_root_as_undirected()
         if not order:
-            order = list(tree.topological_sort(root))
+            order = list(topological_sort(tree, root))
         angles = {}
         leaves = [vertex for vertex in order if tree.isa_leaf(vertex) and vertex != root]
         for index, leaf in enumerate(leaves):

@@ -43,6 +43,7 @@ Module content
 """
 
 from ._graph import Graph
+from ._directed_graph import DirectedGraph
 from ._file_io import load, save
 
 
@@ -56,6 +57,7 @@ from ._paths import path, paths_from, connected_parts, CircuitError
 __author__ = 'francois'
 
 __all__ = ["Graph", "load", "save",
+           "DirectedGraph",
            "mst_from_set",
            "MixedGraph", "UNDIRECTED_EDGE", "DIRECTED_EDGE",
            "mst_from_set", "dfs", "bfs", "topological_sort",

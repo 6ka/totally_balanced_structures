@@ -29,26 +29,27 @@ class MixedGraph(object):
         for x in vertices:
             self.add(x)
 
-        self.__update_directed(directed_edges, node_creation=False, delete=False)
-        self.__update_undirected(undirected_edges, node_creation=False, delete=False)
+        self.__update_directed(directed_edges, node_creation=False)
+        self.__update_undirected(undirected_edges, node_creation=False)
+
 
     @classmethod
     def from_graph(cls, graph, vertices=None):
         """Create graph from another graph.
 
         Args:
-            graph(MixedGraph): a graph
+            graph: a graph
             vertices: a subset of vertices. If not set, the whole set of vertices is considered.
 
         Returns(MixedGraph):
-            A new `MixedGraph`
+            A new graph
         """
 
-        undirected, directed = graph.edges
+        undirected, directed = graph._edges
         if vertices is None:
             vertices = graph.vertices
 
-        return graph.__class__(vertices, undirected, directed)
+        return cls(vertices, undirected, directed)
 
     def __repr__(self):
         undirected, directed = self.edges
@@ -65,7 +66,7 @@ class MixedGraph(object):
         return self._vertices
 
     @property
-    def edges(self):
+    def _edges(self):
         """Undirected and directed edges.
 
         returns:
@@ -75,6 +76,17 @@ class MixedGraph(object):
 
         return [frozenset(frozenset([x, y]) for x, Y in self._undirected.items() for y in Y),
                 frozenset((x, y) for x, Y in self._directed.items() for y in Y)]
+
+    @property
+    def edges(self):
+        """Undirected and directed edges.
+
+        returns:
+            A couple (U, D) where U is a :class:`frozenset` of 2-element frozenset (the undirected edges) and D is a
+            frozenset of 2-element tuple (the directed edges).
+        """
+
+        return self._edges
 
     def __nonzero__(self):
         """False if no vertex."""
@@ -86,7 +98,7 @@ class MixedGraph(object):
     def __eq__(self, g):
         """Same vertices, same egdes and same attribute for each edge."""
 
-        return self.vertices == g.vertices and self.edges == g.edges
+        return self.vertices == g.vertices and self._edges == g._edges
 
     def __ne__(self, g):
         """not ==."""
@@ -136,48 +148,59 @@ class MixedGraph(object):
             del self._undirected[y][x]
         del self._undirected[x]
 
-    def update(self, edges, kind, node_creation=True, delete=False):
-        """Add/remove edges.
+    def difference(self, edges):
+        """Remove edges.
 
-        Each edge in *edges* is either added or removed depending if it already present or not.
+        Each edge in *edges* is removed from the graph.
 
-        If an edge is already present but not of the same type (undirected or directed), the edge is replaced even if
-        delete is set to False.
+        Args:
+            edges(iterable): Each edge is a pair `(x, y)` where *x* != *y* are vertices (in *vertices* or not).
+
+        Returns:
+            self (for possible chaining).
+        """
+
+        for x, y in edges:
+            if x not in self.vertices or y not in self.vertices:
+                continue
+
+            if y in self._undirected[x]:
+                del self._undirected[x][y]
+                del self._undirected[y][x]
+            elif y in self._directed[x]:
+                del self._directed[x][y]
+                del self._directed_dual[y][x]
+
+        return self
+
+    def update(self, edges, kind, node_creation=True):
+        """Add edges.
+
+        Each edge in *edges* is added if not already present.
+
+        If an edge is already present but not of the same type (undirected or directed), the edge is replaced.
 
         Args:
             edges(iterable): Each edge is a pair `(x, y)` where *x* != *y* are vertices (in *vertices* or not).
             kind(str): either ``UNDIRECTED_EDGE`` or ``DIRECTED_EDGE``.
             node_creation(bool): If :const:`False`, edges using vertices not in the graph are discarded. If
                 :const:`True`, missing vertices are added in the graph.
-            delete(bool): If :const:`False` edges already present are not deleted from the graph.
 
         Raises:
-            ValueError: if the two vertices of an edge are equal or if kind is unknown.
+            ValueError: if kind is unknown.
+        Returns:
+            self (for possible chaining).
         """
         if kind == UNDIRECTED_EDGE:
-            self.__update_undirected(edges, node_creation, delete)
+            self.__update_undirected(edges, node_creation)
         elif kind == DIRECTED_EDGE:
-            self.__update_directed(edges, node_creation, delete)
+            self.__update_directed(edges, node_creation)
         else:
             raise ValueError("Unknown edge type kind=%s" % (str(kind)))
 
         return self
 
-    def __update_undirected(self, edges, node_creation=True, delete=False):
-        """Add/remove undirected edges.
-
-        Each edge in *edges* is either added or removed depending if it already present or not.
-
-        If an edge is already a directed one, the undirected one replaces it.
-
-        Args:
-            edges(iterable): Each edge is a pair `(x, y)` where *x* != *y* are vertices (in *vertices* or not).
-            node_creation(bool): If :const:`False`, edges using vertices not in the graph are discarded. If
-                :const:`True`, missing vertices are added in the graph.
-            delete(bool): If :const:`False` edges already present are not deleted from the graph.
-
-        """
-
+    def __update_undirected(self, edges, node_creation=True):
         for x, y in edges:
             if (x not in self.vertices or y not in self.vertices) and not node_creation:
                 continue
@@ -187,40 +210,21 @@ class MixedGraph(object):
             if y not in self.vertices:
                 self.add(y)
 
-            if y in self._undirected[x] and delete:
-                del self._undirected[x][y]
-                del self._undirected[y][x]
-            else:
-                if y in self._directed[x]:
-                    del self._directed[x][y]
-                    del self._directed_dual[y][x]
-                elif x in self._directed[y]:
-                    del self._directed[y][x]
-                    del self._directed_dual[x][y]
+            if y in self._undirected[x]:
+                continue
 
-                self._undirected[x][y] = self._undirected[y][x] = None
+            if y in self._directed[x]:
+                del self._directed[x][y]
+                del self._directed_dual[y][x]
+            elif x in self._directed[y]:
+                del self._directed[y][x]
+                del self._directed_dual[x][y]
+
+            self._undirected[x][y] = self._undirected[y][x] = None
 
         return self
 
-    def __update_directed(self, edges, node_creation=True, delete=False):
-        """Add/remove directed edges.
-
-        Each edge in *edges* is either added or removed depending if it already present or not. If the edge is a
-        triplet, it is only removed if the attributes coincide.
-
-        If an edge is already a undirected one, the directed one replaces it.
-
-
-        Args:
-            edges(iterable): Each edge is a pair `(x, y)` where *x* != *y* are vertices (in *vertices* or not).
-            node_creation(bool): If :const:`False`, edges using vertices not in the graph are discarded. If
-                :const:`True`, missing vertices are added in the graph.
-            delete(bool): If :const:`False` edges already present are not deleted from the graph.
-
-        Raises:
-            ValueError: if the two vertices of an edge are equal.
-        """
-
+    def __update_directed(self, edges, node_creation=True):
         for x, y in edges:
             if (x not in self.vertices or y not in self.vertices) and not node_creation:
                 continue
@@ -230,14 +234,14 @@ class MixedGraph(object):
             if y not in self.vertices:
                 self.add(y)
 
-            if y in self._directed[x] and delete:
-                del self._directed[x][y]
-                del self._directed_dual[y][x]
-            else:
-                if y in self._undirected[x]:
-                    del self._undirected[x][y]
-                    del self._undirected[y][x]
-                self._directed[x][y] = self._directed_dual[y][x] = None
+            if y in self._directed[x]:
+                continue
+
+            if y in self._undirected[x]:
+                del self._undirected[x][y]
+                del self._undirected[y][x]
+
+            self._directed[x][y] = self._directed_dual[y][x] = None
 
         return self
 
@@ -389,13 +393,13 @@ class MixedGraph(object):
         for u in (x, y):
             self.update([(new_name, v) for v in
                          self(u, undirected=False, begin=True, end=False).difference([u == x and y or x])],
-                        DIRECTED_EDGE, delete=False)
+                        DIRECTED_EDGE)
             self.update([(v, new_name) for v in
                          self(u, undirected=False, begin=False, end=True).difference([u == x and y or x])],
-                        DIRECTED_EDGE, delete=False)
+                        DIRECTED_EDGE)
             self.update([(new_name, v) for v in
                          self(u, undirected=True, begin=False, end=False).difference([u == x and y or x])],
-                        UNDIRECTED_EDGE, delete=False)
+                        UNDIRECTED_EDGE)
 
         self.remove(x)
         if new_name != y:

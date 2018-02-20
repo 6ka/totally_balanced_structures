@@ -3,7 +3,7 @@ import unittest
 from tbs.graph import MixedGraph, DIRECTED_EDGE, UNDIRECTED_EDGE
 
 
-class TestVerticesRawMixedGraph(unittest.TestCase):
+class TestInit(unittest.TestCase):
 
     def test_no_vertices(self):
         """Initialisation and basic manipulations."""
@@ -28,19 +28,6 @@ class TestVerticesRawMixedGraph(unittest.TestCase):
         self.assertEqual(MixedGraph(),
                          MixedGraph.from_graph(MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)]), {}))
 
-    def test_add_vertices(self):
-        g = MixedGraph()
-        g.add(1)
-        self.assertEqual({1}, g.vertices)
-
-    def test_remove_vertices(self):
-        g = MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)])
-        g.remove(2)
-        self.assertEqual({1, 3}, g.vertices)
-        self.assertEqual([frozenset(), frozenset()], g.edges)
-
-
-class TestInitRawMixedGraph(unittest.TestCase):
     def test_no_edges(self):
         self.assertEqual([frozenset(), frozenset()], MixedGraph().edges)
 
@@ -63,6 +50,19 @@ class TestInitRawMixedGraph(unittest.TestCase):
     def test_directed_and_undirected_vertices(self):
         self.assertEqual([frozenset([frozenset([1, 2])]), frozenset([(2, 3)])],
                          MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)]).edges)
+
+
+class TestVerticesMixedGraph(unittest.TestCase):
+    def test_add_vertices(self):
+        g = MixedGraph()
+        g.add(1)
+        self.assertEqual({1}, g.vertices)
+
+    def test_remove_vertices(self):
+        g = MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)])
+        g.remove(2)
+        self.assertEqual({1, 3}, g.vertices)
+        self.assertEqual([frozenset(), frozenset()], g.edges)
 
 
 class TestUpdateRawMixedGraph(unittest.TestCase):
@@ -88,9 +88,17 @@ class TestUpdateRawMixedGraph(unittest.TestCase):
         self.g.update([(2, 1)], DIRECTED_EDGE)
         self.assertEqual([frozenset(), {(2, 1), (2, 3)}], self.g.edges)
 
+    def test_not_remove(self):
+        self.g.difference([(3, 2)])
+        self.assertEqual([{frozenset((1, 2))}, {(2, 3)}], self.g.edges)
+
     def test_remove_undirected_edge(self):
-        self.g.update([(1, 2)], UNDIRECTED_EDGE, delete=True)
+        self.g.difference([(1, 2)])
         self.assertEqual([frozenset(), {(2, 3)}], self.g.edges)
+
+    def test_remove_directed_edge(self):
+        self.g.difference([(2, 3)])
+        self.assertEqual([{frozenset((1, 2))}, set()], self.g.edges)
 
 
 class TestCompare(unittest.TestCase):
@@ -146,7 +154,7 @@ class TestCall(unittest.TestCase):
     def setUp(self):
         self.g = MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)])
 
-    def test_call_raise_not_a_veetex(self):
+    def test_call_raise_not_a_vertex(self):
         self.assertRaises(ValueError, self.g.__call__, 0)
 
     def test_call_nothing(self):

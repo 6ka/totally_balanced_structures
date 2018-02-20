@@ -1,6 +1,6 @@
 import random
 import tbs.lattice
-from tbs.graph.binary_mixed_tree import BinaryMixedTree
+from .graph.binary_mixed_tree import BinaryMixedTree
 
 
 class DecompositionBTB:
