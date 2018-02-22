@@ -1,4 +1,4 @@
-"""Convert :class:`tbs.diss.Diss` to various types.
+"""Convert :class:`tbs.diss.Diss` to and from various types.
 
 .. currentmodule:: tbs.conversion.diss
 

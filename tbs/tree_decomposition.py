@@ -1,12 +1,31 @@
 import random
-import tbs.lattice
+
+from .dismantlable_lattice import DismantlableLattice
 from .graph.binary_mixed_tree import BinaryMixedTree
+
+
+def tree_decomposition_of_binary_lattice(binary_lattice, order=None):
+    """Returns an object representing a family of trees creating all the vertices of the lattice.
+
+    :param order: an order to create vertices
+    :type order: iterable
+
+    :return: a decomposition
+    :rtype: :class:`tbs.tree_decomposition.DecompositionBTB`
+    """
+    tree = binary_lattice.support_tree()
+    if not order:
+        order = iter(binary_lattice.decomposition_order())
+    decomposition = DecompositionBTB(tree)
+    decomposition.build_from_lattice(binary_lattice, order)
+    return decomposition
 
 
 class DecompositionBTB:
     """
     Tree decomposition of binary lattices.
     """
+
     def __init__(self, initial_tree):
         """Creates a decomposition beginning from an initial_tree and a lattice if needed.
         
@@ -16,7 +35,7 @@ class DecompositionBTB:
         self.tree = BinaryMixedTree(initial_tree)
         self.history = []
         self.order = []
-        self.lattice = tbs.lattice.Lattice()
+        self.lattice = DismantlableLattice()
         for x in initial_tree:
             self.lattice.update((("BOTTOM", str(frozenset({x}))), ))
         self.store()

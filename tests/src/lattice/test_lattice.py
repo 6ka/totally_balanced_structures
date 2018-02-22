@@ -1,5 +1,5 @@
 import unittest
-from tbs.lattice import Lattice
+from tbs.lattice import Lattice, isa_lattice
 
 
 class TestLattice(unittest.TestCase):
@@ -47,10 +47,6 @@ class TestLattice(unittest.TestCase):
         self.assertIn(("bottom", 10), self.lattice.edges())
         self.assertIn((10, "bottom"), self.lattice.dual_lattice.edges())
 
-    def test_random_tb_init(self):
-        random_lattice = Lattice.random_dismantlable_lattice(n_vertices=10)
-        self.assertTrue(random_lattice.is_a_lattice())
-        self.assertEqual(len(random_lattice), 12)
 
     def test_remove(self):
         self.lattice.remove(4)
@@ -70,7 +66,7 @@ class TestLattice(unittest.TestCase):
         self.assertEqual(frozenset(["top"]), sup_filter)
 
     def test_isa_lattice(self):
-        self.assertTrue(self.lattice.is_a_lattice())
+        self.assertTrue(isa_lattice(self.lattice))
 
     def test_is_not_a_lattice(self):
         not_a_lattice = Lattice()
@@ -82,7 +78,7 @@ class TestLattice(unittest.TestCase):
                               (2, 4),
                               (3, "top"),
                               (4, "top")])
-        self.assertFalse(not_a_lattice.is_a_lattice())
+        self.assertFalse(isa_lattice(not_a_lattice))
 
     def test_compute_height(self):
         self.assertEqual(4, self.lattice.compute_height()["top"])
@@ -115,60 +111,6 @@ class TestLattice(unittest.TestCase):
         self.assertFalse(self.lattice.is_atomistic())
         self.lattice.update((('bottom', 10), (10, 9)))
         self.assertTrue(self.lattice.is_atomistic())
-
-    def test_support_tree(self):
-        self.lattice.make_atomistic()
-        tree = self.lattice.support_tree()
-        self.assertTrue(tree.isa_edge(1, 2))
-        self.assertTrue(tree.isa_edge(3, 2))
-        self.assertTrue(tree.isa_edge(4, 2))
-        self.assertTrue(tree.isa_edge(10, 2) or tree.isa_edge(10, 4))
-        self.assertFalse(tree.isa_edge(1, 3))
-        self.assertFalse(tree.isa_edge(1, 4))
-        self.assertFalse(tree.isa_edge(3, 4))
-        self.assertFalse(tree.isa_edge(10, 1))
-        self.assertFalse(tree.isa_edge(10, 3))
-        self.assertFalse(
-            tree.isa_edge(10, 2) and tree.isa_edge(10, 4))
-
-    def test_from_context_matrix(self):
-        matrix = [[1, 1, 0, 0],
-                  [1, 1, 0, 1],
-                  [0, 0, 1, 1]]
-
-        c1 = ((0, 0), (0, 1))
-        c2 = ((1, 0), (1, 1))
-        c3 = ((1, 3), (1, 3))
-        c4 = ((2, 2), (2, 3))
-
-        cover_graph = Lattice()
-        cover_graph.update([(c1, "TOP"),
-                            (c3, "TOP"),
-                            (c2, c1),
-                            (c2, c3),
-                            (c4, c3),
-                            ("BOTTOM", c2),
-                            ("BOTTOM", c4)])
-
-        self.assertEqual(cover_graph, Lattice.from_dlo_matrix(matrix))
-
-    def test_print_boxes(self):
-        string_repr = self.lattice.print_boxes()
-
-        result = " |4 3 7 9 6 1 5 8 " + "\n" + \
-                 "-+-+-+-+-+-+-+-+-+" + "\n" + \
-                 "9|. . .|9|. . . . " + "\n" + \
-                 " +-+ +---+        " + "\n" + \
-                 "4|4|-| 7 |. . . . " + "\n" + \
-                 " +-+-+---+-+   +-+" + "\n" + \
-                 "3|.|3|-*-|6|---|8|" + "\n" + \
-                 " + +-+-----+ +---+" + "\n" + \
-                 "2|. .|  7  |-| 5 |" + "\n" + \
-                 " +   +-----+-----+" + "\n" + \
-                 "1|. . . . .|  1  |" + "\n" + \
-                 " +         +-----+"
-
-        self.assertEqual(string_repr, result)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
-from tbs.lattice import Lattice, max_intersection
-from tbs.graph import Graph
+from tbs.lattice import Lattice, isa_lattice
+
 import unittest
+
 
 class TestIrreducible(unittest.TestCase):
     @staticmethod
@@ -64,6 +65,6 @@ class TestIrreducible(unittest.TestCase):
         while join_irreducible:
             for join in join_irreducible:
                 self.lattice.delete_join_irreducible(join)
-                self.assertTrue(self.lattice.is_a_lattice())
+                self.assertTrue(isa_lattice(self.lattice))
             join_irreducible = self.lattice.inf_irreducible().intersection(self.lattice.sup_irreducible())
         self.assertEqual(frozenset(["bottom", "top"]), set(self.lattice))

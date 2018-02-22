@@ -55,12 +55,13 @@ def bfs(graph, start_vertex, visit, order_key=None):
                 fifo.appendleft(neighbor)
 
 
-def topological_sort(self, start_vertex, order_key=None):
+def topological_sort(graph, start_vertex, order_key=None):
     """Topologigical sort.
 
     If the graph is not connected or directed, may not cover all the vertices.
 
-    :param start_vertex: starting vertex
+    Args:
+        graph: a graph having only directed edges.
 
     :param order_key: order for neighbor travel. sort with key=order
     :type order_key: function
@@ -73,7 +74,7 @@ def topological_sort(self, start_vertex, order_key=None):
 
     def rec_sort(vertex):
         is_seen.add(vertex)
-        visit_list = self[vertex]
+        visit_list = graph[vertex]
         if order_key is not None:
             visit_list.sort(key=order_key)
         for neighbor in visit_list:
