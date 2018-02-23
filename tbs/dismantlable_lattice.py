@@ -15,7 +15,6 @@ class DismantlableLattice(Lattice):
     Dismantlable Lattice
     """
 
-
     @classmethod
     def random_dismantlable_lattice(cls, n_vertices):
         """Alternative constructor to create a random dismantlable lattice.

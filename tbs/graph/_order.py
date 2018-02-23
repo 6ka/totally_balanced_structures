@@ -55,7 +55,7 @@ def bfs(graph, start_vertex, visit, order_key=None):
                 fifo.appendleft(neighbor)
 
 
-def topological_sort(graph, start_vertex, order_key=None):
+def topological_sort(graph, start_vertex=None, order_key=None):
     """Topologigical sort.
 
     If the graph is not connected or directed, may not cover all the vertices.
@@ -82,6 +82,16 @@ def topological_sort(graph, start_vertex, order_key=None):
                 rec_sort(neighbor)
 
         reverse_order.append(vertex)
+
+    if start_vertex is None:
+        elements = list(graph)
+        if order_key:
+            elements.sort(key=order_key)
+
+        start_vertex = elements[0]
+        for start_vertex in elements:
+            if not graph(start_vertex, begin=False, end=True):
+                break
 
     rec_sort(start_vertex)
     return reversed(reverse_order)
