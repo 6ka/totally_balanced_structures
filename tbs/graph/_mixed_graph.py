@@ -305,7 +305,7 @@ class MixedGraph(object):
         else:
             raise ValueError("Not an edge")
 
-    def __call__(self, x, undirected=True, begin=True, end=True, closed=False):
+    def __call__(self, x, undirected=True, begin=True, end=False, closed=False):
         """Neighborhood of vertex x.
 
         Args:

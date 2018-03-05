@@ -11,7 +11,6 @@ class TestInit(unittest.TestCase):
 
     def test_repr(self):
         g = DirectedGraph({1, 2, 3}, [(1, 2), (2, 3)])
-        print(repr(g))
         self.assertEqual(DirectedGraph, eval(repr(g)).__class__)
         self.assertEqual(g, eval(repr(g)))
 

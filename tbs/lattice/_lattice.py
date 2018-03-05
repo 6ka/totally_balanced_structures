@@ -176,7 +176,7 @@ class Lattice(Graph, Observable):
 
         correspondance = {bottom: set()}
 
-        for vertex in topological_sort(self, bottom):
+        for vertex in topological_sort(self,bottom):
             if vertex not in correspondance:
                 correspondance[vertex] = set()
             if self.dual_lattice.isa_leaf(vertex):

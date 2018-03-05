@@ -50,7 +50,8 @@ from ._file_io import load, save
 from ._mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
 
 from ._mst import mst_from_set
-from ._order import dfs, bfs, topological_sort
+from ._order import dfs, bfs, topological_sort, \
+    direct_acyclic_graph_to_direct_comparability_graph, direct_acyclic_graph_to_hase_diagram
 
 from ._paths import path, paths_from, connected_parts, CircuitError
 
@@ -61,5 +62,6 @@ __all__ = ["Graph", "load", "save",
            "mst_from_set",
            "MixedGraph", "UNDIRECTED_EDGE", "DIRECTED_EDGE",
            "mst_from_set", "dfs", "bfs", "topological_sort",
+           "direct_acyclic_graph_to_direct_comparability_graph", "direct_acyclic_graph_to_hase_diagram",
            "path", "paths_from", "connected_parts", "CircuitError"]
 
