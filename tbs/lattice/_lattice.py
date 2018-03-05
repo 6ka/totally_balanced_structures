@@ -7,7 +7,7 @@ __author__ = "cchatel", "fbrucker"
 
 class Lattice(Graph, Observable):
     """
-    Lattice class seen as the oriented cover graph of the actual lattice
+    Lattice class seen as the Hase diagram of the actual lattice
     """
 
     def __init__(self, vertices=tuple(), edges=tuple(), dual=None):
@@ -35,11 +35,19 @@ class Lattice(Graph, Observable):
         if edges:
             self.update(edges)
 
-    def update(self, edges=tuple(), node_creation=True, delete=True):
+    def update(self, edges, node_creation=True):
+        return self._update(edges, node_creation, delete=False)
+
+    def difference(self, edges):
+        return self._update(edges, node_creation=False, delete=True)
+
+    def _update(self, edges=tuple(), node_creation=True, delete=True):
         """Add/remove edges and keep dual object up to date.
 
         Each edge in *edges* is either added or removed depending if it
         already present or not.
+
+        NO CONSISTENCY CHECK!
 
         :param edges: Each edge is a pair `(x, y)`
         :type edges: iterable
@@ -58,6 +66,7 @@ class Lattice(Graph, Observable):
         """
         Graph.update(self, edges, node_creation=True, delete=True)
         self.notify(edges)
+        return self
 
     def dual_update(self, edges):
         """Add/remove edges in dual lattice.
@@ -199,7 +208,6 @@ class Lattice(Graph, Observable):
         dfs(self, element, lambda vertex: element_filter.add(vertex))
 
         return frozenset(element_filter)
-
 
     def delete_join_irreducible(self, join_irreducible):
         """Delete a join irreducible element from lattice.

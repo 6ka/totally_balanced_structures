@@ -1,6 +1,7 @@
 from tbs.lattice import isa_lattice
 from tbs.dismantlable_lattice import DismantlableLattice, max_intersection
 from tbs.tree_decomposition import tree_decomposition_of_binary_lattice
+
 import unittest
 
 
@@ -70,7 +71,10 @@ class TestLatticeBinarize(unittest.TestCase):
         self.assertTrue(isa_lattice(self.lattice))
 
     def test_binarize_element(self):
-        self.lattice.update((('bottom', 10), ('bottom', 11), ('bottom', 12), (10, 2), (11, 2), (12, 2), ('bottom', 2)))
+        self.lattice.difference([('bottom', 2)])
+        self.lattice.update((('bottom', 10), ('bottom', 11), ('bottom', 12), (10, 2), (11, 2), (12, 2)))
+        self.assertTrue(isa_lattice(self.lattice))
+
         self.lattice.binarize_element(2)
         self.assertTrue(self.lattice.element_is_binary(2))
         self.assertTrue(isa_lattice(self.lattice))
@@ -86,7 +90,9 @@ class TestLatticeBinarize(unittest.TestCase):
         self.assertTrue(isa_lattice(self.lattice))
 
     def test_binarize_with_one_element_not_binary(self):
-        self.lattice.update((('bottom', 10), ('bottom', 11), ('bottom', 12), (10, 2), (11, 2), (12, 2), ('bottom', 2)))
+        self.lattice.difference([('bottom', 2)])
+        self.lattice.update((('bottom', 10), ('bottom', 11), ('bottom', 12), (10, 2), (11, 2), (12, 2)))
+
         self.lattice.binarize()
         self.assertTrue(self.lattice.is_binary())
         self.assertTrue(isa_lattice(self.lattice))
@@ -120,7 +126,9 @@ class TestLatticeBinarize(unittest.TestCase):
                 self.assertTrue(len(self.lattice[element]) <= 2)
 
     def test_top_down_binarization(self):
-        self.lattice.update((('bottom', 10), ('bottom', 11), ('bottom', 12), (10, 4), (11, 4), (12, 4), ('bottom', 4)))
+        self.lattice.difference([('bottom', 4)])
+        self.lattice.update((('bottom', 10), ('bottom', 11), ('bottom', 12), (10, 4), (11, 4), (12, 4)))
+
         self.lattice.binarize_top_down()
         self.assertTrue(isa_lattice(self.lattice))
         for element in self.lattice:
@@ -128,11 +136,12 @@ class TestLatticeBinarize(unittest.TestCase):
         self.assertTrue(len(self.lattice[2]) > 2)
 
     def test_other_successor(self):
-        self.lattice.update(((2, 7),))
+        self.lattice.difference(((2, 7),))
         self.assertEqual(self.lattice.other_successor(2, 5), 6)
 
     def test_atomistic_contraction_order(self):
-        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.difference([(2, 5), (2, 6)])
+        self.lattice.update(((2, 11), (11, 5), (11, 6)))  # binarize
         self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
         order = self.lattice.decomposition_order()
         self.assertTrue(order.index(8) > order.index(5))

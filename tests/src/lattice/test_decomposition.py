@@ -6,6 +6,7 @@ from tbs.dismantlable_lattice import DismantlableLattice
 from tbs.graph import Graph
 from tbs.lattice import isa_lattice
 
+
 class TestDecomposition(unittest.TestCase):
     @staticmethod
     def new_lattice():
@@ -116,7 +117,8 @@ class TestDecomposition(unittest.TestCase):
         self.assertNotIn(frozenset({2}), decomposition.tree(frozenset({3}), undirected=True, begin=False, end=False))
 
     def test_contract_edge_one_already_used(self):
-        self.lattice.update(((2, 7), ('bottom', 10), (10, 9), (3, 7)), delete=True)
+        self.lattice.difference([(2, 7)])
+        self.lattice.update((('bottom', 10), (10, 9), (3, 7)))
         binary_tree = BinaryMixedTree({})
         binary_tree.add(frozenset({2}))
         binary_tree.add(frozenset({3}))

@@ -32,7 +32,6 @@ class MixedGraph(object):
         self.__update_directed(directed_edges, node_creation=False)
         self.__update_undirected(undirected_edges, node_creation=False)
 
-
     @classmethod
     def from_graph(cls, graph, vertices=None):
         """Create graph from another graph.

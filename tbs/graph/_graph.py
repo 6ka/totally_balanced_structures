@@ -124,6 +124,9 @@ class Graph(object):
 
         return self._neighborhood[x][y]
 
+    def difference(self, edges):
+        return self.update(edges, delete=True)
+
     def update(self, edges=tuple(), node_creation=True, delete=False):
         """Add/remove edges.
 
@@ -301,7 +304,7 @@ class Graph(object):
         if not vertex_subset:
             vertex_subset = list(self)
 
-        g = self.__class__(vertex_subset, directed=self.directed)
+        g = Graph(vertex_subset, directed=self.directed)
         g.update(self.edges(True), False)
 
         return g
