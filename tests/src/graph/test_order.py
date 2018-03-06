@@ -1,12 +1,14 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
-from tbs.graph import Graph, DirectedGraph, dfs, bfs,\
-    topological_sort, direct_acyclic_graph_to_direct_comparability_graph, direct_acyclic_graph_to_hase_diagram
+from tbs.graph import MixedGraph, DIRECTED_EDGE, DirectedGraph, dfs, bfs,\
+    topological_sort, direct_acyclic_graph_to_direct_comparability_graph, direct_comparability_graph_to_hase_diagram
 
 
 class TestDag(unittest.TestCase):
+    def test_empty(self):
+        self.assertEqual(DirectedGraph(), direct_acyclic_graph_to_direct_comparability_graph(DirectedGraph()))
+        self.assertEqual(DirectedGraph(), direct_comparability_graph_to_hase_diagram(DirectedGraph()))
+
     def test_direct_acyclic_graph_to_direct_comparability_graph(self):
         dag = DirectedGraph("abcd", (("a", "b"),
                                      ("b", "c"), ("b", "d"),
@@ -25,7 +27,7 @@ class TestDag(unittest.TestCase):
                                               ("b", "c"),
                                               ("c", "d")))
 
-        self.assertEqual(hase_diagram, direct_acyclic_graph_to_hase_diagram(comparability))
+        self.assertEqual(hase_diagram, direct_comparability_graph_to_hase_diagram(comparability))
 
     def test_direct_acyclic_graph_to_hase_diagram(self):
         dag = DirectedGraph("abcd", (("a", "b"),
@@ -35,72 +37,68 @@ class TestDag(unittest.TestCase):
                                               ("b", "c"),
                                               ("c", "d")))
 
-        self.assertEqual(hase_diagram, direct_acyclic_graph_to_hase_diagram(dag))
+        self.assertEqual(hase_diagram,
+                         direct_comparability_graph_to_hase_diagram(direct_acyclic_graph_to_direct_comparability_graph(dag)))
 
 
-class TestOrder(unittest.TestCase):
+class TestTopologicalSort(unittest.TestCase):
     def setUp(self):
-        self.g_undirected = Graph(range(5))
-        self.g_undirected.update(((1, 2), (3, 4), (0, 4)))
 
-        self.g_directed = DirectedGraph(range(5))
-        self.g_directed.update(((0, 1), (1, 2), (2, 4), (1, 3), (3, 4)))
+        self.g = DirectedGraph(range(5), ((0, 1), (1, 2), (2, 4), (2, 3), (3, 4)))
 
-    def test_dfs_undirected(self):
-        g = self.g_undirected
+    def test_topological_sort(self):
+        self.assertEqual([0, 1, 2, 3, 4], topological_sort(self.g))
 
-        seen = list()
-        def action(vertex):
-            seen.append(vertex)
+    def test_sort(self):
+        self.g.difference(((1, 2), (2, 3)))
+        self.g.update(((1, 3), ))
+        self.assertEqual(2, topological_sort(self.g, key=lambda x: x == 2 and 1 or 2)[0])
+        self.assertEqual([0, 2, 1, 3, 4], topological_sort(self.g, key=lambda x: (x == 0 and 1) or (x == 2) and 2 or 3))
 
-        dfs(g, 0, action)
+    def test_cycle(self):
+        self.g.update(((4, 0), ))
+        self.assertRaises(TypeError, topological_sort, self.g)
 
-        self.assertEqual(3, len(seen))
-        self.assertEqual({0, 3, 4}, set(seen))
+    def test_not_connected(self):
+        self.g.difference(((0, 1), ))
+        self.assertEqual(set(range(5)), set(topological_sort(self.g)))
 
-    # def test_dfs_directed(self):
-    #     g = self.g_directed
-    #
-    #     seen = list()
-    #     def action(vertex):
-    #         seen.append(vertex)
-    #
-    #     dfs(g, 1, action)
-    #
-    #     self.assertEqual(4, len(seen))
-    #     self.assertEqual({1, 2, 3, 4}, set(seen))
 
-    def test_bfs_undirected(self):
-        g = self.g_undirected
+class TestDfs(unittest.TestCase):
+    def setUp(self):
+        self.g = MixedGraph(range(5), ({0, 1}, {2, 4}),  ((1, 2), (2, 3), (3, 4)))
 
-        seen = list()
-        def action(vertex):
-            seen.append(vertex)
+    def test_all_elements(self):
+        self.assertEqual(set(range(5)), set(dfs(self.g)))
 
-        bfs(g, 0, action)
+    def test_not_connected(self):
+        self.g.difference(((0, 1), ))
+        self.assertEqual(set(range(5)), set(dfs(self.g)))
 
-        self.assertEqual(3, len(seen))
-        self.assertEqual([0, 4, 3], seen)
+    def test_start_with_0(self):
+        self.assertEqual(list(range(3)), dfs(self.g, key=lambda x: x == 0 and 1 or 2)[:3])
 
-    # def test_bfs_directed(self):
-    #     g = self.g_directed
-    #
-    #     seen = list()
-    #
-    #     def action(vertex):
-    #         seen.append(vertex)
-    #
-    #     bfs(g, 1, action, order_key=lambda x: -x)
-    #
-    #     self.assertEqual(4, len(seen))
-    #     self.assertEqual([1, 3, 2, 4], seen)
+    def test_not_connected_directed(self):
+        self.g.difference(((2, 3), ))
+        self.g.update(DIRECTED_EDGE, ((3, 2), ))
+        self.assertEqual([0, 1, 2, 4, 3], bfs(self.g, key=lambda x: x))
 
-    # def test_topological_sort_undirected(self):
-    #     g = self.g_undirected
-    #     order_iterator = topological_sort(g, 0)
-    #     self.assertEqual([0, 4, 3], list(order_iterator))
 
-    # def test_topological_sort_directed(self):
-    #     g = self.g_directed
-    #     order_iterator = topological_sort(g, order_key=lambda x: -x)
-    #     self.assertEqual([0, 1, 2, 3, 4], list(order_iterator))
+class TestBfs(unittest.TestCase):
+    def setUp(self):
+        self.g = MixedGraph(range(5), ({0, 1}, {2, 4}),  ((1, 2), (2, 3), (3, 4)))
+
+    def test_all_elements(self):
+        self.assertEqual(set(range(5)), set(bfs(self.g)))
+
+    def test_not_connected(self):
+        self.g.difference(((0, 1), ))
+        self.assertEqual(set(range(5)), set(bfs(self.g)))
+
+    def test_start_with_1(self):
+        self.assertEqual([1, 0, 2, 3, 4], bfs(self.g, key=lambda x: x == 1 and -1 or x))
+
+    def test_not_connected_directed(self):
+        self.g.difference(((2, 3), ))
+        self.g.update(DIRECTED_EDGE, ((3, 2), ))
+        self.assertEqual([1, 0, 2, 4, 3], bfs(self.g, key=lambda x: x == 1 and -1 or x))

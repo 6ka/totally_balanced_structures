@@ -1,6 +1,7 @@
 from ..orders.doubly_lexical import doubly_lexical_order
 from ..graph import dfs
 
+
 class ContextMatrix(object):
     """Context matrix."""
 
@@ -28,7 +29,7 @@ class ContextMatrix(object):
 
     @staticmethod
     def from_lattice(lattice, inf=None, sup=None):
-        """ Context matrix from lattice cover graph.
+        """ Context matrix from Lattice
 
         the elements are the sup-irreducibles elements
         the attributes the inf-irreducibles elements
@@ -44,12 +45,12 @@ class ContextMatrix(object):
 
         """
         if inf is None:
-            inf = list(lattice.inf_irreducible())
+            inf = list(lattice.inf_irreducible)
         else:
             inf = list(inf)
         inf_indices = {x: i for i, x in enumerate(inf)}
         if sup is None:
-            sup = list(lattice.sup_irreducible())
+            sup = list(lattice.sup_irreducible)
         else:
             sup = list(sup)
         sup_indices = {x: i for i, x in enumerate(sup)}
@@ -58,24 +59,12 @@ class ContextMatrix(object):
         for i in range(len(sup)):
             matrix.append([0] * len(inf))
 
-        def get_attribute_action_for_sup(sup_irreducible_element):
-            """
-            :param sup_irreducible_element: lattice element.
-            :return: :func:
-            """
-            sup_index = sup_indices[sup_irreducible_element]
-
-            def action(lattice_element):
-                """
-                :param lattice_element: lattice element
-                """
-                if lattice_element in inf_indices:
-                    matrix[sup_index][inf_indices[lattice_element]] = 1
-
-            return action
-
+        order = lattice.directed_comparability
         for vertex in sup:
-            dfs(lattice, vertex, get_attribute_action_for_sup(vertex))
+            sup_index = sup_indices[vertex]
+            for x in order(vertex, closed=True):
+                if x in inf_indices:
+                    matrix[sup_index][inf_indices[x]] = 1
 
         return ContextMatrix(matrix, sup, inf)
 

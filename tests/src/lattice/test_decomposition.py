@@ -2,9 +2,8 @@ import unittest
 
 from tbs.graph.binary_mixed_tree import BinaryMixedTree
 from tbs.tree_decomposition import DecompositionBTB
-from tbs.dismantlable_lattice import DismantlableLattice
+from tbs.dismantlable_lattice import DismantlableLattice, isa_lattice
 from tbs.graph import Graph
-from tbs.lattice import isa_lattice
 
 
 class TestDecomposition(unittest.TestCase):
@@ -69,7 +68,8 @@ class TestDecomposition(unittest.TestCase):
                          decomposition.tree(frozenset([3, 5]), undirected=True, begin=False, end=False))
 
     def test_contract_edge_one_disappears(self):
-        self.lattice.update(((2, 5), (2, 6), (2, 11), (11, 5), (11, 6)))  # binarize
+        self.lattice.difference(((2, 5), (2, 6), ))
+        self.lattice.update(((2, 11), (11, 5), (11, 6)))  # binarize
         self.lattice.update((('bottom', 10), (10, 9), ('bottom', 12), (12, 11)))  # transforms objects into atoms
         tree = Graph(directed=False)
         tree.update(((1, 2), (2, 12), (2, 3), (2, 4), (4, 10)))
@@ -104,7 +104,8 @@ class TestDecomposition(unittest.TestCase):
         self.assertTrue(len(decomposition.tree.vertices) == 3)
 
     def test_contract_edge_both_stay(self):
-        self.lattice.update(((2, 7), ('bottom', 10), (10, 9), (3, 7)))
+        self.lattice.difference([(2, 7)])
+        self.lattice.update((('bottom', 10), (10, 9), (3, 7)))
         tree = Graph(directed=False)
         tree.update(((1, 2), (2, 3), (3, 4), (3, 10)))
         decomposition = DecompositionBTB(tree)

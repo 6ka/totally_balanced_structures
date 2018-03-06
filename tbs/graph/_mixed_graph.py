@@ -13,11 +13,11 @@ class MixedGraph(object):
 
         Args:
             vertices (iterable): each vertex must be *hashable*.
-            directed_edges(iterable): list of pair (x, y) where *x* and *y* are vertices. Edges whose one end is not
-                a vertex are discarded.
+            directed_edges(iterable): list of pair (x, y) where *x* and *y* are vertices.
             undirected_edges(iterable): same as directed_edges for undirected edges. Undirected edges replace directed
                 one if they already exist.
 
+        edges using vertices not in the graph are discarded.
         One Cannot have both (x, y) as undirected and directed edge.
         """
 
@@ -172,7 +172,7 @@ class MixedGraph(object):
 
         return self
 
-    def update(self, edges, kind, node_creation=True):
+    def update(self, kind, edges, node_creation=True):
         """Add edges.
 
         Each edge in *edges* is added if not already present.
@@ -180,8 +180,8 @@ class MixedGraph(object):
         If an edge is already present but not of the same type (undirected or directed), the edge is replaced.
 
         Args:
-            edges(iterable): Each edge is a pair `(x, y)` where *x* != *y* are vertices (in *vertices* or not).
             kind(str): either ``UNDIRECTED_EDGE`` or ``DIRECTED_EDGE``.
+            edges(iterable): Each edge is a pair `(x, y)` where *x* != *y* are vertices (in *vertices* or not).
             node_creation(bool): If :const:`False`, edges using vertices not in the graph are discarded. If
                 :const:`True`, missing vertices are added in the graph.
 
@@ -390,15 +390,15 @@ class MixedGraph(object):
             self.add(new_name)
 
         for u in (x, y):
-            self.update([(new_name, v) for v in
-                         self(u, undirected=False, begin=True, end=False).difference([u == x and y or x])],
-                        DIRECTED_EDGE)
-            self.update([(v, new_name) for v in
-                         self(u, undirected=False, begin=False, end=True).difference([u == x and y or x])],
-                        DIRECTED_EDGE)
-            self.update([(new_name, v) for v in
-                         self(u, undirected=True, begin=False, end=False).difference([u == x and y or x])],
-                        UNDIRECTED_EDGE)
+            self.update(DIRECTED_EDGE,
+                        [(new_name, v) for v in
+                         self(u, undirected=False, begin=True, end=False).difference([u == x and y or x])])
+            self.update(DIRECTED_EDGE,
+                        [(v, new_name) for v in
+                         self(u, undirected=False, begin=False, end=True).difference([u == x and y or x])])
+            self.update(UNDIRECTED_EDGE,
+                        [(new_name, v) for v in
+                         self(u, undirected=True, begin=False, end=False).difference([u == x and y or x])])
 
         self.remove(x)
         if new_name != y:

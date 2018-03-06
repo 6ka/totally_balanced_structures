@@ -1,115 +1,94 @@
+import collections
+
 from ._directed_graph import DirectedGraph
+from ._mixed_graph import MixedGraph
 
 
-def dfs(graph, start_vertex, visit, order_key=None):
+def dfs(graph, key=None):
     """depth first search.
 
-    If the graph is not connected or directed, may not cover all the vertices.
+    Args:
+        graph(MixedGraph): a mixed graph
+        key(x->order position): Used for sorting the examination order (equivalent to sort with parameter key=key)
 
-    :param start_vertex: starting vertex
-    :param visit: visit done for each new seen vertex.
-    :type visit: `function` taking a vertex as parameter.
-
-    :param order_key: order for neighbor travel. sort with key=order
-    :type order_key: function
+    Returns(list): dfs order.
     """
+    dfs_order = []
+
     is_seen = set()
+    stack = []
 
-    def rec_dfs(vertex):
-        visit(vertex)
-        is_seen.add(vertex)
-        visit_list = graph[vertex]
-        if order_key is not None:
-            visit_list.sort(key=order_key)
-        for neighbor in visit_list:
-            if neighbor not in is_seen:
-                rec_dfs(neighbor)
+    elements = list(graph)
+    if key:
+        elements.sort(key=key)
 
-    rec_dfs(start_vertex)
+    for x in elements:
+        stack.append(x)
+        while stack:
+            v = stack.pop()
+            if v not in is_seen:
+                is_seen.add(v)
+                dfs_order.append(v)
+                neighbors = list(graph(v))
+                if key:
+                    neighbors.sort(key=key)
+                stack.extend(neighbors)
+
+    return dfs_order
 
 
-def bfs(graph, start_vertex, visit, order_key=None):
+def bfs(graph, key=None):
     """breath first search.
 
-    If the graph is not connected or directed, may not cover all the vertices.
-
-    :param order_key: order for which the vertices are taken
-    :param start_vertex: starting vertex
-    :param visit: visit done for each new seen vertex.
-    :type visit: `function` taking a vertex as parameter.
-
-    """
-    import collections
-
-    fifo = collections.deque((start_vertex,))
-    is_seen = {start_vertex}
-
-    while fifo:
-        vertex = fifo.pop()
-        visit(vertex)
-        visit_list = graph[vertex]
-        if order_key is not None:
-            visit_list.sort(key=order_key)
-        for neighbor in visit_list:
-            if neighbor not in is_seen:
-                is_seen.add(neighbor)
-                fifo.appendleft(neighbor)
-
-
-def topological_sort(dag, start_vertex=None, order_key=None):
-    """Topologigical sort.
-
-    If the graph is not connected or directed, may not cover all the vertices.
-
     Args:
-        dag(DirectedGraph): a directed acyclic graph
+        graph(MixedGraph): a mixed graph
+        key(x->order position): Used for sorting the examination order (equivalent to sort with parameter key=key)
 
-    :param order_key: order for neighbor travel. sort with key=order
-    :type order_key: function
-
-    :rtype: :class:`iterator` on vertex
+    Returns(list): dfs order.
     """
 
-    reverse_order = []
+
+    bfs_order = []
+
     is_seen = set()
 
-    def rec_sort(vertex):
-        is_seen.add(vertex)
-        visit_list = dag[vertex]
-        if order_key is not None:
-            visit_list.sort(key=order_key)
-        for neighbor in visit_list:
-            if neighbor not in is_seen:
-                rec_sort(neighbor)
+    fifo = collections.deque()
 
-        reverse_order.append(vertex)
+    elements = list(graph)
+    if key:
+        elements.sort(key=key)
 
-    if start_vertex is None:
-        elements = list(dag)
-        if order_key:
-            elements.sort(key=order_key)
+    for x in elements:
+        if x not in is_seen:
+            is_seen.add(x)
+            fifo.appendleft(x)
+        while fifo:
+            v = fifo.pop()
+            bfs_order.append(v)
+            neighbors = list(graph(v))
+            if key:
+                neighbors.sort(key=key)
 
-        start_vertex = elements[0]
-        for start_vertex in elements:
-            if not dag(start_vertex, begin=False, end=True):
-                break
+            for w in neighbors:
+                if w not in is_seen:
+                    is_seen.add(w)
+                    fifo.appendleft(w)
 
-    rec_sort(start_vertex)
-    return reversed(reverse_order)
+    return bfs_order
 
 
-def _topological_sort(dag, order_key=None):
+def topological_sort(dag, key=None):
     """Topologigical sort.
 
     If the graph is not connected or directed, may not cover all the vertices.
 
     Args:
         dag(DirectedGraph): a directed acyclic graph
-        order_key(x->order position): Used for sorting the examination order (sort with key=order)
+        key(x->order position): Used for sorting the examination order (equivalent to sort with parameter key=key)
 
     Raises(TypeError): if *dag* is not acyclic.
 
-    Returns(iterator): topological order.
+    Returns(list): topological order.
     """
 
     reverse_order = []
@@ -125,8 +104,9 @@ def _topological_sort(dag, order_key=None):
         is_seen_local.add(vertex)
 
         visit_list = list(dag(vertex))
-        if order_key is not None:
-            visit_list.sort(key=order_key)
+        if key is not None:
+            visit_list.sort(key=key)
+            visit_list.reverse()
         for neighbor in visit_list:
             visit(neighbor)
 
@@ -135,13 +115,15 @@ def _topological_sort(dag, order_key=None):
         reverse_order.append(vertex)
 
     elements = list(dag)
-    if order_key:
-        elements.sort(key=order_key)
+    if key:
+        elements.sort(key=key)
+        elements.reverse()
 
     for x in elements:
         visit(x)
 
-    return reversed(reverse_order)
+    reverse_order.reverse()
+    return reverse_order
 
 
 def direct_acyclic_graph_to_direct_comparability_graph(dag):
@@ -155,7 +137,7 @@ def direct_acyclic_graph_to_direct_comparability_graph(dag):
     """
     direct_comparability = DirectedGraph(vertices=dag.vertices)
 
-    for vertex in _topological_sort(dag):
+    for vertex in topological_sort(dag):
         for cover in dag(vertex, begin=False, end=True):
             direct_comparability.update([(cover, vertex)])
             direct_comparability.update([(y, vertex) for y in direct_comparability(cover, begin=False, end=True)])
@@ -163,23 +145,24 @@ def direct_acyclic_graph_to_direct_comparability_graph(dag):
     return direct_comparability
 
 
-def direct_acyclic_graph_to_hase_diagram(dag):
-    """ hase diagram from a dag.
+def direct_comparability_graph_to_hase_diagram(direct_comparability):
+    """ hase diagram from a directed comparability graph.
 
     Args:
-        dag(DirectedGraph): a directed acyclic graph
+        direct_comparability(DirectedGraph): a directed comparability graph.
+
+    No check whether dag is a comparability graph or not.
 
     Returns(DirectedGraph):
         The direct comparability graph of *dag*
     """
 
-    direct_comparability = DirectedGraph.from_graph(dag)
+    hase_diagram = DirectedGraph.from_graph(direct_comparability)
 
-    direct_comparability.difference(((x, x) for x in direct_comparability))
+    hase_diagram.difference(((x, x) for x in direct_comparability))
 
-    for x, y in direct_acyclic_graph_to_direct_comparability_graph(dag).edges:
+    for x, y in direct_comparability.edges:
         if direct_comparability(x).intersection(direct_comparability(y, begin=False, end=True)):
-            direct_comparability.difference([(x, y)])
+            hase_diagram.difference([(x, y)])
             continue
-    return direct_comparability
-
+    return hase_diagram

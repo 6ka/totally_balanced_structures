@@ -73,19 +73,19 @@ class TestUpdateRawMixedGraph(unittest.TestCase):
         self.assertRaises(ValueError, self.g.update, [(1, 1)], "UNKNOWN")
 
     def test_update_undirected_x_x_as_edge_not_vertices(self):
-        self.g.update([(4, 4)], UNDIRECTED_EDGE, node_creation=False)
+        self.g.update(UNDIRECTED_EDGE, [(4, 4)], node_creation=False)
         self.assertEqual([{frozenset([1, 2])}, {(2, 3)}], self.g.edges)
 
     def test_update_directed_x_x_as_edge_not_vertices(self):
-        self.g.update([(4, 4)], DIRECTED_EDGE, node_creation=False)
+        self.g.update(DIRECTED_EDGE, [(4, 4)], node_creation=False)
         self.assertEqual([{frozenset([1, 2])}, {(2, 3)}], self.g.edges)
 
     def test_add_undirected_edge_and_directed_edge_exist(self):
-        self.g.update([{3, 2}], UNDIRECTED_EDGE)
+        self.g.update(UNDIRECTED_EDGE, [{3, 2}])
         self.assertEqual([{frozenset([1, 2]), frozenset((2, 3))}, frozenset()], self.g.edges)
 
     def test_add_directed_edge_and_directed_edge_exist(self):
-        self.g.update([(2, 1)], DIRECTED_EDGE)
+        self.g.update(DIRECTED_EDGE, [(2, 1)])
         self.assertEqual([frozenset(), {(2, 1), (2, 3)}], self.g.edges)
 
     def test_not_remove(self):
@@ -205,11 +205,11 @@ class TestLoop(unittest.TestCase):
         self.g = MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)])
 
     def test_xx_undirected_edge(self):
-        self.g.update([(1, 1)], UNDIRECTED_EDGE)
+        self.g.update(UNDIRECTED_EDGE, [(1, 1)])
         self.assertEqual({2, 1}, self.g(1, undirected=True, begin=False, end=False, closed=False))
 
     def test_xx_directed_edge(self):
-        self.g.update([(1, 1)], DIRECTED_EDGE)
+        self.g.update(DIRECTED_EDGE, [(1, 1)])
         self.assertEqual({1}, self.g(1, undirected=False, begin=True, end=False, closed=False))
         self.assertEqual({1}, self.g(1, undirected=False, begin=False, end=True, closed=False))
 

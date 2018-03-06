@@ -57,7 +57,7 @@ class DirectedGraph(MixedGraph):
         Returns:
             self (for possible chaining).
         """
-        return super().update(edges, DIRECTED_EDGE, node_creation=node_creation)
+        return super().update(DIRECTED_EDGE, edges, node_creation=node_creation)
 
     @property
     def edges(self):

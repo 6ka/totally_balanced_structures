@@ -3,6 +3,7 @@
 import unittest
 from tbs.contextmatrix import ContextMatrix
 from tbs.lattice import Lattice
+from tbs.graph import DirectedGraph
 
 
 class TestMatrixCreate(unittest.TestCase):
@@ -14,14 +15,12 @@ class TestMatrixCreate(unittest.TestCase):
                        [0, 0, 1, 0, 1]]
 
     def test_create_bare(self):
-
         context_matrix = ContextMatrix(self.matrix)
         self.assertEqual(self.matrix, context_matrix._matrix)
         self.assertEqual((0, 1, 2, 3), context_matrix.elements)
         self.assertEqual((0, 1, 2, 3, 4), context_matrix.attributes)
 
     def test_create_attributes_and_elements(self):
-
         context_matrix = ContextMatrix(self.matrix, elements=(1, 2, 3, 4), attributes=(5, 6, 7, 8, 9))
         self.assertEqual(self.matrix, context_matrix._matrix)
         self.assertEqual((1, 2, 3, 4), context_matrix.elements)
@@ -96,22 +95,21 @@ class TestDoublyLexicalOrdering(unittest.TestCase):
 
 class TestFromCoverGraph(unittest.TestCase):
     def new_lattice(self):
-        lattice = Lattice()
-        lattice.update([("bottom", 1),
-                        ("bottom", 2),
-                        ("bottom", 3),
-                        ("bottom", 4),
-                        (1, 5),
-                        (2, 5),
-                        (2, 6),
-                        (2, 7),
-                        (3, 6),
-                        (4, 7),
-                        (5, 8),
-                        (6, 8),
-                        (7, 9),
-                        (8, "top"),
-                        (9, "top")])
+        lattice = Lattice(DirectedGraph().update([("bottom", 1),
+                                                  ("bottom", 2),
+                                                  ("bottom", 3),
+                                                  ("bottom", 4),
+                                                  (1, 5),
+                                                  (2, 5),
+                                                  (2, 6),
+                                                  (2, 7),
+                                                  (3, 6),
+                                                  (4, 7),
+                                                  (5, 8),
+                                                  (6, 8),
+                                                  (7, 9),
+                                                  (8, "top"),
+                                                  (9, "top")]))
         return lattice
 
     def setUp(self):
@@ -120,11 +118,12 @@ class TestFromCoverGraph(unittest.TestCase):
     def test_inf_sup(self):
         context_matrix = ContextMatrix.from_lattice(self.lattice)
 
-        self.assertEqual(frozenset(context_matrix.attributes), frozenset(self.lattice.inf_irreducible()))
-        self.assertEqual(frozenset(context_matrix.elements), frozenset(self.lattice.sup_irreducible()))
+        self.assertEqual(frozenset(context_matrix.attributes), frozenset(self.lattice.inf_irreducible))
+        self.assertEqual(frozenset(context_matrix.elements), frozenset(self.lattice.sup_irreducible))
 
     def test_matrix(self):
         context_matrix = ContextMatrix.from_lattice(self.lattice)
+
         self.assertEqual(len(context_matrix.elements), len(context_matrix.matrix))
 
         check = [(context_matrix.elements.index(1), (1, 5, 8)),
@@ -142,7 +141,7 @@ class TestFromCoverGraph(unittest.TestCase):
 
 class TestFromClusters(unittest.TestCase):
     def test_from_clusters(self):
-        context_matrix = ContextMatrix.from_clusters({frozenset({'z', 'y'}),  frozenset({'x', 'y'})})
+        context_matrix = ContextMatrix.from_clusters({frozenset({'z', 'y'}), frozenset({'x', 'y'})})
 
         self.assertEqual(set(context_matrix.elements), {'x', 'y', 'z'})
 

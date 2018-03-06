@@ -17,7 +17,7 @@ class BinaryMixedTree(MixedGraph):
             self.add(frozenset({vertex}))
         for vertex in tree:
             for neighbour in tree[vertex]:
-                self.update([(frozenset({vertex}), frozenset({neighbour}))], UNDIRECTED_EDGE)
+                self.update(UNDIRECTED_EDGE, [(frozenset({vertex}), frozenset({neighbour}))])
 
     def copy(self):
         copy = BinaryMixedTree({})
@@ -25,15 +25,15 @@ class BinaryMixedTree(MixedGraph):
             copy.add(vertex)
 
         undirected, directed = self.edges
-        copy.update(undirected, UNDIRECTED_EDGE)
-        copy.update(directed, DIRECTED_EDGE)
+        copy.update(UNDIRECTED_EDGE, undirected)
+        copy.update(DIRECTED_EDGE, directed)
         return copy
 
     def add_undirected(self, x, y):
-        self.update([(x, y)], UNDIRECTED_EDGE)
+        self.update(UNDIRECTED_EDGE, [(x, y)])
 
     def add_directed(self, x, y):
-        self.update([(x, y)], DIRECTED_EDGE)
+        self.update(DIRECTED_EDGE, [(x, y)])
 
     def remove_undirected(self, x, y):
         self.difference([(x, y)])
@@ -50,7 +50,7 @@ class BinaryMixedTree(MixedGraph):
         self.difference([(x, y)])
         self.add(xy)
 
-        self.update([(x, xy), (y, xy)], DIRECTED_EDGE)
+        self.update(DIRECTED_EDGE, [(x, xy), (y, xy)])
 
         return xy
 
@@ -69,7 +69,7 @@ class BinaryMixedTree(MixedGraph):
 
         for z in edges:
             self.difference([(x, z)])
-            self.update([(y, z)], UNDIRECTED_EDGE)
+            self.update(UNDIRECTED_EDGE, [(y, z)])
 
     def move_directed_from_to(self, x, y, edges=None):
         if edges is None:
@@ -77,7 +77,7 @@ class BinaryMixedTree(MixedGraph):
 
         for z in edges:
             self.difference([(z, x)])
-            self.update([(z, y)], DIRECTED_EDGE)
+            self.update(DIRECTED_EDGE, [(z, y)])
 
     def to_graph(self):
         tree = Graph(directed=False)
