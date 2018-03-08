@@ -124,8 +124,8 @@ class DecompositionBTB:
                     self.tree.add_directed(clusters[predecessor], clusters[class_to_create])
                     neighbours_at_beginning = self.tree(clusters[predecessor], undirected=True, begin=False, end=False).copy()
                     for undirected_neighbour in neighbours_at_beginning:
-                        if lattice.sup_filter(lattice_index_correspondance[undirected_neighbour]).intersection(
-                                        lattice.sup_filter(predecessor)) <= lattice.sup_filter(class_to_create):
+                        if lattice.upper_filter(lattice_index_correspondance[undirected_neighbour]).intersection(
+                                        lattice.upper_filter(predecessor)) <= lattice.upper_filter(class_to_create):
                             self.tree.remove_undirected(undirected_neighbour, clusters[predecessor])
                             self.tree.add_undirected(undirected_neighbour, clusters[class_to_create])
                 else:

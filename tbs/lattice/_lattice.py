@@ -44,12 +44,23 @@ class Lattice:
         for x in self._hase_diagram:
             yield x
 
+    def __len__(self):
+        return len(self._hase_diagram)
+
+    def __repr__(self):
+        return self.__class__.__name__ + "(" + repr(self._hase_diagram) + ")"
+
+    def __str__(self):
+        return repr(self)
+
     @property
     def hase_diagram(self):
+        """Return a copy of the lattice hase diagram."""
         return DirectedGraph.from_graph(self._hase_diagram)
 
     @property
     def directed_comparability(self):
+        """Return a copy of the lattice directed comparability graph (with no loop)."""
         return DirectedGraph.from_graph(self._order)
 
     @property
@@ -82,7 +93,18 @@ class Lattice:
 
         return sup
 
-    def sup_filter(self, x):
+    def above(self, x):
+        """upper cover elements of x
+
+        Args:
+            x: a vertex
+
+        Returns(frozenset):
+            The successors of x in the hase diagram.
+        """
+        return self._hase_diagram(x)
+
+    def upper_filter(self, x):
         """{y | y >= x}
 
         Args:
@@ -113,7 +135,7 @@ class Lattice:
 
         return inf
 
-    def inf_filter(self, x):
+    def lower_filter(self, x):
         """{y | y <= x}
 
         Args:
@@ -124,6 +146,17 @@ class Lattice:
         """
 
         return self._order(x, begin=False, end=True, closed=True)
+
+    def under(self, x):
+        """lower cover elements of x
+
+        Args:
+            x: a vertex
+
+        Returns(frozenset):
+            The predecessors of x in the hase diagram.
+        """
+        return self._hase_diagram(x, begin=False, end=True)
 
     @property
     def inf_irreducible(self):
@@ -142,3 +175,95 @@ class Lattice:
             the sup-irreducible elements of the lattice
         """
         return frozenset(x for x in self if len(self._hase_diagram(x, begin=False, end=True)) == 1)
+
+    @property
+    def join_irreducible(self):
+        """ join-irreducible elements of the lattice.
+
+        Returns(frozenset):
+            the join-irreducible elements of the lattice
+        """
+
+        return frozenset(x for x in self
+                         if len(self._hase_diagram(x)) == 1 and len(self._hase_diagram(x, begin=False, end=True)) == 1)
+
+    def add_join_irreducible(self, new, u, v):
+        """ Add a join irreducible element x to the lattice.
+
+            Args:
+                new: new element.
+                u, v: two vertices such that u and v are different and comparable.
+
+            Raises(TypeError): if x is in the lattice, u == v or u and v are not comparable.
+
+            Returns: self
+        """
+
+        if new in self._hase_diagram:
+            raise TypeError("new element already in lattice")
+        if u == v or new == u or new == v:
+            raise TypeError("two elements are equal")
+        if u not in self._hase_diagram or v not in self._hase_diagram:
+            raise TypeError("last elements must be in the lattice")
+        if not self._order.isa_edge(u, v) and not self._order.isa_edge(v, u):
+            raise TypeError("elements must be comparable")
+
+        if not self._order.isa_edge(u, v):
+            u, v = v, u
+
+        if self._hase_diagram.isa_edge(u, v):
+            self._hase_diagram.difference([(u, v)])
+
+        self._hase_diagram.update([(u, new), (new, v)])
+        self._order.update([(u, new), (new, v)])
+        self._order.update((new, w) for w in self._order(v))
+        self._order.update((w, new) for w in self._order(u, begin=False, end=True))
+
+        return self
+
+    def make_atomistic(self, new_name=lambda lattice, sup_not_atom: len(lattice)):
+        """Makes the lattice atomistic.
+
+        Make All sup-irreducible elements (objects) atoms. Iteratively checks the sup-irreductible elements and add new
+        ones.
+
+        Args:
+            new_name(self, elements -> hashable): new name generator. Take the actual lattice and the current non atom
+                sup-irreducible element in argument and return a new element not already in the lattice.
+                By default use the length of the lattice.
+        Returns:
+            self
+        """
+
+        for x in self.sup_irreducible:
+            if not self._hase_diagram.isa_edge(self.bottom, x):
+                self.add_join_irreducible(new_name(self, x), self.bottom, x)
+
+        return self
+
+    def make_co_atomistic(self, new_name=lambda lattice, inf_not_co_atom: len(lattice)):
+        """Makes the lattice co-atomistic.
+
+        Make All inf-irreducible elements (attributes) co-atoms. Iteratively checks the inf-irreductible elements and
+        add new ones.
+
+        Args:
+            new_name(self, elements -> hashable): new name generator. Take the actual lattice and the current non atom
+                inf-irreducible element in argument and return a new element not already in the lattice.
+                By default use the length of the lattice.
+        Returns:
+            self
+        """
+
+        for x in self.inf_irreducible:
+            if not self._hase_diagram.isa_edge(x, self.top):
+                self.add_join_irreducible(new_name(self, x), x, self.top)
+        return self
+
+    def is_atomistic(self):
+        """Check whether the lattice is atomistic or not."""
+        return self.above(self.bottom) == self.sup_irreducible
+
+    def is_co_atomistic(self):
+        """Check whether the lattice is co-atomistic or not."""
+        return self.under(self.top) == self.inf_irreducible

@@ -80,8 +80,6 @@ def bfs(graph, key=None):
 def topological_sort(dag, key=None):
     """Topologigical sort.
 
-    If the graph is not connected or directed, may not cover all the vertices.
-
     Args:
         dag(DirectedGraph): a directed acyclic graph
         key(x->order position): Used for sorting the examination order (equivalent to sort with parameter key=key)
@@ -133,7 +131,7 @@ def direct_acyclic_graph_to_direct_comparability_graph(dag):
         dag(DirectedGraph): a directed acyclic graph
 
     Returns(DirectedGraph):
-        The direct comparability graph of *dag*
+        The direct comparability graph of *dag* with no loop (to preserve acyclicity).
     """
     direct_comparability = DirectedGraph(vertices=dag.vertices)
 

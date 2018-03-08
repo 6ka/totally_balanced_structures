@@ -13,10 +13,6 @@ import collections
 __author__ = "cchatel", "fbrucker"
 
 
-def isa_lattice(graph):
-    pass
-
-
 class Lattice(Graph, Observable):
     """
     Lattice class seen as the Hase diagram of the actual lattice

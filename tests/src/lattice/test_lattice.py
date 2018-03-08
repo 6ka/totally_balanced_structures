@@ -1,5 +1,5 @@
 import unittest
-from tbs.graph import DirectedGraph
+from tbs.graph import DirectedGraph, direct_acyclic_graph_to_direct_comparability_graph
 from tbs.lattice import Lattice
 
 
@@ -81,6 +81,12 @@ class TestElements(unittest.TestCase):
         self.assertEqual(5, self.lattice.inf(5, 8))
         self.assertEqual("bottom", self.lattice.inf(5, 4))
 
+    def test_above(self):
+        self.assertEqual({1, 2, 3, 4}, self.lattice.above(self.lattice.bottom))
+
+    def test_under(self):
+        self.assertEqual({5, 6}, self.lattice.under(8))
+
 
 class TestFilters(unittest.TestCase):
     def setUp(self):
@@ -101,12 +107,12 @@ class TestFilters(unittest.TestCase):
                                                        (9, "top")]))
 
     def test_sup(self):
-        self.assertEqual(frozenset(self.lattice), self.lattice.sup_filter(self.lattice.bottom))
-        self.assertEqual(frozenset(["top"]), self.lattice.sup_filter(self.lattice.top))
+        self.assertEqual(frozenset(self.lattice), self.lattice.upper_filter(self.lattice.bottom))
+        self.assertEqual(frozenset(["top"]), self.lattice.upper_filter(self.lattice.top))
 
     def test_inf(self):
-        self.assertEqual(frozenset(self.lattice), self.lattice.inf_filter(self.lattice.top))
-        self.assertEqual(frozenset(["bottom"]), self.lattice.inf_filter(self.lattice.bottom))
+        self.assertEqual(frozenset(self.lattice), self.lattice.lower_filter(self.lattice.top))
+        self.assertEqual(frozenset(["bottom"]), self.lattice.lower_filter(self.lattice.bottom))
 
 
 class TestIrreducible(unittest.TestCase):
@@ -133,6 +139,76 @@ class TestIrreducible(unittest.TestCase):
     def test_sup(self):
         self.assertEqual({1, 2, 3, 4, 9}, self.lattice.sup_irreducible)
 
+    def test_join(self):
+        self.assertEqual({1, 3, 4, 9}, self.lattice.join_irreducible)
 
-if __name__ == "__main__":
-    unittest.main()
+    def test_add_join_TypeError(self):
+        self.assertRaises(TypeError,
+                          self.lattice.add_join_irreducible, 2, 1, 5)
+        self.assertRaises(TypeError,
+                          self.lattice.add_join_irreducible, "new", 1, 1)
+        self.assertRaises(TypeError,
+                          self.lattice.add_join_irreducible, "new", "also new", 1)
+        self.assertRaises(TypeError,
+                          self.lattice.add_join_irreducible, "new", 1, "also new")
+        self.assertRaises(TypeError,
+                          self.lattice.add_join_irreducible, "new", 8, 9)
+
+    def test_add_join_comparable_order(self):
+        original_hase_diagram = self.lattice.hase_diagram
+
+        self.assertEqual(Lattice(original_hase_diagram).add_join_irreducible("new", 1, 8),
+                         Lattice(original_hase_diagram).add_join_irreducible("new", 8, 1))
+
+    def test_add_join_comparable(self):
+        new_hase = self.lattice.hase_diagram.difference([(1, 5)]).update([(1, "new"), ("new", 5)])
+
+        self.lattice.add_join_irreducible("new", 1, 5)
+        self.assertEqual(new_hase, self.lattice.hase_diagram)
+
+        self.assertEqual(direct_acyclic_graph_to_direct_comparability_graph(new_hase),
+                         self.lattice.directed_comparability)
+
+
+class TestAtoms(unittest.TestCase):
+    def setUp(self):
+        self.lattice = Lattice(DirectedGraph().update([(0, 1), (1, 2), (2, 3)]))
+
+    def test_atoms(self):
+        self.assertFalse(self.lattice.is_atomistic())
+        self.assertEqual(Lattice(DirectedGraph().update([(0, 1), (1, 2),
+                                                         (0, "2"), ("2", 2),
+                                                         (0, "3"), ("3", 3), (2, 3)])),
+                         self.lattice.make_atomistic(lambda lattice, x: str(x)))
+        self.assertTrue(self.lattice.is_atomistic())
+
+    def test_co_atoms(self):
+        self.assertFalse(self.lattice.is_co_atomistic())
+        self.assertEqual(Lattice(DirectedGraph().update([(0, 1), (0, "0"), ('0', 3),
+                                                         (1, 2), (1, "1"), ("1", 3),
+                                                         (2, 3)])),
+                         self.lattice.make_co_atomistic(lambda lattice, x: str(x)))
+        self.assertTrue(self.lattice.is_co_atomistic())
+
+    def test_idempotence_atoms(self):
+        lattice_orig = Lattice(DirectedGraph().update([(0, 1), (1, 2),
+                                                       (0, "2"), ("2", 2),
+                                                       (0, "3"), ("3", 3), (2, 3)]))
+        lattice = Lattice(DirectedGraph().update([(0, 1), (1, 2),
+                                                  (0, "2"), ("2", 2),
+                                                  (0, "3"), ("3", 3), (2, 3)])).make_atomistic()
+
+        self.assertEqual(lattice_orig, lattice)
+
+    def test_idempotence_co_atoms(self):
+        lattice_orig = Lattice(DirectedGraph().update([(0, 1), (0, "0"), ('0', 3),
+                                                       (1, 2), (1, "1"), ("1", 3),
+                                                       (2, 3)]))
+        lattice = Lattice(DirectedGraph().update([(0, 1), (0, "0"), ('0', 3),
+                                                  (1, 2), (1, "1"), ("1", 3),
+                                                  (2, 3)])).make_co_atomistic()
+
+        self.assertEqual(lattice_orig, lattice)
+
+        if __name__ == "__main__":
+            unittest.main()
