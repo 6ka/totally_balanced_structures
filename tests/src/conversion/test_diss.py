@@ -14,7 +14,8 @@ class TestDiss(unittest.TestCase):
         g = tbs.conversion.diss.to_graph(d, 3)
 
         self.assertEqual(len(d), len(g))
-        self.assertEqual([{1, 2}], [set(x) for x in g.edges()])
+        print(g.edges)
+        self.assertEqual([{1, 2}], [set(x) for x in g.edges])
 
     def test_to_string(self):
         """String representation."""

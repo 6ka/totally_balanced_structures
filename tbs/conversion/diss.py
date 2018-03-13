@@ -11,7 +11,7 @@ __author__ = 'francois'
 __all__ = ["to_graph", "to_string"]
 
 
-from ..graph import Graph
+from ..graph._graph import Graph
 
 
 def to_graph(dissimilarity, threshold=None):
@@ -31,12 +31,14 @@ def to_graph(dissimilarity, threshold=None):
     elems = list(dissimilarity)
     edges = []
 
+    g = Graph(elems)
     for i, x in enumerate(elems):
         for y in elems[i+1:]:
             if threshold is None or dissimilarity(x, y) <= threshold:
-                edges.append((x, y, dissimilarity(x, y)))
+                g.update([(x, y)])
+                g[x, y] = dissimilarity(x, y)
 
-    return Graph(elems).update(edges)
+    return g
 
 
 def to_string(dissimilarity, kind="square", sep=" ", alias=None):

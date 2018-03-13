@@ -19,6 +19,21 @@ class TestInit(unittest.TestCase):
         self.assertEqual(DirectedGraph({1, 2, 3}, [(1, 2), (2, 3)]),
                          DirectedGraph.from_graph(DirectedGraph({1, 2, 3}, [(1, 2), (2, 3)])))
 
+    def test_from_mixed_graph(self):
+        self.assertEqual(DirectedGraph, DirectedGraph.from_graph(MixedGraph({1, 2, 3}, [(3, 1)], [(1, 2), (2, 3)])).__class__)
+        self.assertEqual(DirectedGraph({1, 2, 3}, [(1, 2), (2, 3)]),
+                         DirectedGraph.from_graph(MixedGraph({1, 2, 3}, [(3, 1)], [(1, 2), (2, 3)])))
+
+    def test_from_neighborhoods(self):
+        self.assertEqual(DirectedGraph, DirectedGraph.from_neighborhoods({1: (2,), 2: (3,)}).__class__)
+        self.assertEqual(DirectedGraph({1, 2, 3}, [(1, 2), (2, 3)]),
+                         DirectedGraph.from_neighborhoods({1: (2,), 2: (3,)}))
+
+    def test_from_edges(self):
+        self.assertEqual(DirectedGraph, DirectedGraph.from_edges([(1, 2), (2, 3)]).__class__)
+        self.assertEqual(DirectedGraph({1, 2, 3}, [(1, 2), (2, 3)]),
+                         DirectedGraph.from_edges([(1, 2), (2, 3)]))
+
 
 class TestDifferencesWithMixedGraph(unittest.TestCase):
     def setUp(self):

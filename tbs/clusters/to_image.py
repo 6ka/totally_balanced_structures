@@ -1,7 +1,7 @@
 from PIL import Image
 import colorsys
 
-from ..dismantlable_lattice import DismantlableLattice
+from ..dismantlable import DismantlableLattice
 
 __all__ = ["create_image_from_dlo_gamma_free_matrix"]
 

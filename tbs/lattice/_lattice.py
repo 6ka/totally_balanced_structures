@@ -37,6 +37,17 @@ class Lattice:
                 return x
         return None
 
+    @classmethod
+    def from_lattice(cls, lattice):
+        new_lattice = cls()
+
+        new_lattice._hase_diagram = DirectedGraph.from_graph(lattice._hase_diagram)
+        new_lattice._order = DirectedGraph.from_graph(lattice._order)
+        new_lattice._top = lattice._top
+        new_lattice._bottom = lattice._bottom
+
+        return new_lattice
+
     def __eq__(self, other):
         return self._hase_diagram == other._hase_diagram
 
@@ -194,15 +205,35 @@ class Lattice:
                 new: new element.
                 u, v: two vertices such that u and v are different and comparable.
 
+            If the lattice has no elements then u = v = None and if te lattice has 1 element u or v is None (thus
+            either new becomes bottom or top).
+
             Raises(TypeError): if x is in the lattice, u == v or u and v are not comparable.
 
             Returns: self
         """
+        if len(self._hase_diagram) == 0:
+            self._hase_diagram.add(new)
+            self._order.add(new)
+            self._top = self._bottom = new
+            return self
 
         if new in self._hase_diagram:
             raise TypeError("new element already in lattice")
         if u == v or new == u or new == v:
             raise TypeError("two elements are equal")
+
+        if len(self._hase_diagram) == 1:
+            if u is None:
+                self._hase_diagram.update([(new, v)])
+                self._order.update([(new, v)])
+                self._bottom = new
+            elif v is None:
+                self._hase_diagram.update([(u, new)])
+                self._order.update([(u, new)])
+                self._top = new
+            return self
+
         if u not in self._hase_diagram or v not in self._hase_diagram:
             raise TypeError("last elements must be in the lattice")
         if not self._order.isa_edge(u, v) and not self._order.isa_edge(v, u):

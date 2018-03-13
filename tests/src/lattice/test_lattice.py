@@ -39,24 +39,37 @@ class TestInit(unittest.TestCase):
 
         self.assertEqual(Lattice(hase_diagram), Lattice(comparability))
 
+    def test_from_lattice(self):
+        hase_diagram = DirectedGraph("abcd", (("a", "b"),
+                                              ("b", "c"),
+                                              ("c", "d")))
+        lattice_1 = Lattice(hase_diagram)
+
+        lattice_2 = Lattice.from_lattice(Lattice(hase_diagram))
+        self.assertEqual(lattice_1, lattice_2)
+
+        lattice_2.add_join_irreducible("e", "a", "d")
+
+        self.assertNotEqual(lattice_1, lattice_2)
+
 
 class TestElements(unittest.TestCase):
     def setUp(self):
-        self.lattice = Lattice(DirectedGraph().update([("bottom", 1),
-                                                       ("bottom", 2),
-                                                       ("bottom", 3),
-                                                       ("bottom", 4),
-                                                       (1, 5),
-                                                       (2, 5),
-                                                       (2, 6),
-                                                       (2, 7),
-                                                       (3, 6),
-                                                       (4, 7),
-                                                       (5, 8),
-                                                       (6, 8),
-                                                       (7, 9),
-                                                       (8, "top"),
-                                                       (9, "top")]))
+        self.lattice = Lattice(DirectedGraph.from_edges([("bottom", 1),
+                                                         ("bottom", 2),
+                                                         ("bottom", 3),
+                                                         ("bottom", 4),
+                                                         (1, 5),
+                                                         (2, 5),
+                                                         (2, 6),
+                                                         (2, 7),
+                                                         (3, 6),
+                                                         (4, 7),
+                                                         (5, 8),
+                                                         (6, 8),
+                                                         (7, 9),
+                                                         (8, "top"),
+                                                         (9, "top")]))
 
     def test_top_bottom_empty(self):
         self.assertEqual(None, Lattice().top)
@@ -90,21 +103,21 @@ class TestElements(unittest.TestCase):
 
 class TestFilters(unittest.TestCase):
     def setUp(self):
-        self.lattice = Lattice(DirectedGraph().update([("bottom", 1),
-                                                       ("bottom", 2),
-                                                       ("bottom", 3),
-                                                       ("bottom", 4),
-                                                       (1, 5),
-                                                       (2, 5),
-                                                       (2, 6),
-                                                       (2, 7),
-                                                       (3, 6),
-                                                       (4, 7),
-                                                       (5, 8),
-                                                       (6, 8),
-                                                       (7, 9),
-                                                       (8, "top"),
-                                                       (9, "top")]))
+        self.lattice = Lattice(DirectedGraph.from_edges([("bottom", 1),
+                                                         ("bottom", 2),
+                                                         ("bottom", 3),
+                                                         ("bottom", 4),
+                                                         (1, 5),
+                                                         (2, 5),
+                                                         (2, 6),
+                                                         (2, 7),
+                                                         (3, 6),
+                                                         (4, 7),
+                                                         (5, 8),
+                                                         (6, 8),
+                                                         (7, 9),
+                                                         (8, "top"),
+                                                         (9, "top")]))
 
     def test_sup(self):
         self.assertEqual(frozenset(self.lattice), self.lattice.upper_filter(self.lattice.bottom))
@@ -117,21 +130,21 @@ class TestFilters(unittest.TestCase):
 
 class TestIrreducible(unittest.TestCase):
     def setUp(self):
-        self.lattice = Lattice(DirectedGraph().update([("bottom", 1),
-                                                       ("bottom", 2),
-                                                       ("bottom", 3),
-                                                       ("bottom", 4),
-                                                       (1, 5),
-                                                       (2, 5),
-                                                       (2, 6),
-                                                       (2, 7),
-                                                       (3, 6),
-                                                       (4, 7),
-                                                       (5, 8),
-                                                       (6, 8),
-                                                       (7, 9),
-                                                       (8, "top"),
-                                                       (9, "top")]))
+        self.lattice = Lattice(DirectedGraph.from_edges([("bottom", 1),
+                                                         ("bottom", 2),
+                                                         ("bottom", 3),
+                                                         ("bottom", 4),
+                                                         (1, 5),
+                                                         (2, 5),
+                                                         (2, 6),
+                                                         (2, 7),
+                                                         (3, 6),
+                                                         (4, 7),
+                                                         (5, 8),
+                                                         (6, 8),
+                                                         (7, 9),
+                                                         (8, "top"),
+                                                         (9, "top")]))
 
     def test_inf(self):
         self.assertEqual({1, 3, 4, 5, 6, 7, 8, 9}, self.lattice.inf_irreducible)
@@ -168,6 +181,15 @@ class TestIrreducible(unittest.TestCase):
 
         self.assertEqual(direct_acyclic_graph_to_direct_comparability_graph(new_hase),
                          self.lattice.directed_comparability)
+
+    def test_add_join_from_empty_lattice(self):
+        self.assertEqual(Lattice(DirectedGraph([0])), Lattice().add_join_irreducible(0, None, None))
+
+    def test_add_join_from_one_element_lattice(self):
+        self.assertEqual(Lattice(DirectedGraph([0, 1], ((0, 1),))),
+                         Lattice(DirectedGraph([0])).add_join_irreducible(1, 0, None))
+        self.assertEqual(Lattice(DirectedGraph([0, 1], ((1, 0),))),
+                         Lattice(DirectedGraph([0])).add_join_irreducible(1, None, 0))
 
 
 class TestAtoms(unittest.TestCase):
@@ -210,5 +232,3 @@ class TestAtoms(unittest.TestCase):
 
         self.assertEqual(lattice_orig, lattice)
 
-        if __name__ == "__main__":
-            unittest.main()

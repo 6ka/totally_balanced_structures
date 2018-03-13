@@ -3,4 +3,4 @@
 - use google docstring for all methods.
 -remove matplotlib as a requirement: use a json draw format instead
 
-- lib structure. tree import in submodules.
+- load/save graphs in json format.

@@ -1,20 +1,11 @@
-from tbs.graph.binary_mixed_tree import BinaryMixedTree
-from tbs.graph import Graph
 import unittest
+
+from tbs.graph import Graph, BinaryMixedTree
 
 
 class TestMixedTree(unittest.TestCase):
-    def test_two_vertices_random_tree(self):
-
-        tree = Graph.random_tree(2)
-        self.assertEqual(2,
-                         len(tree))
-        graph = Graph(directed=False)
-        graph.update(((0, 1), ))
-        self.assertEqual(graph, tree)
-
     def test_two_vertices(self):
-        tree = BinaryMixedTree(Graph.random_tree(2))
+        tree = BinaryMixedTree(Graph([0, 1], [(0, 1)]))
         zero = frozenset([0])
         one = frozenset([1])
 
@@ -34,7 +25,7 @@ class TestMixedTree(unittest.TestCase):
                 2: [5],
                 9: [3, 0]
                 }
-        mixed = BinaryMixedTree(tree)
+        mixed = BinaryMixedTree(Graph.from_neighborhoods(tree))
 
         mixed.remove_undirected(frozenset([3]), frozenset([9]))
         mixed.add_directed(frozenset([3]), frozenset([9]))
@@ -58,7 +49,7 @@ class TestMixedTree(unittest.TestCase):
                 2: [5],
                 9: [3, 0]
                 }
-        mixed = BinaryMixedTree(tree)
+        mixed = BinaryMixedTree(Graph.from_neighborhoods(tree))
 
         mixed.remove_undirected(frozenset([3]), frozenset([9]))
         mixed.add_directed(frozenset([3]), frozenset([9]))
@@ -83,7 +74,7 @@ class TestMixedTree(unittest.TestCase):
                 2: [5],
                 9: [3, 0]
                 }
-        mixed = BinaryMixedTree(tree)
+        mixed = BinaryMixedTree(Graph.from_neighborhoods(tree))
 
         mixed.remove_undirected(frozenset([3]), frozenset([1]))
         mixed.remove_undirected(frozenset([3]), frozenset([4]))
@@ -110,7 +101,7 @@ class TestMixedTree(unittest.TestCase):
                 2: [5],
                 9: [3, 0]
                 }
-        mixed = BinaryMixedTree(tree)
+        mixed = BinaryMixedTree(Graph.from_neighborhoods(tree))
 
         mixed.remove_undirected(frozenset([3]), frozenset([1]))
         mixed.remove_undirected(frozenset([3]), frozenset([4]))

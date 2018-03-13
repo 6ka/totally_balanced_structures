@@ -42,12 +42,10 @@ Module content
 
 """
 
+from ._mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
 from ._graph import Graph
 from ._directed_graph import DirectedGraph
-from ._file_io import load, save
-
-
-from ._mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
+from ._binary_mixed_tree import BinaryMixedTree
 
 from ._mst import mst_from_set
 from ._order import dfs, bfs, topological_sort, \
@@ -57,10 +55,11 @@ from ._paths import path, paths_from, connected_parts, CircuitError
 
 __author__ = 'francois'
 
-__all__ = ["Graph", "load", "save",
+__all__ = ["Graph",
            "DirectedGraph",
            "mst_from_set",
            "MixedGraph", "UNDIRECTED_EDGE", "DIRECTED_EDGE",
+           "BinaryMixedTree",
            "mst_from_set", "dfs", "bfs", "topological_sort",
            "direct_acyclic_graph_to_direct_comparability_graph", "direct_comparability_graph_to_hase_diagram",
            "path", "paths_from", "connected_parts", "CircuitError"]

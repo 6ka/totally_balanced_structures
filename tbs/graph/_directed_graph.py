@@ -6,7 +6,7 @@ class DirectedGraph(MixedGraph):
     """Generic Directed Graph class."""
 
     def __init__(self, vertices=tuple(), edges=tuple()):
-        """A mixed graph.
+        """A directed graph.
 
         Args:
             vertices (iterable): each vertex must be *hashable*.
@@ -23,6 +23,7 @@ class DirectedGraph(MixedGraph):
             graph: a graph
             vertices: a subset of vertices. If not set, the whole set of vertices is considered.
 
+        If the graph is undirected or mixed, only take the directed edges.
         Returns(DirectedGraph):
             A new graph
         """
@@ -32,6 +33,32 @@ class DirectedGraph(MixedGraph):
             vertices = graph.vertices
 
         return cls(vertices, directed)
+
+    @classmethod
+    def from_neighborhoods(cls, neighbors):
+        """Create graph from a neighborhood.
+
+        Args:
+            neighbors(dict): keys are vertices and values iterable of neighbors.
+
+        Returns(Graph):
+            A new graph
+        """
+
+        return cls().update([(x, y) for x in neighbors for y in neighbors[x]])
+
+    @classmethod
+    def from_edges(cls, edges):
+        """Create graph from a set of edges.
+
+        Args:
+            edges(iterable): iterable of edges.
+
+        Returns(Graph):
+            A new graph
+        """
+
+        return cls().update(edges)
 
     def __repr__(self):
         undirected, directed = self._edges

@@ -1,7 +1,7 @@
 import random
 
-from .dismantlable_lattice import DismantlableLattice
-from .graph.binary_mixed_tree import BinaryMixedTree
+from ..graph import DirectedGraph
+from ..graph._binary_mixed_tree import BinaryMixedTree
 
 
 def tree_decomposition_of_binary_lattice(binary_lattice, order=None):
@@ -35,9 +35,9 @@ class DecompositionBTB:
         self.tree = BinaryMixedTree(initial_tree)
         self.history = []
         self.order = []
-        self.lattice = DismantlableLattice()
+        self.hase_diagram = DirectedGraph()
         for x in initial_tree:
-            self.lattice.update((("BOTTOM", str(frozenset({x}))), ))
+            self.hase_diagram.update((("BOTTOM", str(frozenset({x}))),))
         self.store()
 
     def store(self):
@@ -51,7 +51,7 @@ class DecompositionBTB:
             self.step(x, y)
             self.order.append((x, y))
             self.store()
-            self.lattice.update(((str(x), str(x.union(y))), (str(y), str(x.union(y)))))
+            self.hase_diagram.update(((str(x), str(x.union(y))), (str(y), str(x.union(y)))))
 
     def step(self, x, y):
         xy = self.tree.add_union(x, y)
@@ -86,17 +86,17 @@ class DecompositionBTB:
         :param order: an order to build the lattice. If None, a compatible order is computed.
         :type order: iterable
         """
-        self.lattice = lattice
+        self.hase_diagram = lattice.hase_diagram
         if not order:
             order = iter(lattice.decomposition_order())
 
-        clusters = self.lattice.sup_irreducible_clusters()
+        clusters = self.hase_diagram.sup_irreducible_clusters()
         already_created = set()
         for vertex in order:
             self.contract_tree_edge_from_lattice(vertex, already_created, lattice)
             already_created.add(vertex)
             self.store()
-            pred1, pred2 = self.lattice.dual_lattice[vertex][0], self.lattice.dual_lattice[vertex][1]
+            pred1, pred2 = self.hase_diagram.dual_lattice[vertex][0], self.hase_diagram.dual_lattice[vertex][1]
             self.order.append((clusters[pred1], clusters[pred2]))
 
     def contract_tree_edge_from_lattice(self, class_to_create, already_created, lattice):

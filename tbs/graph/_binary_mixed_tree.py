@@ -16,7 +16,7 @@ class BinaryMixedTree(MixedGraph):
         for vertex in tree:
             self.add(frozenset({vertex}))
         for vertex in tree:
-            for neighbour in tree[vertex]:
+            for neighbour in tree(vertex):
                 self.update(UNDIRECTED_EDGE, [(frozenset({vertex}), frozenset({neighbour}))])
 
     def copy(self):
@@ -80,16 +80,9 @@ class BinaryMixedTree(MixedGraph):
             self.update(DIRECTED_EDGE, [(z, y)])
 
     def to_graph(self):
-        tree = Graph(directed=False)
-        for vertex in self.vertices:
-            if vertex not in tree:
-                tree.add(vertex)
-            for neighbour in self(vertex, undirected=False, begin=True, end=False):
-                if not tree.isa_edge(neighbour, vertex):
-                    tree.update(((vertex, neighbour),))
-            for neighbour in self(vertex, undirected=True, begin=False, end=False):
-                if not tree.isa_edge(neighbour, vertex):
-                    tree.update(((vertex, neighbour),))
+        tree = Graph(self.vertices,
+                     ((vertex, neighbour) for vertex in self
+                      for neighbour in self(vertex, undirected=True, begin=True, end=True)))
         return tree
 
     def find_root_as_undirected(self):
@@ -97,7 +90,7 @@ class BinaryMixedTree(MixedGraph):
         pruned_tree = self.to_graph()
 
         while len(pruned_tree) > 2:
-            leaves = [vertex for vertex in pruned_tree if pruned_tree.isa_leaf(vertex)]
+            leaves = [vertex for vertex in pruned_tree if len(pruned_tree(vertex)) == 1]
             for leaf in leaves:
                 pruned_tree.remove(leaf)
         possible_roots = [root for root in pruned_tree]  # 1 or 2 possibilities
@@ -112,7 +105,7 @@ class BinaryMixedTree(MixedGraph):
         if not order:
             order = list(topological_sort(tree, root))
         angles = {}
-        leaves = [vertex for vertex in order if tree.isa_leaf(vertex) and vertex != root]
+        leaves = [vertex for vertex in order if len(tree(vertex)) == 1 and vertex != root]
         for index, leaf in enumerate(leaves):
             angles[leaf] = 2 * math.pi * index / len(leaves)
         for vertex in reversed(order):

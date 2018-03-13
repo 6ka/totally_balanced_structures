@@ -8,17 +8,7 @@ Module content
 """
 
 __author__ = 'francois'
-__all__ = ["to_string",
-           "from_diss"]
-
-from . import diss
-
-
-def from_diss(dissimilarity, threshold=None):
-    return diss.to_graph(dissimilarity, threshold)
-
-
-from_diss.__doc__ = diss.to_graph.__doc__
+__all__ = ["to_string"]
 
 
 def to_string(graph, kind="edges", sep=' '):
