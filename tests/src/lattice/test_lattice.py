@@ -100,6 +100,22 @@ class TestElements(unittest.TestCase):
     def test_under(self):
         self.assertEqual({5, 6}, self.lattice.under(8))
 
+    def test_is_smaller_than_equality(self):
+        self.assertFalse(self.lattice.is_smaller_than(5, 5))
+
+    def test_is_larger_than_equality(self):
+        self.assertFalse(self.lattice.is_larger_than(5, 5))
+
+    def test_is_smaller_than_not_comparable(self):
+        self.assertFalse(self.lattice.is_smaller_than(8, 9))
+
+    def test_is_larger_than_not_comparable(self):
+        self.assertFalse(self.lattice.is_larger_than(8, 9))
+
+    def test_is_larger_than_ok(self):
+        self.assertTrue(self.lattice.is_larger_than(8, 1))
+        self.assertFalse(self.lattice.is_larger_than(1, 8))
+
 
 class TestFilters(unittest.TestCase):
     def setUp(self):

@@ -1,6 +1,7 @@
 import unittest
 
-from tbs.graph import Graph, BinaryMixedTree
+from tbs.graph import Graph
+from tbs.dismantlable import BinaryMixedTree
 
 
 class TestMixedTree(unittest.TestCase):

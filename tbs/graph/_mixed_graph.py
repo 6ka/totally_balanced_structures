@@ -403,3 +403,54 @@ class MixedGraph(object):
         self.remove(x)
         if new_name != y:
             self.remove(y)
+
+    def path(self, x, y, valuation=lambda u, v: 1, forbidden_vertices=frozenset()):
+        """A minimal path (according to f) from *x* to *y*.
+
+        Bellman-ford algorithm.
+
+        Args:
+            u: vertex
+            v: vertex
+            valuation(u, v -> value): associates the edge u, v to a real number.
+            forbidden_vertices(iterable): set of vertices which are not in the path
+        Returns(list):
+            a minimal path from x to y.
+        Raises(
+       """
+
+        k = 0
+        n = len(self)
+
+        father = {x: x}
+        dist = {x: 0}
+        change = True
+
+        while k < n and change:
+            change = False
+            k += 1
+            for u in self:
+                for v in self(u):
+                    if v in forbidden_vertices:
+                        continue
+                    if u in dist and (v not in dist or dist[v] > dist[u] + valuation(u, v)):
+                        dist[v] = dist[u] + valuation(u, v)
+                        father[v] = u
+                        change = True
+
+        if change:
+            raise Exception("Absorbent circuit")
+
+        if y not in father:
+            return []
+
+        path = []
+        current = y
+
+        while current != x:
+            path.append(current)
+            current = father[current]
+        path.append(x)
+        path.reverse()
+
+        return path

@@ -53,3 +53,6 @@ class TestDifferencesWithMixedGraph(unittest.TestCase):
         self.assertTrue(self.g.update([(1, 2)]).isa_edge(1, 2))
         self.assertFalse(self.g.difference([(1, 2)]).isa_edge(1, 2))
         self.assertTrue(self.g.update([(3, 1)]).isa_edge(3, 1))
+
+
+

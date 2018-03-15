@@ -1,24 +1,7 @@
 import random
 
 from ..graph import DirectedGraph
-from ..graph._binary_mixed_tree import BinaryMixedTree
-
-
-def tree_decomposition_of_binary_lattice(binary_lattice, order=None):
-    """Returns an object representing a family of trees creating all the vertices of the lattice.
-
-    :param order: an order to create vertices
-    :type order: iterable
-
-    :return: a decomposition
-    :rtype: :class:`tbs.tree_decomposition.DecompositionBTB`
-    """
-    tree = binary_lattice.support_tree()
-    if not order:
-        order = iter(binary_lattice.decomposition_order())
-    decomposition = DecompositionBTB(tree)
-    decomposition.build_from_lattice(binary_lattice, order)
-    return decomposition
+from ._binary_mixed_tree import BinaryMixedTree
 
 
 class DecompositionBTB:
@@ -37,26 +20,40 @@ class DecompositionBTB:
         self.order = []
         self.hase_diagram = DirectedGraph()
         for x in initial_tree:
-            self.hase_diagram.update((("BOTTOM", str(frozenset({x}))),))
+            self.hase_diagram.update(((frozenset(), frozenset({x})),))
         self.store()
 
     def store(self):
         self.history.append(self.tree.copy())
 
-    def build_binary_lattice(self):
+    @classmethod
+    def build_from_tree(cls, initial_tree):
         """Creates a decomposition of a binary lattice (found in self.history) and the associated lattice (self.lattice)
         """
+
+        def random_choice(u):
+            population = list(self.tree(u, undirected=True, begin=False, end=False))
+            random.shuffle(population)
+            k = random.randint(0, len(population))
+
+            return population[:k]
+
+        self = cls(initial_tree)
+
         while len(self.tree) > 1:
             x, y = self.tree.get_edge()
-            self.step(x, y)
+            self.step(x, y, random_choice)
             self.order.append((x, y))
             self.store()
-            self.hase_diagram.update(((str(x), str(x.union(y))), (str(y), str(x.union(y)))))
+            self.hase_diagram.update(((x, x.union(y)), (y, x.union(y))))
 
-    def step(self, x, y):
+        return self
+
+    def step(self, x, y, neighbor_move):
         xy = self.tree.add_union(x, y)
 
         for u in (x, y):
+
             other_successor = self.tree.get_other_successor_or_none(u, xy)
 
             if other_successor:
@@ -64,76 +61,48 @@ class DecompositionBTB:
                 self.tree.remove_directed(u, other_successor)
                 self.tree.move_undirected_from_to(u, xy)
                 self.tree.move_directed_from_to(u, xy)
+
             else:
-                self.tree.move_undirected_from_to(u, xy, self.random_choice(u))
+                self.tree.move_undirected_from_to(u, xy, neighbor_move(u))
 
             if len(self.tree(u, undirected=True, begin=False, end=False)) == 0:
                 self.tree.move_directed_from_to(u, xy)
                 self.tree.remove(u)
 
-    def random_choice(self, u):
-        population = list(self.tree(u, undirected=True, begin=False, end=False))
-        random.shuffle(population)
-        k = random.randint(0, len(population))
-
-        return population[:k]
-
-    def build_from_lattice(self, lattice, order=None):
+    @classmethod
+    def build_from_binary_lattice(cls, lattice):
         """Decomposes a lattice.
-        
-        :param lattice: the lattice to decompose
+
+        :param lattice: the binary lattice to decompose
         :type lattice: class: `tbs.lattice.Lattice`
         :param order: an order to build the lattice. If None, a compatible order is computed.
         :type order: iterable
         """
-        self.hase_diagram = lattice.hase_diagram
-        if not order:
-            order = iter(lattice.decomposition_order())
 
-        clusters = self.hase_diagram.sup_irreducible_clusters()
-        already_created = set()
-        for vertex in order:
-            self.contract_tree_edge_from_lattice(vertex, already_created, lattice)
-            already_created.add(vertex)
+        tree = lattice.support_tree()
+        self = cls(tree)
+        cluster_to_vertex = {frozenset({x}): x for x in tree}
+        vertex_to_cluster = {x: frozenset({x}) for x in tree}
+
+        for vertex in lattice.decomposition_order():
+            x_vertex, y_vertex = list(lattice.under(vertex))
+            x = vertex_to_cluster[x_vertex]
+            y = vertex_to_cluster[y_vertex]
+            cluster_to_vertex[x.union(y)] = vertex
+            vertex_to_cluster[vertex] = x.union(y)
+
+            def sup_choice(u):
+                population = {cluster_to_vertex[x] for x in self.tree(u, undirected=True, begin=False, end=False)}
+
+                return {vertex_to_cluster[v] for v in population
+                        if lattice.is_smaller_than(vertex, lattice.sup(v, cluster_to_vertex[u]))}
+
+            self.step(x, y, sup_choice)
+            self.order.append((x, y))
             self.store()
-            pred1, pred2 = self.hase_diagram.dual_lattice[vertex][0], self.hase_diagram.dual_lattice[vertex][1]
-            self.order.append((clusters[pred1], clusters[pred2]))
+            self.hase_diagram.update(((x, x.union(y)), (y, x.union(y))))
 
-    def contract_tree_edge_from_lattice(self, class_to_create, already_created, lattice):
-        clusters = lattice.sup_irreducible_clusters()
-        lattice_index_correspondance = {clusters[x]: x for x in clusters}
-        dual = lattice.dual_lattice
-        already_created.add(class_to_create)
-        pred1, pred2 = clusters[dual[class_to_create][0]], clusters[dual[class_to_create][1]]
-        self.tree.remove_undirected(pred1, pred2)
-        self.tree.add(clusters[class_to_create])
-        for predecessor in dual[class_to_create]:
-            if len(lattice[predecessor]) == 1:
-                self.tree.move_undirected_from_to(clusters[predecessor], clusters[class_to_create])
-                for directed_neighbour in self.tree(clusters[predecessor], undirected=False, begin=True, end=False):
-                    self.tree.add_undirected(directed_neighbour, clusters[class_to_create])
-                self.tree.remove(clusters[predecessor])
-            elif len(lattice[predecessor]) == 2:
-                if lattice[predecessor][0] == class_to_create:
-                    other_succ = lattice[predecessor][1]
-                elif lattice[predecessor][1] == class_to_create:
-                    other_succ = lattice[predecessor][0]
-                else:
-                    raise ValueError("Lattice is not binary")
-                if other_succ not in already_created:
-                    self.tree.add_directed(clusters[predecessor], clusters[class_to_create])
-                    neighbours_at_beginning = self.tree(clusters[predecessor], undirected=True, begin=False, end=False).copy()
-                    for undirected_neighbour in neighbours_at_beginning:
-                        if lattice.upper_filter(lattice_index_correspondance[undirected_neighbour]).intersection(
-                                        lattice.upper_filter(predecessor)) <= lattice.upper_filter(class_to_create):
-                            self.tree.remove_undirected(undirected_neighbour, clusters[predecessor])
-                            self.tree.add_undirected(undirected_neighbour, clusters[class_to_create])
-                else:
-                    self.tree.move_undirected_from_to(clusters[predecessor], clusters[class_to_create])
-                    self.tree.add_undirected(clusters[other_succ], clusters[class_to_create])
-                    self.tree.remove(clusters[predecessor])
-            else:
-                raise ValueError("Lattice is not binary")
+        return self
 
     def draw(self, save=None, show=True):
         """Draw all trees contained in history

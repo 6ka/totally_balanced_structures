@@ -225,3 +225,29 @@ class TestContraction(unittest.TestCase):
     def test_contraction_new_vertex(self):
         self.g.contraction(1, 2, 5)
         self.assertEqual(MixedGraph({5, 3, 4}, [(5, 4), (4, 3)], [(5, 3)]), self.g)
+
+
+class TestPath(unittest.TestCase):
+    def setUp(self):
+        self.g = MixedGraph({1, 2, 3, 4, 5, 6}, [(1, 2), (2, 3), (5, 6)], [(3, 4), (4, 5)])
+
+    def test_undirected_path(self):
+        self.assertEqual([1, 2, 3], self.g.path(1, 3))
+
+    def test_directed_path(self):
+        self.assertEqual([3, 4, 5], self.g.path(3, 5))
+
+    def test_mixed_path(self):
+        self.assertEqual([1, 2, 3, 4, 5, 6], self.g.path(1, 6))
+
+    def test_no_path(self):
+        self.assertEqual([], self.g.path(6, 1))
+
+    def test_no_crcuit_error(self):
+        self.g.update(DIRECTED_EDGE, [(5, 3)])
+        self.assertEqual([1, 2, 3, 4, 5, 6], self.g.path(1, 6))
+
+    def test_circuit_error(self):
+        self.g.update(DIRECTED_EDGE, [(5, 3)])
+        with self.assertRaises(Exception):
+            self.g.path(1, 6, lambda u, v: (u != 5 and v != 3) and 1 or -5)

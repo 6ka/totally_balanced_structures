@@ -146,6 +146,28 @@ class Lattice:
 
         return inf
 
+    def is_smaller_than(self, x, y):
+        """ x < y ?
+
+        Args:
+            x, y: vertex
+
+        Returns(bool):
+            True if x < y, False otherwise
+        """
+        return self._order.isa_edge(x, y)
+
+    def is_larger_than(self, x, y):
+        """ x > y ?
+
+        Args:
+            x, y: vertex
+
+        Returns(bool):
+            True if x > y, False otherwise
+        """
+        return self._order.isa_edge(y, x)
+
     def lower_filter(self, x):
         """{y | y <= x}
 

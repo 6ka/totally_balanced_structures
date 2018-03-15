@@ -1,7 +1,6 @@
-from ._graph import Graph
-from ._order import topological_sort
+from ..graph import Graph, topological_sort
 
-from ._mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
+from ..graph._mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
 
 from matplotlib import pyplot
 import matplotlib
