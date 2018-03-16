@@ -2,7 +2,7 @@
 from ._mixed_graph import MixedGraph, UNDIRECTED_EDGE
 
 
-class Graph(MixedGraph):
+class cls(MixedGraph):
     """Generic undirected Graph class."""
 
     def __init__(self, vertices=tuple(), edges=tuple()):
@@ -59,6 +59,32 @@ class Graph(MixedGraph):
         """
 
         return cls().update(edges)
+
+    @classmethod
+    def from_dissimilarity(cls, dissimilarity, threshold=None):
+        """Threshold graph of *dissimilarity* at height *threshold*.
+
+        :param dissimilarity: to be converted in graph.
+        :type dissimilarity: :class:`diss.Diss`
+
+        :param threshold: If :const:`None`, the maximal value of *dissimilarity* is used.
+        :type threshold: must be `comparable` with *dissimilarity*'s values
+
+        :return: a graph with vertex set equal to the elements of *dissimilarity* and *xy*
+                 is an edge iff *dissimilarity*\ (x, y) <= *threshold*.
+        :rtype: :class:`cls`
+        """
+
+        elems = list(dissimilarity)
+
+        self = cls(elems)
+        for i, x in enumerate(elems):
+            for y in elems[i+1:]:
+                if threshold is None or dissimilarity(x, y) <= threshold:
+                    self.update([(x, y)])
+                    self[x, y] = dissimilarity(x, y)
+
+        return self
 
     def __repr__(self):
         undirected, directed = self._edges

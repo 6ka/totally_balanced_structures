@@ -1,5 +1,5 @@
 
-from ..graph import Graph
+from ..graph import cls
 
 from .order_finder import order_by_map
 from ..contextmatrix.context_matrix import ContextMatrix
@@ -15,7 +15,7 @@ def elimination_order(graph):
     If the graph is not chordal, returns a good approximation.
     
     Args:
-        graph(Graph): a non directed graph
+        graph(cls): a non directed graph
     
     Returns:
         A vertex ordering in a `list`
@@ -29,7 +29,7 @@ def isa_elimination_order(graph, possible_order):
     """ Check if a *possible_order* is an elimination one for a given *graph*.
 
     Args:
-        graph(Graph): a non directed graph
+        graph(cls): a non directed graph
         possible_order(enumerable): vertices order
 
     Returns:
@@ -55,7 +55,7 @@ def simple_elimination_order(graph):
     """simple elimination ordering.
 
      Args:
-        graph(Graph): a strongly chordal graph
+        graph(cls): a strongly chordal graph
 
     Returns:
         A simple elimination order
@@ -83,7 +83,7 @@ def simple_to_strong_elimination_order(graph, simple_elimination):
     (sawada and Spinrad, 2003).
 
      Args:
-        graph(Graph): a strongly chordal graph
+        graph(cls): a strongly chordal graph
         simple_elimination(list): simple elimination order
 
     Returns:
@@ -105,7 +105,7 @@ def simple_to_strong_elimination_order_partition(graph, simple_elimination):
     (sawada and Spinrad, 2003).
 
      Args:
-        graph(Graph): a strongly chordal graph
+        graph(cls): a strongly chordal graph
         simple_elimination(list): simple elimination order
 
     Returns:

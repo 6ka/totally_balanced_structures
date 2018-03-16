@@ -14,7 +14,7 @@ __author__ = 'fbrucker'
 
 __all__ = ["Diss"]
 
-from tbs.conversion.diss import to_string
+from ._to_string import to_string
 
 
 class Diss(object):

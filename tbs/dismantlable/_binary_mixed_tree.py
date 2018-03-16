@@ -1,4 +1,4 @@
-from ..graph import Graph, topological_sort
+from ..graph import cls, topological_sort
 
 from ..graph._mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
 
@@ -79,8 +79,8 @@ class BinaryMixedTree(MixedGraph):
             self.update(DIRECTED_EDGE, [(z, y)])
 
     def to_graph(self):
-        tree = Graph(self.vertices,
-                     ((vertex, neighbour) for vertex in self
+        tree = cls(self.vertices,
+                   ((vertex, neighbour) for vertex in self
                       for neighbour in self(vertex, undirected=True, begin=True, end=True)))
         return tree
 

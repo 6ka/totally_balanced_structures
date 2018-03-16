@@ -43,7 +43,7 @@ Module content
 """
 
 from ._mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
-from ._graph import Graph
+from ._graph import cls
 from ._directed_graph import DirectedGraph
 
 from ._connected_parts import mst_from_set, connected_parts
@@ -53,7 +53,7 @@ from ._order import dfs, bfs, topological_sort, \
 
 __author__ = 'francois'
 
-__all__ = ["Graph",
+__all__ = ["cls",
            "DirectedGraph",
            "mst_from_set", "connected_parts",
            "MixedGraph", "UNDIRECTED_EDGE", "DIRECTED_EDGE",

@@ -3,7 +3,7 @@ import collections
 
 from ..lattice import Lattice
 
-from tbs.graph import Graph, topological_sort
+from tbs.graph import cls, topological_sort
 
 __author__ = "cchatel", "fbrucker"
 
@@ -17,7 +17,7 @@ class DismantlableLattice(Lattice):
         """Builds a support tree of an atomistic lattice.
 
         :return: a support tree
-        :rtype: :class:`tbs.graph.Graph`
+        :rtype: :class:`tbs.graph.cls`
         """
         if not self.is_atomistic():
             raise ValueError("lattice is not atomistic")
@@ -26,7 +26,7 @@ class DismantlableLattice(Lattice):
         objects = self.above(self.bottom)
         representatives = {element: element for element in objects}
         classes = {element: {element} for element in objects}
-        tree = Graph(objects)
+        tree = cls(objects)
         n_connected_parts = len(objects)
         colors = {obj: i for i, obj in enumerate(objects)}
 

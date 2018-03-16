@@ -1,5 +1,4 @@
 from ..orders.doubly_lexical import doubly_lexical_order
-from ..graph import dfs
 
 
 class ContextMatrix(object):
