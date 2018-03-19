@@ -14,7 +14,7 @@ __author__ = 'fbrucker'
 __all__ = ["load", "save"]
 
 from ._diss import Diss
-from tbs.conversion.diss import to_string
+from ._to_string import to_string
 
 
 def load(f, kind="guess", sep=None, number=True):

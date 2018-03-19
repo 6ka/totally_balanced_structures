@@ -1,12 +1,12 @@
 import unittest
 
-from tbs.graph import cls
+from tbs.graph import Graph
 from tbs.dismantlable import BinaryMixedTree
 
 
 class TestMixedTree(unittest.TestCase):
     def test_two_vertices(self):
-        tree = BinaryMixedTree(cls([0, 1], [(0, 1)]))
+        tree = BinaryMixedTree(Graph([0, 1], [(0, 1)]))
         zero = frozenset([0])
         one = frozenset([1])
 
@@ -26,7 +26,7 @@ class TestMixedTree(unittest.TestCase):
                 2: [5],
                 9: [3, 0]
                 }
-        mixed = BinaryMixedTree(cls.from_neighborhoods(tree))
+        mixed = BinaryMixedTree(Graph.from_neighborhoods(tree))
 
         mixed.remove_undirected(frozenset([3]), frozenset([9]))
         mixed.add_directed(frozenset([3]), frozenset([9]))
@@ -50,7 +50,7 @@ class TestMixedTree(unittest.TestCase):
                 2: [5],
                 9: [3, 0]
                 }
-        mixed = BinaryMixedTree(cls.from_neighborhoods(tree))
+        mixed = BinaryMixedTree(Graph.from_neighborhoods(tree))
 
         mixed.remove_undirected(frozenset([3]), frozenset([9]))
         mixed.add_directed(frozenset([3]), frozenset([9]))
@@ -75,7 +75,7 @@ class TestMixedTree(unittest.TestCase):
                 2: [5],
                 9: [3, 0]
                 }
-        mixed = BinaryMixedTree(cls.from_neighborhoods(tree))
+        mixed = BinaryMixedTree(Graph.from_neighborhoods(tree))
 
         mixed.remove_undirected(frozenset([3]), frozenset([1]))
         mixed.remove_undirected(frozenset([3]), frozenset([4]))
@@ -102,7 +102,7 @@ class TestMixedTree(unittest.TestCase):
                 2: [5],
                 9: [3, 0]
                 }
-        mixed = BinaryMixedTree(cls.from_neighborhoods(tree))
+        mixed = BinaryMixedTree(Graph.from_neighborhoods(tree))
 
         mixed.remove_undirected(frozenset([3]), frozenset([1]))
         mixed.remove_undirected(frozenset([3]), frozenset([4]))
@@ -126,15 +126,15 @@ class TestMixedTree(unittest.TestCase):
         mixed.add_undirected(0, 2)
         mixed.add_undirected(0, 3)
         mixed.add_undirected(1, 4)
-        tree = cls(vertices=[0, 1, 2, 3, 4, 5, 6], edges=((0, 1), (0, 2), (0, 3), (1, 4), (2, 5), (3, 6)))
+        tree = Graph(vertices=[0, 1, 2, 3, 4, 5, 6], edges=((0, 1), (0, 2), (0, 3), (1, 4), (2, 5), (3, 6)))
         self.assertEqual(tree, mixed.to_graph())
 
     def test_find_root(self):
-        tree = cls(vertices=[0, 1, 2, 3, 4, 5, 6], edges=((0, 1), (0, 2), (0, 3), (1, 4), (2, 5), (3, 6)))
+        tree = Graph(vertices=[0, 1, 2, 3, 4, 5, 6], edges=((0, 1), (0, 2), (0, 3), (1, 4), (2, 5), (3, 6)))
         binary_mixed_tree = BinaryMixedTree(tree)
         root = binary_mixed_tree.find_root_as_undirected()
         self.assertEqual(root, frozenset({0}))
-        tree = cls(vertices=[0, 1, 2, 3, 4, 5], edges=((0, 1), (0, 2), (0, 3), (1, 4), (1, 5)))
+        tree = Graph(vertices=[0, 1, 2, 3, 4, 5], edges=((0, 1), (0, 2), (0, 3), (1, 4), (1, 5)))
         binary_mixed_tree = BinaryMixedTree(tree)
         root = binary_mixed_tree.find_root_as_undirected()
         self.assertTrue(root == frozenset({0}) or root == frozenset({1}))

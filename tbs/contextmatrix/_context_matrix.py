@@ -1,4 +1,5 @@
-from ..orders.doubly_lexical import doubly_lexical_order
+from ._order import doubly_lexical_order
+from ._to_string import to_string
 
 
 class ContextMatrix(object):
@@ -26,8 +27,14 @@ class ContextMatrix(object):
         self._elements = elements and tuple(elements) or tuple(range(len(self._matrix)))
         self._attributes = attributes and tuple(attributes) or tuple(range(len(self._matrix[0])))
 
-    @staticmethod
-    def from_lattice(lattice, inf=None, sup=None):
+    @classmethod
+    def from_context_matrix(cls, context_matrix):
+        """copy of an existent context matrix."""
+
+        ContextMatrix(context_matrix._matrix, context_matrix.elements, context_matrix.attributes)
+
+    @classmethod
+    def from_lattice(cls, lattice, inf=None, sup=None):
         """ Context matrix from Lattice
 
         the elements are the sup-irreducibles elements
@@ -65,10 +72,10 @@ class ContextMatrix(object):
                 if x in inf_indices:
                     matrix[sup_index][inf_indices[x]] = 1
 
-        return ContextMatrix(matrix, sup, inf)
+        return cls(matrix, sup, inf)
 
-    @staticmethod
-    def from_clusters(clusters, elements=None):
+    @classmethod
+    def from_clusters(cls, clusters, elements=None):
         """
 
         Args (iterable):
@@ -97,17 +104,10 @@ class ContextMatrix(object):
 
                 matrix[correspondance[elem]][j] = 1
 
-        return ContextMatrix(matrix, elements=elements)
+        return cls(matrix, elements=elements)
 
     def __str__(self):
-        from .conversion.to_string import to_string
-
         return to_string(self)
-
-    def copy(self):
-        """Deep copy."""
-
-        return ContextMatrix(self._matrix, self.elements, self.attributes)
 
     @property
     def matrix(self):

@@ -16,7 +16,6 @@ Module content
 
 """
 
-
 __author__ = 'fbrucker'
 
 __all__ = ["doubly_lexical_order", "is_doubly_lexical_ordered"]

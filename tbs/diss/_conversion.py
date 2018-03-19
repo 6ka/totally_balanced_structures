@@ -1,7 +1,7 @@
-from tbs.diss import Diss
+from ._diss import Diss
 
 
-def to_diss(context_matrix, indexed_function, default_value=0):
+def from_context_matrix(context_matrix, indexed_function, default_value=0):
     """
     if for some i, j there is no columns with both i and j the dissimilarity value is default_value.
     :param context_matrix:

@@ -49,13 +49,13 @@ class TestLatticeBinarize(unittest.TestCase):
         self.assertFalse(self.lattice.isa_binary_element("bottom"))
 
     def test_bottom_up_element_binarization(self):
-        self.lattice.bottom_up_element_binarization(2, lambda lattice, x, y: len(lattice) - 1)
+        self.lattice.binarization_element_above(2, lambda lattice, x, y: len(lattice) - 1)
         self.assertLessEqual(len(self.lattice.above(2)), 2)
         self.assertNotIn(7, self.lattice.above(10))
         self.assertTrue(isa_lattice_directed_comparability_graph(self.lattice.hase_diagram))
 
     def test_bottom_up_binary_element_binarization(self):
-        self.lattice.bottom_up_element_binarization(5)
+        self.lattice.binarization_element_above(5)
         self.assertLessEqual(len(self.lattice.above(2)), 5)
         self.assertTrue(isa_lattice_directed_comparability_graph(self.lattice.hase_diagram))
 

@@ -14,8 +14,8 @@ __author__ = 'fbrucker'
 
 __all__ = ["load", "save"]
 
-from .conversion.to_string import to_string
-from .context_matrix import ContextMatrix
+from ._to_string import to_string
+from ._context_matrix import ContextMatrix
 
 
 def load(f, has_elements_label=True, has_attributes_label=True, has_attribute=lambda x: x == "1", sep=None):

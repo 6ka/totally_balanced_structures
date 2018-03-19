@@ -3,7 +3,7 @@ import collections
 
 from ..lattice import Lattice
 
-from tbs.graph import cls, topological_sort
+from tbs.graph import Graph, topological_sort
 
 __author__ = "cchatel", "fbrucker"
 
@@ -17,7 +17,7 @@ class DismantlableLattice(Lattice):
         """Builds a support tree of an atomistic lattice.
 
         :return: a support tree
-        :rtype: :class:`tbs.graph.cls`
+        :rtype: :class:`tbs.graph.Graph`
         """
         if not self.is_atomistic():
             raise ValueError("lattice is not atomistic")
@@ -26,7 +26,7 @@ class DismantlableLattice(Lattice):
         objects = self.above(self.bottom)
         representatives = {element: element for element in objects}
         classes = {element: {element} for element in objects}
-        tree = cls(objects)
+        tree = Graph(objects)
         n_connected_parts = len(objects)
         colors = {obj: i for i, obj in enumerate(objects)}
 
@@ -122,7 +122,7 @@ class DismantlableLattice(Lattice):
 
         return len(self.above(element)) <= 2 and len(self.under(element)) <= 2
 
-    def bottom_up_element_binarization(self, element, new_object=lambda lattice, x, y: len(lattice)):
+    def binarization_element_above(self, element, new_object=lambda lattice, x, y: len(lattice)):
         """Binarize an element covered by more than two elements
 
         Args:
@@ -156,11 +156,11 @@ class DismantlableLattice(Lattice):
             self._order.update((new, z) for z in self._order(x))
             self._order.update((new, z) for z in self._order(y))
 
-    def top_down_element_binarization(self, element, new_attribute=lambda lattice, x, y: frozenset((x, y))):
+    def binarization_element_under(self, element, new_attribute=lambda lattice, x, y: frozenset((x, y))):
         """Binarize an element above more than two elements
 
         Args:
-            element: a non binary vertex of the lattice
+            element: a non binary vertex of the lattice.
             new_attribute(lattice, x, y -> new): return the new element in lattice sup of x and y.
         """
 
@@ -195,10 +195,14 @@ class DismantlableLattice(Lattice):
                          new_attribute=lambda lattice, x, y: frozenset((x, y))):
         """Binarize an element in both direction
 
-        :param element: an vertex of the lattice to binarize
+        Args:
+            element: a non binary vertex of the lattice.
+            new_object(lattice, x, y -> new): return the new element in lattice sup of x and y.
+            new_attribute(lattice, x, y -> new): return the new element in lattice sup of x and y.
         """
-        self.bottom_up_element_binarization(element, new_object)
-        self.top_down_element_binarization(element, new_attribute)
+
+        self.binarization_element_above(element, new_object)
+        self.binarization_element_under(element, new_attribute)
 
     def binarize_bottom_up(self, ignored_elements={'BOTTOM'}, new_object=lambda lattice, x, y: len(lattice)):
         """Modifies the lattice such that no element is covered by more than two elements.
@@ -213,7 +217,7 @@ class DismantlableLattice(Lattice):
         while fifo:
             vertex = fifo.pop()
             if len(self.above(vertex)) > 2 and vertex not in ignored_elements:
-                self.bottom_up_element_binarization(vertex, new_object)
+                self.binarization_element_above(vertex, new_object)
             visit_list = self.above(vertex)
             for neighbor in visit_list:
                 if neighbor not in is_seen:
@@ -233,7 +237,7 @@ class DismantlableLattice(Lattice):
         while fifo:
             vertex = fifo.pop()
             if len(self.under(vertex)) > 2 and vertex not in ignored_elements:
-                self.top_down_element_binarization(vertex)
+                self.binarization_element_under(vertex)
             visit_list = self.under(vertex)
             for neighbor in visit_list:
                 if neighbor not in is_seen:
@@ -329,4 +333,3 @@ class DismantlableLattice(Lattice):
                         if other_succ_pred in arrow_head:
                             take_after.add(successor)
         return order
-

@@ -1,8 +1,8 @@
 
-from ..graph import cls
+from ..graph import Graph
 
 from .order_finder import order_by_map
-from ..contextmatrix.context_matrix import ContextMatrix
+from ..contextmatrix._context_matrix import ContextMatrix
 
 
 def isa_ultrametric_edge(graph, x, y, z):
@@ -15,7 +15,7 @@ def elimination_order(graph):
     If the graph is not chordal, returns a good approximation.
     
     Args:
-        graph(cls): a non directed graph
+        graph(Graph): a non directed graph
     
     Returns:
         A vertex ordering in a `list`
@@ -29,7 +29,7 @@ def isa_elimination_order(graph, possible_order):
     """ Check if a *possible_order* is an elimination one for a given *graph*.
 
     Args:
-        graph(cls): a non directed graph
+        graph(Graph): a non directed graph
         possible_order(enumerable): vertices order
 
     Returns:
@@ -55,7 +55,7 @@ def simple_elimination_order(graph):
     """simple elimination ordering.
 
      Args:
-        graph(cls): a strongly chordal graph
+        graph(Graph): a strongly chordal graph
 
     Returns:
         A simple elimination order
@@ -83,7 +83,7 @@ def simple_to_strong_elimination_order(graph, simple_elimination):
     (sawada and Spinrad, 2003).
 
      Args:
-        graph(cls): a strongly chordal graph
+        graph(Graph): a strongly chordal graph
         simple_elimination(list): simple elimination order
 
     Returns:
@@ -105,7 +105,7 @@ def simple_to_strong_elimination_order_partition(graph, simple_elimination):
     (sawada and Spinrad, 2003).
 
      Args:
-        graph(cls): a strongly chordal graph
+        graph(Graph): a strongly chordal graph
         simple_elimination(list): simple elimination order
 
     Returns:

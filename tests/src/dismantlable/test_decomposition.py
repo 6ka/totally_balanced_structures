@@ -2,24 +2,24 @@ import unittest
 
 from tbs.dismantlable import DismantlableLattice, DecompositionBTB, BinaryMixedTree
 from tbs.lattice import isa_lattice_directed_comparability_graph
-from tbs.graph import cls, DirectedGraph
+from tbs.graph import Graph, DirectedGraph
 
 
 class TestDecomposition(unittest.TestCase):
     def test_init_from_graph(self):
-        tree = cls(vertices=[0, 1, 2, 3, 4, 5, 6], edges=((0, 1), (0, 2), (0, 3), (1, 4), (2, 5), (3, 6)))
+        tree = Graph(vertices=[0, 1, 2, 3, 4, 5, 6], edges=((0, 1), (0, 2), (0, 3), (1, 4), (2, 5), (3, 6)))
         decomposition = DecompositionBTB.build_from_tree(tree)
         self.assertEqual(BinaryMixedTree(tree), decomposition.history[0])
         self.assertEqual({frozenset([0, 1, 2, 3, 4, 5, 6])}, decomposition.history[-1].vertices)
 
     def test_final_lattice(self):
         decomposition = DecompositionBTB.build_from_tree(
-            cls(vertices=[0, 1, 2, 3, 4], edges=((0, 1), (0, 2), (0, 3), (1, 4))))
+            Graph(vertices=[0, 1, 2, 3, 4], edges=((0, 1), (0, 2), (0, 3), (1, 4))))
 
         self.assertTrue(isa_lattice_directed_comparability_graph(decomposition.hase_diagram))
 
     def test_remove_directed(self):
-        tree = cls()
+        tree = Graph()
         tree.update(((5, 7), (5, 2), (5, 3), (3, 6), (3, 8), (3, 4), (3, 1), (3, 9), (9, 0)))
         decomposition = DecompositionBTB(tree)
         decomposition.tree.remove_undirected(frozenset([3]), frozenset([9]))
@@ -36,7 +36,7 @@ class TestDecomposition(unittest.TestCase):
                          decomposition.tree(frozenset([3, 5]), undirected=True, begin=False, end=False))
 
     def test_contract_edge_one_disappears(self):
-        tree = cls().update(((1, 2), (2, 12), (2, 3), (2, 4), (4, 10)))
+        tree = Graph().update(((1, 2), (2, 12), (2, 3), (2, 4), (4, 10)))
         decomposition = DecompositionBTB(tree)
 
         decomposition.step(frozenset([2]), frozenset([4]),
@@ -58,7 +58,7 @@ class TestDecomposition(unittest.TestCase):
         binary_tree.add_undirected(frozenset({1, 2, 12}), frozenset({2, 3, 12}))
         binary_tree.add_undirected(frozenset({3, 2, 12}), frozenset({2, 4}))
         binary_tree.add_undirected(frozenset({2, 4}), frozenset({10}))
-        decomposition = DecompositionBTB(cls())
+        decomposition = DecompositionBTB(Graph())
         decomposition.tree = binary_tree
         decomposition.step(frozenset([1, 2, 12]), frozenset([2, 3, 12]),
                            lambda x: x == frozenset([2, 3, 12]) and [frozenset([2, 4])] or [])
@@ -71,7 +71,7 @@ class TestDecomposition(unittest.TestCase):
         self.assertTrue(len(decomposition.tree.vertices) == 3)
 
     def test_contract_edge_both_stay(self):
-        tree = cls()
+        tree = Graph()
         tree.update(((1, 2), (2, 3), (3, 4), (3, 10)))
         decomposition = DecompositionBTB(tree)
         decomposition.step(frozenset([2]), frozenset([3]), lambda x: [])

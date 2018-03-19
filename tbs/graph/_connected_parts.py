@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from ._graph import cls
+from ._graph import Graph
 
 
 def mst_from_set(elements, f=lambda x, y: 1, root=None):
     """Minimal spanning tree (according to f).
     """
 
-    mst = cls(elements)
+    mst = Graph(elements)
 
     if root is None:
         for root in elements:
@@ -41,7 +41,7 @@ def connected_parts(graph, vertex_subset=None):
     """Partition the vertex according to its connected parts.
 
     Args:
-        graph(cls): undirected graph
+        graph(Graph): undirected graph
         vertex_subset(iterable): set of vertices. If ``None``, the whole vertex set
               is considered.
 

@@ -2,7 +2,7 @@
 from ._mixed_graph import MixedGraph, UNDIRECTED_EDGE
 
 
-class cls(MixedGraph):
+class Graph(MixedGraph):
     """Generic undirected Graph class."""
 
     def __init__(self, vertices=tuple(), edges=tuple()):
@@ -72,7 +72,7 @@ class cls(MixedGraph):
 
         :return: a graph with vertex set equal to the elements of *dissimilarity* and *xy*
                  is an edge iff *dissimilarity*\ (x, y) <= *threshold*.
-        :rtype: :class:`cls`
+        :rtype: :class:`Graph`
         """
 
         elems = list(dissimilarity)

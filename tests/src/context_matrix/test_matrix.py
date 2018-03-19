@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
 import unittest
+
 from tbs.contextmatrix import ContextMatrix
 from tbs.lattice import Lattice
 from tbs.graph import DirectedGraph

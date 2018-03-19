@@ -2,7 +2,7 @@
 import unittest
 
 from tbs.contextmatrix import ContextMatrix
-from tbs.contextmatrix import conversion
+from tbs.diss import from_context_matrix
 from tbs.diss import Diss
 
 
@@ -15,7 +15,7 @@ class TestDissConversion(unittest.TestCase):
 
     def test_to_diss(self):
 
-        diss = conversion.to_diss(self.context_matrix, lambda x: x + 1)
+        diss = from_context_matrix(self.context_matrix, lambda x: x + 1)
         diss_matrix = [[0, 1, 2],
                        [1, 0, 0],
                        [2, 0, 0]]

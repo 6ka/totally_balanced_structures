@@ -18,7 +18,6 @@ Submodules
     :toctree:
 
     file_io
-    conversion
 
 
 Module content
@@ -26,11 +25,13 @@ Module content
 
 """
 
-from .context_matrix import ContextMatrix
+from ._context_matrix import ContextMatrix
+from ._to_string import to_string
+from ._file_io import load, save
 
 __author__ = 'francois'
 
-__all__ = ["ContextMatrix", "file_io", "conversion"]
+__all__ = ["ContextMatrix", "load", "save", "to_string"]
 
 
 
