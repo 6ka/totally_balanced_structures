@@ -1,29 +1,26 @@
-from ._order import doubly_lexical_order
+from ._order import doubly_lexical_order, is_doubly_lexically_ordered
 from ._to_string import to_string
 
 
 class ContextMatrix(object):
     """Context matrix."""
 
-    def __init__(self, matrix, elements=tuple(), attributes=tuple(), copy_matrix=True):
+    def __init__(self, matrix, elements=tuple(), attributes=tuple()):
         """Context matrix
 
-        :param matrix: 2-dimensional 0/1-matrix whose lines are objects_name and columns attributes_name.
-        :type matrix: :class:`list` of :class:`list`.
+        Args:
+            matrix(list of list): 2-dimensional 0/1-matrix whose lines are objects_name and columns attributes_name.
+                Is a list of lines.
 
-        :param elements: Objects name. Must coincide with the *matrix* number of line. Line number by default
-        :type elements: :class:`list` of :class:`str`.
-
-        :param attributes: Attributes name. Must coincide with the *matrix* number of columns. Column number by default
-        :type attributes: :class:`list` of :class:`str`.
-        :param copy_matrix: if False link the matrix, copy it otherwise
-        :type copy_matrix: :class:`bool`
+            elements(list of hashable): Objects name. Length must coincide with the *matrix* number of line. Line
+                number by default.
+            attributes(list of hashable): Attributes name. Length must coincide with the *matrix* number of columns.
+                Column number by default.
+            copy_matrix(bool): if False link the matrix, copy it otherwise.
         """
 
-        if copy_matrix:
-            self.matrix = matrix
-        else:
-            self._matrix = matrix
+        self._matrix = tuple(tuple(line) for line in matrix)
+
         self._elements = elements and tuple(elements) or tuple(range(len(self._matrix)))
         self._attributes = attributes and tuple(attributes) or tuple(range(len(self._matrix[0])))
 
@@ -31,34 +28,23 @@ class ContextMatrix(object):
     def from_context_matrix(cls, context_matrix):
         """copy of an existent context matrix."""
 
-        ContextMatrix(context_matrix._matrix, context_matrix.elements, context_matrix.attributes)
+        return cls(context_matrix.matrix, context_matrix.elements, context_matrix.attributes)
 
     @classmethod
-    def from_lattice(cls, lattice, inf=None, sup=None):
+    def from_lattice(cls, lattice):
         """ Context matrix from Lattice
 
         the elements are the sup-irreducibles elements
         the attributes the inf-irreducibles elements
 
-        :param lattice: cover graph of some lattice.
-        :type lattice: directed :class:`CTK.lattice.Lattice`
-
-        :param inf: inf-irreducible order
-        :type inf: tuple
-
-        :param sup: sup-irreducible order
-        :type sup: tuple
-
+        Args:
+            lattice(Lattice): cover graph of some lattice.
         """
-        if inf is None:
-            inf = list(lattice.inf_irreducible)
-        else:
-            inf = list(inf)
+
+        inf = list(lattice.inf_irreducible)
         inf_indices = {x: i for i, x in enumerate(inf)}
-        if sup is None:
-            sup = list(lattice.sup_irreducible)
-        else:
-            sup = list(sup)
+
+        sup = list(lattice.sup_irreducible)
         sup_indices = {x: i for i, x in enumerate(sup)}
 
         matrix = []
@@ -78,19 +64,16 @@ class ContextMatrix(object):
     def from_clusters(cls, clusters, elements=None):
         """
 
-        Args (iterable):
-            clusters: iterable of iterable from a base set. Forms the column order.
-            elements: line order. If None, is union of all the clusters.
-
-        Returns: `ContextMatrix`
-
+        Args:
+            clusters(iterable): iterable of iterable from a base set. Forms the column order.
+            elements(iterable): line order. If None, is union of all the clusters.
         """
 
-        base_set = set()
-        for cluster in clusters:
-            base_set.update(cluster)
-
         if elements is None:
+            base_set = set()
+            for cluster in clusters:
+                base_set.update(cluster)
+
             elements = list(base_set)
 
         correspondance = {elem: index for index, elem in enumerate(elements)}
@@ -101,97 +84,14 @@ class ContextMatrix(object):
 
         for j, cluster in enumerate(clusters):
             for elem in cluster:
-
                 matrix[correspondance[elem]][j] = 1
 
         return cls(matrix, elements=elements)
 
-    def __str__(self):
-        return to_string(self)
-
-    @property
-    def matrix(self):
-        """binary matrix."""
-
-        return self._matrix
-
-    @matrix.setter
-    def matrix(self, matrix):
-        """binary matrix.
-
-        :param matrix: is copied to become the new binary matrix.
-        """
-        self._matrix = [list(line) for line in matrix]
-
-    @property
-    def attributes(self):
-        """attributes."""
-
-        return self._attributes
-
-    @attributes.setter
-    def attributes(self, attributes):
-        """attributes.
-
-        :param attributes: inf irreducible elements.
-        """
-        if len(attributes) != len(self._matrix[0]):
-            raise ValueError("wrong size. Must be equal to the number of attributes")
-        self._attributes = tuple(attributes)
-
-    @property
-    def elements(self):
-        """elements."""
-        return self._elements
-
-    @elements.setter
-    def elements(self, elements):
-        """elements.
-
-        :param elements: sup irreducible elements.
-
-        """
-        if len(elements) != len(self._matrix):
-            raise ValueError("wrong size. Must be equal to the number of elements")
-        self._elements = tuple(elements)
-
-    def reorder(self, line_permutation=None, column_permutation=None):
-        """Line and column reordering.
-
-        :param line_permutation: permutation index list. current line number i will be line number line_permutation[i].
-                                 if `None` no line permutation.
-        :type line_permutation: `iterable`of :class:`int`
-
-        :param column_permutation: permutation index list. current column number j will be line number
-                                   column_permutation[j].
-                                   if `None` no column permutation.
-        :type column_permutation: `iterable`of :class:`int`
-        """
-
-        if line_permutation:
-            new_elements = [""] * len(self.elements)
-            new_matrix = [[]] * len(self.elements)
-            for i in range(len(self.elements)):
-                new_elements[line_permutation[i]] = self.elements[i]
-                new_matrix[line_permutation[i]] = self._matrix[i]
-            self.elements = new_elements
-            self._matrix = new_matrix
-
-        if column_permutation:
-            new_attributes = [""] * len(self.attributes)
-            for i in range(len(self.attributes)):
-                new_attributes[column_permutation[i]] = self.attributes[i]
-            self.attributes = new_attributes
-            for i in range(len(self._matrix)):
-                new_line = [0] * len(self._matrix[i])
-                for j in range(len(self._matrix[i])):
-                    new_line[column_permutation[j]] = self._matrix[i][j]
-                self._matrix[i] = new_line
-
     def transpose(self):
         """ Return the transpose.
 
-         :rtype: :class:`tbs.contextmatrix.ContextMatrix`
+        Returns(ContextMatrix): The transpose.
         """
         matrix = []
         for i in range(len(self._matrix[0])):
@@ -227,7 +127,93 @@ class ContextMatrix(object):
         submatrix_elements = [self.elements[i] for i in sorted(element_indices)]
         return ContextMatrix(submatrix, submatrix_elements, self.attributes)
 
-    def reorder_doubly_lexical_order(self):
+    def __str__(self):
+        return to_string(self)
+
+    @property
+    def matrix(self):
+        """binary matrix.
+
+        Returns the matrix, not a copy of it. Should not be modified.
+
+        Returns(list of list): 2-dimensional 0/1-matrix whose lines are objects_name and columns attributes_name.
+        """
+
+        return self._matrix
+
+    @property
+    def attributes(self):
+        """attributes."""
+
+        return self._attributes
+
+    @attributes.setter
+    def attributes(self, attributes):
+        """attributes.
+
+        :param attributes: inf irreducible elements.
+        """
+        if len(attributes) != len(self._matrix[0]):
+            raise ValueError("wrong size. Must be equal to the number of attributes")
+        self._attributes = tuple(attributes)
+
+    @property
+    def elements(self):
+        """elements."""
+        return self._elements
+
+    @elements.setter
+    def elements(self, elements):
+        """elements.
+
+        :param elements: sup irreducible elements.
+
+        """
+        if len(elements) != len(self._matrix):
+            raise ValueError("wrong size. Must be equal to the number of elements")
+        self._elements = tuple(elements)
+
+    def reorder_lines(self, permutation):
+        """Line reordering.
+
+        Args:
+            permutation(list): permutation index list. current line number i will be line number permutation[i].
+        """
+
+        new_elements = [""] * len(self.elements)
+        new_matrix = [[], ] * len(self.elements)
+        for i in range(len(self.elements)):
+            new_elements[permutation[i]] = self.elements[i]
+            new_matrix[permutation[i]] = self._matrix[i]
+        self.elements = tuple(new_elements)
+        self._matrix = tuple(new_matrix)
+
+    def reorder_columns(self, permutation):
+        """Column reordering.
+
+        Args:
+            permutation(list): permutation index list. current column number i will be column number permutation[i].
+        """
+
+        new_attributes = [""] * len(self.attributes)
+        for i in range(len(self.attributes)):
+            new_attributes[permutation[i]] = self.attributes[i]
+        self.attributes = tuple(new_attributes)
+
+        new_matrix = [[], ] * len(self.elements)
+        for i in range(len(self._matrix)):
+            new_line = [0] * len(self._matrix[i])
+            for j in range(len(self._matrix[i])):
+                new_line[permutation[j]] = self._matrix[i][j]
+            new_matrix[i] = tuple(new_line)
+        self._matrix = tuple(new_matrix)
+
+    def is_doubly_lexically_ordered(self):
+        """Test if the matrix is doubly lexically ordered."""
+
+        return is_doubly_lexically_ordered(self.matrix)
+
+    def reorder_doubly_lexical(self):
         lines, columns = doubly_lexical_order(self._matrix)
 
         line_permutation = [0] * len(self._matrix)
@@ -238,5 +224,7 @@ class ContextMatrix(object):
         for i, index in enumerate(columns):
             column_permutation[index] = i
 
-        self.reorder(line_permutation, column_permutation)
+        self.reorder_lines(line_permutation)
+        self.reorder_columns(column_permutation)
+
         return self

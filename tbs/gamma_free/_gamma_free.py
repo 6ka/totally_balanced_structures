@@ -1,17 +1,38 @@
 __author__ = 'fbrucker'
 
-__all__ = ["is_gamma_free", "approximate_gamma_free",
-           "approximate_gamma_free_top_down", "approximate_gamma_free_bottom_up",
-           "context_matrix_approximation"]
+
+from ..contextmatrix import ContextMatrix
 
 
-def is_gamma_free(matrix):
-    """ Check whether the matrix is gamma free or not.
+class GammaFree(ContextMatrix):
+    @classmethod
+    def from_approximation(cls, context_matrix):
+        """Gamma Free contextmatrix.
 
-    :param matrix:
-    :return: :class:`bool`
-    """
+        Approximate *context_matrix*, in a Gamma-free matrix for the current order. Thus if the context_matrix is
+        Gamma-free but for an another order, it will be modified. One can nevertheless do
+        `GammaFree(context_matrix.reorder_doubly_lexical())` to first reorder the matrix into a Gamma free order
+        whenever it is possible.
 
+        Args:
+            context_matrix(ContextMatrix): a possibly non Gamma-free context matrix.
+        """
+
+        gamma_free = cls.from_context_matrix(context_matrix)
+        new_matrix = list(list(line) for line in gamma_free.matrix)
+        approximate_gamma_free(new_matrix)
+        gamma_free._matrix = tuple(tuple(line) for line in new_matrix)
+
+        return gamma_free
+
+    def is_gamma_free(self):
+        """ Check whether the current order is Gamma free or not.
+        """
+
+        return is_gamma_free_matrix(self.matrix)
+
+
+def is_gamma_free_matrix(matrix):
     return gamma_free_matrix_top_down(matrix)
 
 
@@ -24,60 +45,6 @@ def approximate_gamma_free(matrix):
     """
 
     gamma_free_matrix_top_down(matrix, True)
-
-
-def approximate_gamma_free_top_down(matrix):
-    """ Approximation into a Gamma-free matrix.
-
-    Top-down scheme. Adds 1 in order to transform the current matrix onto a gamma-free one.
-
-    :param matrix:
-    """
-
-    gamma_free_matrix_top_down(matrix, True)
-
-
-def approximate_gamma_free_bottom_up(matrix):
-    """ Approximation into a Gamma-free matrix.
-
-    Bottom-up scheme. Adds 0 in order to transform the current matrix onto a gamma-free one.
-
-    :param matrix:
-    """
-
-    gamma_free_matrix_bottom_up(matrix, True)
-
-
-def context_matrix_approximation(context_matrix, approximation_method=approximate_gamma_free_top_down, in_place=False):
-    """ Gamma free approximation.
-
-
-    return a Doubly lexically ordered and gamma free context matrix.
-
-    new_context_matrix[i][j] == context_matrix[line_order[i]][column_order[j]]
-
-    :param context_matrix:
-    :param approximation_method: :func:`approximate_gamma_free_top_down` or :func:`approximate_gamma_free_bottom_up`
-    :param in_place: if True, modify the context matrix. If False, returns a new one.
-    :type in_place: :class:`bool`
-
-    :return: :class:`ContextMatrix`
-    """
-
-    if in_place:
-        approximation = context_matrix
-    else:
-        approximation = context_matrix.copy()
-
-    approximation.reorder_doubly_lexical_order()
-
-
-    approximation_method(approximation.matrix, True)
-
-
-    approximation.reorder_doubly_lexical_order()
-
-    return approximation
 
 
 def gamma_free_matrix_top_down(matrix, transform_to_gamma_free=False):

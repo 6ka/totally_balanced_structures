@@ -8,10 +8,10 @@ from tbs.graph import DirectedGraph
 class TestMatrixCreate(unittest.TestCase):
 
     def setUp(self):
-        self.matrix = [[1, 0, 0, 1, 0],
-                       [1, 1, 1, 1, 1],
-                       [0, 1, 0, 1, 0],
-                       [0, 0, 1, 0, 1]]
+        self.matrix = ((1, 0, 0, 1, 0),
+                       (1, 1, 1, 1, 1),
+                       (0, 1, 0, 1, 0),
+                       (0, 0, 1, 0, 1))
 
     def test_create_bare(self):
         context_matrix = ContextMatrix(self.matrix)
@@ -29,10 +29,10 @@ class TestMatrixCreate(unittest.TestCase):
 class TestMatrix(unittest.TestCase):
 
     def setUp(self):
-        matrix = [[1, 0, 0, 1, 0],
-                  [1, 1, 1, 1, 1],
-                  [0, 1, 0, 1, 0],
-                  [0, 0, 1, 0, 1]]
+        matrix = ((1, 0, 0, 1, 0),
+                  (1, 1, 1, 1, 1),
+                  (0, 1, 0, 1, 0),
+                  (0, 0, 1, 0, 1))
 
         self.context_matrix = ContextMatrix(matrix, elements=(1, 2, 3, 4), attributes=(5, 6, 7, 8, 9))
 
@@ -68,14 +68,14 @@ class TestMatrix(unittest.TestCase):
     def test_ordering(self):
         line_new_order = list(range(len(self.context_matrix.elements)))
         line_new_order.reverse()
-        self.context_matrix.reorder(line_new_order)
-        self.assertEqual(tuple([4, 3, 2, 1]), self.context_matrix.elements)
-        self.assertEqual([0, 1, 0, 1, 0], self.context_matrix._matrix[1])
+        self.context_matrix.reorder_lines(line_new_order)
+        self.assertEqual((4, 3, 2, 1), self.context_matrix.elements)
+        self.assertEqual((0, 1, 0, 1, 0), self.context_matrix._matrix[1])
         column_new_order = list(range(len(self.context_matrix.attributes)))
         column_new_order.reverse()
-        self.context_matrix.reorder(column_permutation=column_new_order)
-        self.assertEqual(tuple([9, 8, 7, 6, 5]), self.context_matrix.attributes)
-        self.assertEqual([1, 0, 1, 0, 0], self.context_matrix._matrix[0])
+        self.context_matrix.reorder_columns(column_new_order)
+        self.assertEqual((9, 8, 7, 6, 5), self.context_matrix.attributes)
+        self.assertEqual((1, 0, 1, 0, 0), self.context_matrix._matrix[0])
 
     def test_sub_matrix(self):
         sub_matrix = self.context_matrix.submatrix_elements([2, 3, 1])
@@ -85,9 +85,9 @@ class TestMatrix(unittest.TestCase):
 
 class TestDoublyLexicalOrdering(unittest.TestCase):
     def test_doubly_lexical_ordering(self):
-        context_matrix = ContextMatrix([[1, 1], [1, 0]])
-        context_matrix.reorder_doubly_lexical_order()
-        self.assertEqual([[0, 1], [1, 1]], context_matrix._matrix)
+        context_matrix = ContextMatrix(((1, 1), (1, 0)))
+        context_matrix.reorder_doubly_lexical()
+        self.assertEqual(((0, 1), (1, 1)), context_matrix._matrix)
         self.assertEqual((1, 0), context_matrix.elements)
         self.assertEqual((1, 0), context_matrix.attributes)
 
@@ -144,11 +144,11 @@ class TestFromClusters(unittest.TestCase):
 
         self.assertEqual(set(context_matrix.elements), {'x', 'y', 'z'})
 
-        context_matrix.reorder([{'x': 0, 'y': 1, 'z': 2}[x] for x in context_matrix.elements])
+        context_matrix.reorder_lines([{'x': 0, 'y': 1, 'z': 2}[x] for x in context_matrix.elements])
         if context_matrix.matrix[0][0] == 0:
-            context_matrix.reorder(column_permutation=[1, 0])
+            context_matrix.reorder_columns(permutation=[1, 0])
 
-        self.assertEqual([[1, 0],
-                          [1, 1],
-                          [0, 1]],
+        self.assertEqual(((1, 0),
+                          (1, 1),
+                          (0, 1)),
                          context_matrix.matrix)

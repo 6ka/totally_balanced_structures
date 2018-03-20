@@ -11,7 +11,7 @@ class TestDissConversion(unittest.TestCase):
         matrix = [[1, 1, 1],
                   [1, 0, 1],
                   [0, 1, 0]]
-        self.context_matrix = ContextMatrix(matrix, elements=("a", "b", "c"), copy_matrix=False)
+        self.context_matrix = ContextMatrix(matrix, elements=("a", "b", "c"))
 
     def test_to_diss(self):
 

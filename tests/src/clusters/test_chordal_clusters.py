@@ -1,9 +1,7 @@
-
 import unittest
 
 from tbs.clusters.from_chordal import chordal_clusters, chordal_context_matrix, sort_clusters_by_order
 from tbs.diss import Diss
-
 
 
 class TestChordalCLusters(unittest.TestCase):
@@ -26,7 +24,6 @@ class TestChordalCLusters(unittest.TestCase):
                          )
 
 
-
 class TestChordalContextMatrix(unittest.TestCase):
     def setUp(self):
         self.diss = Diss(["x", "y", "z", "t", "u"]).update_by_pos(
@@ -41,11 +38,11 @@ class TestChordalContextMatrix(unittest.TestCase):
         context_matrix = chordal_context_matrix(self.diss, self.chordal_order)
 
         self.assertEqual(
-            [[0, 0, 0, 0, 0, 1, 1, 1, 1],
-             [0, 0, 0, 0, 1, 0, 0, 1, 1],
-             [0, 0, 1, 1, 0, 0, 0, 0, 1],
-             [0, 1, 0, 1, 0, 0, 1, 1, 1],
-             [1, 0, 0, 0, 0, 0, 1, 1, 1]], context_matrix.matrix)
+            ((0, 0, 0, 0, 0, 1, 1, 1, 1),
+             (0, 0, 0, 0, 1, 0, 0, 1, 1),
+             (0, 0, 1, 1, 0, 0, 0, 0, 1),
+             (0, 1, 0, 1, 0, 0, 1, 1, 1),
+             (1, 0, 0, 0, 0, 0, 1, 1, 1)), context_matrix.matrix)
         self.assertEqual(self.chordal_order, context_matrix.elements)
 
 

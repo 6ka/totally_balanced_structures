@@ -1,6 +1,6 @@
 import unittest
 
-from tbs.gamma_free import gamma_free_matrix_top_down, gamma_free_matrix_bottom_up, context_matrix_approximation
+from tbs.gamma_free._gamma_free import GammaFree, gamma_free_matrix_top_down, gamma_free_matrix_bottom_up
 from tbs.contextmatrix import ContextMatrix
 
 
@@ -40,9 +40,9 @@ class TestLimitCaseBottomUp(unittest.TestCase):
 
 class TestContextMatrixApproximation(unittest.TestCase):
     def setUp(self):
-        matrix = [[1, 1, 0], [1, 0, 1], [0, 1, 1]]
-        self.context_matrix = ContextMatrix(matrix, ["a", "b", "c"], ["x", "y", "z"])
+        self.context_matrix = ContextMatrix([[1, 1, 0], [1, 0, 1], [0, 1, 1]])
 
     def test_context_matrix_approximation(self):
-        new_matrix = context_matrix_approximation(self.context_matrix, gamma_free_matrix_top_down)
-        self.assertTrue(gamma_free_matrix_top_down(new_matrix.matrix))
+        context_matrix = GammaFree.from_approximation(self.context_matrix)
+        self.assertTrue(context_matrix.is_gamma_free())
+        self.assertEqual(1, context_matrix.matrix[1][1])

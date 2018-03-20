@@ -71,7 +71,7 @@ def simple_elimination_order(graph):
             if graph.isa_edge(x, y):
                 cluster_matrix[i][j] = 1
 
-    context_matrix = ContextMatrix(cluster_matrix, order, order, copy_matrix=False).reorder_doubly_lexical_order()
+    context_matrix = ContextMatrix(cluster_matrix, order, order).reorder_doubly_lexical()
 
     return context_matrix.elements
 
@@ -136,7 +136,7 @@ def simple_to_strong_elimination_order_partition(graph, simple_elimination):
 
 
 def make_sets(graph, simple_elimination):
-    g = graph.copy()
+    g = Graph.from_graph(graph)
 
     list_of_sets = []
 

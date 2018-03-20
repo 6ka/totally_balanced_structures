@@ -1,7 +1,10 @@
 __author__ = 'francois'
 
 
-def to_string(context_matrix, has_attribute="X", has_not_attribute=".", has_elements_label=True, has_attributes_label=True, sep=" "):
+def to_string(context_matrix,
+              has_attribute="X", has_not_attribute=".",
+              has_elements_label=True, has_attributes_label=True,
+              sep=" "):
     """Context matrix string representation.
 
     :param context_matrix: context matrix to convert

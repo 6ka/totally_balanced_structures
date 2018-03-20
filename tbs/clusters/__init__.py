@@ -24,10 +24,7 @@ Module content
 
 """
 
-from .ClusterLineFromMatrix import ClusterLineFromMatrix
-from . import from_dlo_gamma_free_matrix
 from . import from_chordal
 
-__all__ = ["from_dlo_gamma_free_matrix",
-           "ClusterLineFromMatrix", "to_string", "to_image", "concepts", "from_chordal"]
+__all__ = ["concepts", "from_chordal"]
 

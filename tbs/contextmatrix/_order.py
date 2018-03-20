@@ -1,27 +1,9 @@
-"""Doubly lexical orders
-
-.. currentmodule:: tbs.orders.doubly_lexical
-
-
-Any binary matrix can be doubly lexically ordered. We use here a Spinrad algorithm (REF).
-
-Module content
---------------
-
-.. autosummary::
-    :toctree:
-
-    is_doubly_lexical_ordered
-    doubly_lexical_order
-
-"""
-
 __author__ = 'fbrucker'
 
-__all__ = ["doubly_lexical_order", "is_doubly_lexical_ordered"]
+__all__ = ["doubly_lexical_order", "is_doubly_lexically_ordered"]
 
 
-def is_doubly_lexical_ordered(matrix):
+def is_doubly_lexically_ordered(matrix):
     """Test if the matrix is doubly lexically ordered.
 
     :param matrix: O/1 matrix

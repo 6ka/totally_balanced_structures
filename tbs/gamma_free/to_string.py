@@ -1,5 +1,25 @@
 import math
 
+from ._box_lattice import box_hase_diagram
+
+
+def print_boxes(context_matrix, reorder=True):
+    """Returns an object to print the lattice in the terminal.
+
+    """
+
+    if reorder:
+        context_matrix.reorder_doubly_lexical()
+
+    lattice = box_hase_diagram(context_matrix)
+    boxes = self.boxes()
+
+    return BoxesToString(boxes.values(),
+                         context_matrix.elements, context_matrix.attributes,
+                         {value: context_matrix.attributes[value[0][1]] for value in
+                          boxes.values()},
+                         lattice).run()
+
 
 class BoxesToString(object):
     def __init__(self, boxes, line_labels, column_labels, boxes_labels, lattice=None):

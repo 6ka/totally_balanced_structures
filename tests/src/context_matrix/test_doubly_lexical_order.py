@@ -1,9 +1,8 @@
 import unittest
 
-from tbs.orders.doubly_lexical import Node, ColumnBlock, RowBlock, row_ordering_from_last_row_block, \
+from tbs.contextmatrix._order import Node, ColumnBlock, RowBlock, row_ordering_from_last_row_block, \
     column_ordering_from_last_column_block
-
-from tbs.orders.doubly_lexical import doubly_lexical_order, is_doubly_lexical_ordered
+from tbs.contextmatrix import ContextMatrix
 
 
 class TestNode(unittest.TestCase):
@@ -92,32 +91,36 @@ class TestFinalPartition(unittest.TestCase):
 
 
 class TestDoublyLinkedOrdering(unittest.TestCase):
-    def setUp(self):
-        self.matrix = [[1, 1, 1, 1, 1],
-                       [1, 0, 1, 1, 0],
-                       [0, 1, 1, 0, 0],
-                       [1, 1, 1, 0, 0],
-                       [0, 1, 0, 1, 1],
-                       [1, 0, 0, 1, 0]]
-
     def test_run(self):
-        line_ordering, column_ordering = doubly_lexical_order(self.matrix)
-        reordered_matrix = [[self.matrix[line_ordering[i]][column_ordering[j]] for j in range(len(self.matrix[i]))] for
-                            i in range(len(self.matrix))]
-        self.assertEqual(True, is_doubly_lexical_ordered(reordered_matrix))
+        context_matrix = ContextMatrix([[1, 1, 1, 1, 1],
+                                        [1, 0, 1, 1, 0],
+                                        [0, 1, 1, 0, 0],
+                                        [1, 1, 1, 0, 0],
+                                        [0, 1, 0, 1, 1],
+                                        [1, 0, 0, 1, 0]])
+
+        self.assertFalse(context_matrix.is_doubly_lexically_ordered())
+
+        context_matrix.reorder_doubly_lexical()
+        self.assertTrue(context_matrix.is_doubly_lexically_ordered())
 
     def test_run_no_gamma(self):
-        matrix = [[1, 1, 1], [1, 0, 1], [0, 0, 1]]
-        line_ordering, column_ordering = doubly_lexical_order(matrix)
-        self.assertEqual([2, 1, 0], line_ordering)
-        self.assertEqual([1, 0, 2], column_ordering)
+        context_matrix = ContextMatrix([[1, 1, 1],
+                                        [1, 0, 1],
+                                        [0, 0, 1]])
+
+        context_matrix.reorder_doubly_lexical()
+        self.assertEqual((2, 1, 0), context_matrix.elements)
+        self.assertEqual((1, 0, 2), context_matrix.attributes)
 
 
 class TestIsaDoublyLexicallyOrdered(unittest.TestCase):
     def test_is_not(self):
-        matrix = [[1, 0], [0, 1]]
-        self.assertEqual(True, is_doubly_lexical_ordered(matrix))
+        context_matrix = ContextMatrix([[1, 0],
+                                        [0, 1]])
+        self.assertTrue(context_matrix.is_doubly_lexically_ordered())
 
     def test_isa(self):
-        matrix = [[0, 1], [1, 0]]
-        self.assertEqual(False, is_doubly_lexical_ordered(matrix))
+        context_matrix = ContextMatrix([[0, 1],
+                                        [1, 0]])
+        self.assertFalse(context_matrix.is_doubly_lexically_ordered())
