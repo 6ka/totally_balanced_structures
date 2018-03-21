@@ -65,7 +65,7 @@ class TestMatrix(unittest.TestCase):
         self.context_matrix.attributes = range(len(self.context_matrix.attributes))
         self.assertEqual(tuple(range(len(self.context_matrix.attributes))), self.context_matrix.attributes)
 
-    def test_ordering(self):
+    def test_ordering_index(self):
         line_new_order = list(range(len(self.context_matrix.elements)))
         line_new_order.reverse()
         self.context_matrix.reorder_lines(line_new_order)
@@ -76,6 +76,28 @@ class TestMatrix(unittest.TestCase):
         self.context_matrix.reorder_columns(column_new_order)
         self.assertEqual((9, 8, 7, 6, 5), self.context_matrix.attributes)
         self.assertEqual((1, 0, 1, 0, 0), self.context_matrix._matrix[0])
+
+    def test_ordering_lines(self):
+        self.context_matrix.elements = ["a", "b", "c", "d"]
+        self.context_matrix.reorder_elements(["c", "b", "a", "d"])
+
+        self.assertEqual(("c", "b", "a", "d"), self.context_matrix.elements)
+        matrix = ((0, 1, 0, 1, 0),
+                  (1, 1, 1, 1, 1),
+                  (1, 0, 0, 1, 0),
+                  (0, 0, 1, 0, 1))
+        self.assertEqual(matrix, self.context_matrix.matrix)
+
+    def test_ordering_columns(self):
+        self.context_matrix.reorder_attributes([9, 8, 7, 5, 6])
+
+        self.assertEqual((9, 8, 7, 5, 6), self.context_matrix.attributes)
+        matrix = ((0, 1, 0, 1, 0),
+                  (1, 1, 1, 1, 1),
+                  (0, 1, 0, 0, 1),
+                  (1, 0, 1, 0, 0))
+
+        self.assertEqual(matrix, self.context_matrix.matrix)
 
     def test_sub_matrix(self):
         sub_matrix = self.context_matrix.submatrix_elements([2, 3, 1])
@@ -144,9 +166,9 @@ class TestFromClusters(unittest.TestCase):
 
         self.assertEqual(set(context_matrix.elements), {'x', 'y', 'z'})
 
-        context_matrix.reorder_lines([{'x': 0, 'y': 1, 'z': 2}[x] for x in context_matrix.elements])
+        context_matrix.reorder_elements(['x', 'y', 'z'])
         if context_matrix.matrix[0][0] == 0:
-            context_matrix.reorder_columns(permutation=[1, 0])
+            context_matrix.reorder_columns([1, 0])
 
         self.assertEqual(((1, 0),
                           (1, 1),

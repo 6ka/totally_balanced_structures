@@ -173,6 +173,18 @@ class ContextMatrix(object):
             raise ValueError("wrong size. Must be equal to the number of elements")
         self._elements = tuple(elements)
 
+    def reorder_elements(self, permutation):
+        """Line reordering.
+
+        Args:
+            permutation(list): list of elements consisting of the new order. Element at index i will be the ith line
+            in the new context matrix.
+        """
+
+        index_correspondence = {element: i for i, element in enumerate(self.elements)}
+
+        self.reorder_lines([index_correspondence[e] for e in permutation])
+
     def reorder_lines(self, permutation):
         """Line reordering.
 
@@ -183,10 +195,22 @@ class ContextMatrix(object):
         new_elements = [""] * len(self.elements)
         new_matrix = [[], ] * len(self.elements)
         for i in range(len(self.elements)):
-            new_elements[permutation[i]] = self.elements[i]
-            new_matrix[permutation[i]] = self._matrix[i]
+            new_elements[i] = self.elements[permutation[i]]
+            new_matrix[i] = self._matrix[permutation[i]]
         self.elements = tuple(new_elements)
         self._matrix = tuple(new_matrix)
+
+    def reorder_attributes(self, permutation):
+        """Column reordering.
+
+        Args:
+            permutation(list): list of attributes consisting of the new order. Attribute at index i will be the ith
+            column in the new context matrix.
+        """
+
+        index_correspondence = {attribute: i for i, attribute in enumerate(self.attributes)}
+
+        self.reorder_columns([index_correspondence[a] for a in permutation])
 
     def reorder_columns(self, permutation):
         """Column reordering.
@@ -196,15 +220,16 @@ class ContextMatrix(object):
         """
 
         new_attributes = [""] * len(self.attributes)
+
         for i in range(len(self.attributes)):
-            new_attributes[permutation[i]] = self.attributes[i]
+            new_attributes[i] = self.attributes[permutation[i]]
         self.attributes = tuple(new_attributes)
 
         new_matrix = [[], ] * len(self.elements)
         for i in range(len(self._matrix)):
             new_line = [0] * len(self._matrix[i])
             for j in range(len(self._matrix[i])):
-                new_line[permutation[j]] = self._matrix[i][j]
+                new_line[j] = self._matrix[i][permutation[j]]
             new_matrix[i] = tuple(new_line)
         self._matrix = tuple(new_matrix)
 
@@ -216,15 +241,7 @@ class ContextMatrix(object):
     def reorder_doubly_lexical(self):
         lines, columns = doubly_lexical_order(self._matrix)
 
-        line_permutation = [0] * len(self._matrix)
-        for i, index in enumerate(lines):
-            line_permutation[index] = i
-
-        column_permutation = [0] * len(self._matrix[0])
-        for i, index in enumerate(columns):
-            column_permutation[index] = i
-
-        self.reorder_lines(line_permutation)
-        self.reorder_columns(column_permutation)
+        self.reorder_lines(lines)
+        self.reorder_columns(columns)
 
         return self

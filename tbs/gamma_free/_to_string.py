@@ -1,23 +1,33 @@
 import math
 
-from ._box_lattice import box_hase_diagram
+from ._box_lattice import box_lattice
 
 
-def print_boxes(context_matrix, reorder=True):
-    """Returns an object to print the lattice in the terminal.
+def to_string(doubly_lexically_ordered_gamma_free):
+    """string representation with a doubly lexically ordered gamma free context matrix
 
+    The context matrix must be gamma free (otherwise `box_lattice(gamma_free.gamma_free.reorder_doubly_lexical())`).
+    No check are performed.
+
+    Args:
+        doubly_lexically_ordered_gamma_free(GammaFree): doubly lexically ordered gama free context matrix.
+
+    Returns(str): lattice matrixical representation
     """
 
-    if reorder:
-        context_matrix.reorder_doubly_lexical()
+    lattice = box_lattice(doubly_lexically_ordered_gamma_free)
+    boxes = list(lattice)
 
-    lattice = box_hase_diagram(context_matrix)
-    boxes = self.boxes()
+    attributes_labels = [str(x) for x in doubly_lexically_ordered_gamma_free.attributes] + ["⊤"]
+    elements_labels = [str(x) for x in doubly_lexically_ordered_gamma_free.elements] + ["⊥"]
 
-    return BoxesToString(boxes.values(),
-                         context_matrix.elements, context_matrix.attributes,
-                         {value: context_matrix.attributes[value[0][1]] for value in
-                          boxes.values()},
+    box_label = {value: attributes_labels[value[0][1]] for value in boxes}
+    box_label[lattice.bottom] = elements_labels[-1]
+    box_label[lattice.top] = attributes_labels[-1]
+
+    return BoxesToString(boxes,
+                         elements_labels, attributes_labels,
+                         box_label,
                          lattice).run()
 
 
@@ -73,7 +83,7 @@ class BoxesToString(object):
             self.draw_box(min_x, max_x, min_y, max_y, str(self.boxes_labels[box]))
 
             if self.lattice:
-                for neighbor in self.lattice[box]:
+                for neighbor in self.lattice.above(box):
                     if neighbor not in self.boxes:
                         continue
 

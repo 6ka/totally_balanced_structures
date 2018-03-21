@@ -15,13 +15,11 @@ Submodules
     diss
     graph
     contextmatrix
-    orders
+    chordal
     gamma_free
     randomize
-    clusters
-    conversion
 
 """
 
-__all__ = ["diss", "graph", "contextmatrix", "orders", "gamma_free", "randomize", "clusters",
-           "progress_bar", "conversion"]
+__all__ = ["diss", "graph", "contextmatrix", "gamma_free", "randomize", "chordal",
+           "progress_bar"]

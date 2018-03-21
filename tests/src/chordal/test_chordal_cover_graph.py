@@ -1,6 +1,6 @@
 import unittest
 
-from tbs.clusters.chordal_cover_graph import get_first_non_empty_lines, get_bounds, chordal_matrix_order, is_included, \
+from tbs.chordal.chordal_cover_graph import get_first_non_empty_lines, get_bounds, chordal_matrix_order, is_included, \
     chordal_matrix_cover_graph_from_chordal_matrix_order
 
 

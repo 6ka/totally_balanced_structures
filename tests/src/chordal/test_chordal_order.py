@@ -1,7 +1,7 @@
 import unittest
 
 from tbs.diss import Diss
-from tbs.orders.chordal_order import isa_chordal_order
+from tbs.chordal import isa_chordal_order
 
 
 class TestIsaChordalOrder(unittest.TestCase):

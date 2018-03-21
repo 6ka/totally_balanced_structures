@@ -1,8 +1,7 @@
 import unittest
 
-from tbs.totally_balanced_diss.chordal_diss import approximate_chordal_diss, isa_chordal_diss
+from tbs.chordal import isa_chordal_diss, approximate_to_chordal_diss
 from tbs.diss import Diss
-from tbs.contextmatrix import ContextMatrix
 
 
 class TestIsaChordalDiss(unittest.TestCase):
@@ -33,7 +32,7 @@ class TestChordalApproximation(unittest.TestCase):
                           [1, 2, 0],
                           [2, 1, 1, 0]][max(i, j)][min(i, j)])
 
-        self.assertEqual(approximate_chordal_diss(diss, ["x", "y", "z", "t"]),
+        self.assertEqual(approximate_to_chordal_diss(diss, ["x", "y", "z", "t"]),
                          Diss(["x", "y", "z", "t"]).update_by_pos(
                              lambda i, j: [[0],
                                            [1, 0],

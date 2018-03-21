@@ -1,23 +1,23 @@
-from ..orders.chordal_order import chordal_order
-from ..orders.order_finder import has_order_by_map
+from ._chordal_order import chordal_order
+from ._order_finder import has_order_by_map
 from ..diss import Diss
 
 
 def isa_chordal_diss(diss):
-    """ Check whether the dissimilarity is chordal or not
+    """ Check whether the dissimilarity is chordal or not.
 
     If the dissimilarity is not chordal, returns a good approximation.
 
     Args:
         diss(Diss):
 
-    Returns: `bool. True if diss is chordal, False otherwise.
+    Returns(bool): True if diss is chordal, False otherwise.
 
     """
     return has_order_by_map(diss, lambda x, y, z: diss(y, z) > max(diss(x, y), diss(x, z)) and 1 or 0)
 
 
-def approximate_chordal_diss(diss_orig, order=None):
+def approximate_to_chordal_diss(diss_orig, order=None):
     """ Return a chordal dissimilarity.
 
     Args:

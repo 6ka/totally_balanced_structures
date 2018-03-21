@@ -37,11 +37,10 @@ class MixedGraph(object):
         """Create graph from another graph.
 
         Args:
-            graph: a graph
+            graph(MixedGraph): a mixed graph
             vertices: a subset of vertices. If not set, the whole set of vertices is considered.
 
-        Returns(MixedGraph):
-            A new graph
+        Returns(MixedGraph): A new graph
         """
 
         undirected, directed = graph._edges
@@ -416,7 +415,6 @@ class MixedGraph(object):
             forbidden_vertices(iterable): set of vertices which are not in the path
         Returns(list):
             a minimal path from x to y.
-        Raises(
        """
 
         k = 0

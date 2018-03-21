@@ -32,6 +32,7 @@ from ._order import min, max, rank
 from ._file_io import load, save
 from ._to_string import to_string
 from ._conversion import from_context_matrix
+
 __author__ = 'francois'
 
 __all__ = ["Diss",

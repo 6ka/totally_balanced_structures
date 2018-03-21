@@ -1,9 +1,9 @@
 import unittest
 
 from tbs.graph import Graph
-from tbs.orders.chordal_graph import elimination_order, isa_elimination_order, isa_ultrametric_edge, \
+from tbs.chordal._elimination_order import elimination_order, isa_elimination_order, isa_ultrametric_edge, \
     simple_elimination_order, \
-    make_sets, simple_to_strong_elimination_order_partition, simple_to_strong_elimination_order
+    make_sets, simple_to_strong_elimination_order_partition
 
 
 class TestChordalGraph(unittest.TestCase):

@@ -20,12 +20,12 @@ class Graph(MixedGraph):
         """Create graph from another graph.
 
         Args:
-            graph: a graph
-            vertices: a subset of vertices. If not set, the whole set of vertices is considered.
+            graph(MixedGraph): a graph
+            vertices(iterable): a subset of vertices. If not set, the whole set of vertices is considered.
 
-        If the graph is directected or mixed, only take the undirected edges.
-        Returns(Graph):
-            A new graph
+        If the graph is directed or mixed, only take the undirected edges.
+
+        Returns(Graph): A new graph.
         """
 
         undirected, directed = graph._edges

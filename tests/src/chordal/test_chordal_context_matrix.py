@@ -1,6 +1,6 @@
 import unittest
 
-from tbs.clusters.from_chordal import chordal_clusters, chordal_context_matrix, sort_clusters_by_order
+from tbs.chordal._chordal_context_matrix import chordal_clusters, chordal_context_matrix, sort_clusters_by_order
 from tbs.diss import Diss
 
 

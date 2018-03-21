@@ -1,5 +1,33 @@
 from ..contextmatrix import ContextMatrix
-from ..orders.chordal_order import chordal_order
+from ._chordal_order import chordal_order
+
+
+__all__ = ["chordal_context_matrix"]
+
+
+def chordal_context_matrix(d, order=None):
+    """ Context Matrix of a chordal dissimilarity.
+
+    Args:
+        d(Diss): chordal dissimilarity
+        order(list): If None an order is first searched, must be a chordal order (thus also d) otherwise.
+
+    The line are ordered by a chordal order (parameter order if given) and the columns by inclusion following
+    the reverse order.
+
+    Returns(ContextMatrix: The cluster context matrix whole lines are ordered by a chordal order.
+
+    """
+
+    if order is None:
+        order = chordal_order(d)
+
+    clusters = chordal_clusters(d, order)
+    columns_clusters = []
+    for order_clusters in reversed(sort_clusters_by_order(clusters, order)):
+        columns_clusters.extend(order_clusters)
+
+    return ContextMatrix.from_clusters(columns_clusters, order)
 
 
 def chordal_clusters(d, order=None):
@@ -53,29 +81,6 @@ def chordal_clusters(d, order=None):
     return clusters
 
 
-def chordal_context_matrix(d, order=None):
-    """ Context Matrix of a chordal dissimilarity.
-
-    Args:
-        d (Diss): chordal dissimilarity
-        order (list): If None an order is first searched, must be a chordal order (thus also d) otherwise.
-
-    The line are ordered by a chordal order (parameter order if given) and the columns by inclusion following
-    the reverse order.
-
-    Returns: A context matrix
-
-    """
-
-    if order is None:
-        order = chordal_order(d)
-
-    clusters = chordal_clusters(d, order)
-    columns_clusters = []
-    for order_clusters in reversed(sort_clusters_by_order(clusters, order)):
-        columns_clusters.extend(order_clusters)
-
-    return ContextMatrix.from_clusters(columns_clusters, order)
 
 
 def sort_clusters_by_order(clusters, order):

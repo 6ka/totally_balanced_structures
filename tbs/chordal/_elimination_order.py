@@ -1,8 +1,12 @@
 
 from ..graph import Graph
 
-from .order_finder import order_by_map
-from ..contextmatrix._context_matrix import ContextMatrix
+from ._order_finder import order_by_map
+from ..contextmatrix import ContextMatrix
+
+__all__ = ["elimination_order", "isa_elimination_order",
+           "simple_elimination_order",
+           "strong_elimination_order"]
 
 
 def isa_ultrametric_edge(graph, x, y, z):
@@ -17,7 +21,7 @@ def elimination_order(graph):
     Args:
         graph(Graph): a non directed graph
     
-    Returns:
+    Returns(list):
         A vertex ordering in a `list`
     
     """
@@ -57,7 +61,7 @@ def simple_elimination_order(graph):
      Args:
         graph(Graph): a strongly chordal graph
 
-    Returns:
+    Returns(list):
         A simple elimination order
     """
 
@@ -74,6 +78,19 @@ def simple_elimination_order(graph):
     context_matrix = ContextMatrix(cluster_matrix, order, order).reorder_doubly_lexical()
 
     return context_matrix.elements
+
+
+def strong_elimination_order(graph):
+    """Strong elimination ordering.
+
+     Args:
+        graph(Graph): a strongly chordal graph
+
+    Returns(list):
+        A strong elimination order
+    """
+
+    return simple_to_strong_elimination_order(graph, simple_elimination_order(graph))
 
 
 def simple_to_strong_elimination_order(graph, simple_elimination):
@@ -121,7 +138,7 @@ def simple_to_strong_elimination_order_partition(graph, simple_elimination):
 
     for x in reversed(simple_elimination):
         new_list_of_sets = []
-        neighborhood = set(graph[x])
+        neighborhood = set(graph(x))
         neighborhood.add(x)
 
         for s in strong_elimination_partition:
@@ -143,7 +160,7 @@ def make_sets(graph, simple_elimination):
     for x in simple_elimination:
         if x in g:
             new_set = {x}
-            new_set.update({u for u in g[x] if len(g[x]) == len(g[u])})
+            new_set.update({u for u in g(x) if len(g(x)) == len(g(u))})
 
             list_of_sets.append(new_set)
             for u in new_set:

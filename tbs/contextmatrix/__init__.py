@@ -11,15 +11,6 @@ Glossary
         0/1 matrix each line is an element and each column an attribute.
 
 
-Submodules
-----------
-
-.. autosummary::
-    :toctree:
-
-    file_io
-
-
 Module content
 --------------
 
