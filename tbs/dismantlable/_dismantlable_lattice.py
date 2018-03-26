@@ -134,16 +134,16 @@ class DismantlableLattice(Lattice):
             successors = list(self.above(element))
             x = successors[0]
             y = successors[1]
-            size = len(self.upper_filter(self.sup(x, y)))
+            size = len(self.above_filter(self.sup(x, y)))
 
             for i in range(len(successors)):
                 first = successors[i]
                 for j in range(i + 1, len(successors)):
                     second = successors[j]
-                    if len(self.upper_filter(self.sup(first, second))) > size:
+                    if len(self.above_filter(self.sup(first, second))) > size:
                         x = first
                         y = second
-                        size = len(self.upper_filter(self.sup(first, second)))
+                        size = len(self.above_filter(self.sup(first, second)))
             new = new_object(self, x, y)
 
             self._hase_diagram.add(new)
@@ -168,16 +168,16 @@ class DismantlableLattice(Lattice):
             predecessors = list(self.under(element))
             x = predecessors[0]
             y = predecessors[1]
-            size = len(self.lower_filter(self.inf(x, y)))
+            size = len(self.under_filter(self.inf(x, y)))
 
             for i in range(len(predecessors)):
                 first = predecessors[i]
                 for j in range(i + 1, len(predecessors)):
                     second = predecessors[j]
-                    if len(self.lower_filter(self.inf(first, second))) > size:
+                    if len(self.under_filter(self.inf(first, second))) > size:
                         x = first
                         y = second
-                        size = len(self.lower_filter(self.inf(first, second)))
+                        size = len(self.under_filter(self.inf(first, second)))
             new = new_attribute(self, x, y)
 
             self._hase_diagram.add(new)

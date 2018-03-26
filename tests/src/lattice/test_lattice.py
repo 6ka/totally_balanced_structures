@@ -136,12 +136,12 @@ class TestFilters(unittest.TestCase):
                                                          (9, "top")]))
 
     def test_sup(self):
-        self.assertEqual(frozenset(self.lattice), self.lattice.upper_filter(self.lattice.bottom))
-        self.assertEqual(frozenset(["top"]), self.lattice.upper_filter(self.lattice.top))
+        self.assertEqual(frozenset(self.lattice), self.lattice.above_filter(self.lattice.bottom))
+        self.assertEqual(frozenset(["top"]), self.lattice.above_filter(self.lattice.top))
 
     def test_inf(self):
-        self.assertEqual(frozenset(self.lattice), self.lattice.lower_filter(self.lattice.top))
-        self.assertEqual(frozenset(["bottom"]), self.lattice.lower_filter(self.lattice.bottom))
+        self.assertEqual(frozenset(self.lattice), self.lattice.under_filter(self.lattice.top))
+        self.assertEqual(frozenset(["bottom"]), self.lattice.under_filter(self.lattice.bottom))
 
 
 class TestIrreducible(unittest.TestCase):

@@ -115,7 +115,7 @@ class Lattice:
         """
         return self._hase_diagram(x)
 
-    def upper_filter(self, x):
+    def above_filter(self, x):
         """{y | y >= x}
 
         Args:
@@ -168,18 +168,6 @@ class Lattice:
         """
         return self._order.isa_edge(y, x)
 
-    def lower_filter(self, x):
-        """{y | y <= x}
-
-        Args:
-            x: vertex
-
-        Returns(frozenset):
-            {y | y <= x}
-        """
-
-        return self._order(x, begin=False, end=True, closed=True)
-
     def under(self, x):
         """lower cover elements of x
 
@@ -190,6 +178,18 @@ class Lattice:
             The predecessors of x in the hase diagram.
         """
         return self._hase_diagram(x, begin=False, end=True)
+
+    def under_filter(self, x):
+        """{y | y <= x}
+
+        Args:
+            x: vertex
+
+        Returns(frozenset):
+            {y | y <= x}
+        """
+
+        return self._order(x, begin=False, end=True, closed=True)
 
     @property
     def inf_irreducible(self):
