@@ -156,6 +156,8 @@ class DismantlableLattice(Lattice):
             self._order.update((new, z) for z in self._order(x))
             self._order.update((new, z) for z in self._order(y))
 
+        return self
+
     def binarization_element_under(self, element, new_attribute=lambda lattice, x, y: frozenset((x, y))):
         """Binarize an element above more than two elements
 
@@ -190,6 +192,8 @@ class DismantlableLattice(Lattice):
             self._order.update((z, new) for z in self._order(x, begin=False, end=True))
             self._order.update((z, new) for z in self._order(y, begin=False, end=True))
 
+            return self
+
     def binarize_element(self, element,
                          new_object=lambda lattice, x, y: len(lattice),
                          new_attribute=lambda lattice, x, y: frozenset((x, y))):
@@ -203,6 +207,8 @@ class DismantlableLattice(Lattice):
 
         self.binarization_element_above(element, new_object)
         self.binarization_element_under(element, new_attribute)
+
+        return self
 
     def binarize_bottom_up(self, ignored_elements={'BOTTOM'}, new_object=lambda lattice, x, y: len(lattice)):
         """Modifies the lattice such that no element is covered by more than two elements.
@@ -224,6 +230,8 @@ class DismantlableLattice(Lattice):
                     is_seen.add(neighbor)
                     fifo.appendleft(neighbor)
 
+        return self
+
     def binarize_top_down(self, ignored_elements=set()):
         """Modifies the lattice such that no element covers more than two elements.
 
@@ -244,6 +252,8 @@ class DismantlableLattice(Lattice):
                     is_seen.add(neighbor)
                     fifo.appendleft(neighbor)
 
+        return self
+
     def binarize(self, ignored_elements={'BOTTOM'}):
         """Modifies the lattice such that it is binary
 
@@ -251,6 +261,8 @@ class DismantlableLattice(Lattice):
         """
         self.binarize_bottom_up(ignored_elements=ignored_elements)
         self.binarize_top_down(ignored_elements=ignored_elements)
+
+        return self
 
     def other_above(self, element, first_successor):
         """Returns the successor of element different from first_successor in a binary lattice
