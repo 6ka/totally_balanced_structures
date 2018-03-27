@@ -51,7 +51,7 @@ from ._order import dfs, bfs, topological_sort, \
     direct_acyclic_graph_to_direct_comparability_graph, direct_comparability_graph_to_hase_diagram
 
 
-__author__ = 'francois'
+__author__ = 'francois, célia'
 
 __all__ = ["Graph",
            "DirectedGraph",

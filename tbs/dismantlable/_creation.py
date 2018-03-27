@@ -6,16 +6,15 @@ from ._dismantlable_lattice import DismantlableLattice
 from ..graph import DirectedGraph
 
 
-def random_dismantlable_lattice(n_vertices, top="TOP", bottom="BOTTOM", new_vertex=lambda lattice: len(lattice)):
+def random_dismantlable_lattice(vertices, bottom="BOTTOM", top="TOP"):
     """Create a random dimantlable lattice.
 
     Iteratively add a doubly irreducible element to an original 2-element lattice.
 
     Args:
-        n_vertices(int): the number of vertices (excluding bottom and top)
         top: the top element
         bottom: the bottom element
-        new_vertex(lattice -> element): a new element.
+        vertices(iterable): the non top/bottom lattice elements.
 
     Returns(DismantlableLattice): a random dismantlable lattice.
     """
@@ -23,8 +22,7 @@ def random_dismantlable_lattice(n_vertices, top="TOP", bottom="BOTTOM", new_vert
     crown_free = DismantlableLattice(DirectedGraph([bottom, top], [(bottom, top)]))
 
     all_elements = [bottom]
-    for step in range(n_vertices):
-        element = new_vertex(crown_free)
+    for element in vertices:
 
         u = random.sample(all_elements, 1)[0]
         v = random.sample(crown_free.above_filter(u) - {u}, 1)[0]
