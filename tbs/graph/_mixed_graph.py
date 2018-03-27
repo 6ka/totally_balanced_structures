@@ -189,6 +189,7 @@ class MixedGraph(object):
         Returns:
             self (for possible chaining).
         """
+
         if kind == UNDIRECTED_EDGE:
             self.__update_undirected(edges, node_creation)
         elif kind == DIRECTED_EDGE:
