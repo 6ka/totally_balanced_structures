@@ -104,25 +104,3 @@ class DecompositionBTB:
 
         return self
 
-    def draw(self, save=None, show=True):
-        """Draw all trees contained in history
-        
-        :param save: if not None, the file to save figures
-        :param show: if True, figures are shown
-        :type show: :class:`bool`
-        """
-        n_steps = len(self.history)
-        for i in range(n_steps):
-            if save:
-                save_i = save + '_i'
-            else:
-                save_i = None
-            tree = self.history[i]
-            highlighted_edge = set()
-            highlighted_node = set()
-            if i != 0:
-                highlighted_node = [self.order[i-1][0].union(self.order[i-1][1])]
-            if i != n_steps - 1:
-                highlighted_edge = [self.order[i]]
-            tree.draw(highlighted_edge=highlighted_edge, highlighted_node=highlighted_node, save=save_i, show=show)
-

@@ -1,4 +1,4 @@
-from ..graph import Graph, topological_sort
+from ..graph import Graph
 
 from ..graph._mixed_graph import MixedGraph, UNDIRECTED_EDGE, DIRECTED_EDGE
 
@@ -94,63 +94,3 @@ class BinaryMixedTree(MixedGraph):
                 pruned_tree.remove(leaf)
         possible_roots = [root for root in pruned_tree]  # 1 or 2 possibilities
         return random.choice(possible_roots)
-
-    def get_radial_tree_coordinates(self, root=None, order=None):
-        tree = self.to_graph()
-        if len(tree) == 1:
-            return {list(tree)[0]: [0, 0]}
-        if not root:
-            root = self.find_root_as_undirected()
-        if not order:
-            order = list(topological_sort(tree, root))
-        angles = {}
-        leaves = [vertex for vertex in order if len(tree(vertex)) == 1 and vertex != root]
-        for index, leaf in enumerate(leaves):
-            angles[leaf] = 2 * math.pi * index / len(leaves)
-        for vertex in reversed(order):
-            if vertex not in angles:
-                neighbors_angles = [angles[neighbor] for neighbor in tree[vertex] if neighbor in angles]
-                angles[vertex] = sum(neighbors_angles) / len(neighbors_angles)
-        coordinates = {order[0]: [0, 0]}
-        for vertex in order[1:]:
-            i = 0
-            predecessor = tree[vertex][i]
-            while predecessor not in coordinates:
-                predecessor = tree[vertex][i + 1]
-                i += 1
-            coordinates[vertex] = [coordinates[predecessor][0] + math.cos(angles[vertex]),
-                                   coordinates[predecessor][1] + math.sin(angles[vertex])]
-        return coordinates
-
-    def draw(self, highlighted_edge=set(), highlighted_node=set(), save=None, show=True):
-        fig, ax = pyplot.subplots()
-        root = self.find_root_as_undirected()
-        coordinates = self.get_radial_tree_coordinates(root)
-        lines = []
-        red_lines = []
-        green_lines = []
-        for vertex in self.vertices:
-            for neighbour in self(vertex, undirected=True, begin=False, end=False):
-                if (vertex, neighbour) not in highlighted_edge and (neighbour, vertex) not in highlighted_edge:
-                    lines.append([tuple(coordinates[vertex]), tuple(coordinates[neighbour])])
-                else:
-                    green_lines.append([tuple(coordinates[vertex]), tuple(coordinates[neighbour])])
-            for neighbour in self(vertex, undirected=False, begin=True, end=False):
-                red_lines.append((coordinates[vertex], coordinates[neighbour]))
-        line_collection = matplotlib.collections.LineCollection(lines)
-        red_line_collection = matplotlib.collections.LineCollection(red_lines, colors="red")
-        green_line_collection = matplotlib.collections.LineCollection(green_lines, colors="#42c432")
-        ax.add_collection(line_collection)
-        ax.add_collection(red_line_collection)
-        ax.add_collection(green_line_collection)
-        pyplot.scatter([coordinates[vertex][0] for vertex in coordinates if vertex not in highlighted_node],
-                       [coordinates[vertex][1] for vertex in coordinates if vertex not in highlighted_node])
-        pyplot.scatter([coordinates[vertex][0] for vertex in highlighted_node],
-                       [coordinates[vertex][1] for vertex in highlighted_node], c='#42c432')
-        for i, vertex in enumerate(coordinates):
-            pyplot.annotate(vertex, (coordinates[vertex][0], coordinates[vertex][1]))
-        if save:
-            pyplot.savefig(save)
-        if show:
-            pyplot.show()
-        pyplot.close()
