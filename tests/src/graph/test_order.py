@@ -1,6 +1,6 @@
 import unittest
 
-from tbs.graph import MixedGraph, DIRECTED_EDGE, DirectedGraph, dfs, bfs,\
+from tbs.graph import MixedGraph, DIRECTED_EDGE, DirectedGraph, dfs, bfs, dfs_from_vertex, bfs_from_vertex,\
     topological_sort, direct_acyclic_graph_to_direct_comparability_graph, direct_comparability_graph_to_hase_diagram
 
 
@@ -78,6 +78,12 @@ class TestDfs(unittest.TestCase):
     def test_start_with_0(self):
         self.assertEqual(list(range(3)), dfs(self.g, key=lambda x: x == 0 and 1 or 2)[:3])
 
+    def test_start_from_0(self):
+        self.assertEqual(list(range(3)), dfs_from_vertex(self.g, 0)[:3])
+
+    def test_start_from_2(self):
+        self.assertEqual([2, 4], dfs_from_vertex(self.g, 2)[:2])
+
     def test_not_connected_directed(self):
         self.g.difference(((2, 3), ))
         self.g.update(DIRECTED_EDGE, ((3, 2), ))
@@ -97,6 +103,9 @@ class TestBfs(unittest.TestCase):
 
     def test_start_with_1(self):
         self.assertEqual([1, 0, 2, 3, 4], bfs(self.g, key=lambda x: x == 1 and -1 or x))
+
+    def test_start_from_1(self):
+        self.assertEqual([1, 0, 2, 3, 4], bfs_from_vertex(self.g, 1))
 
     def test_not_connected_directed(self):
         self.g.difference(((2, 3), ))

@@ -37,8 +37,20 @@ def dfs(graph, key=None):
     return dfs_order
 
 
+def dfs_from_vertex(graph, vertex):
+    """depth first search from a chosen vertex.
+
+    Args:
+        graph(MixedGraph): a mixed graph
+        vertex: the vertex from which to begin the search
+
+    Returns(list): dfs order.
+    """
+    return dfs(graph, key=lambda x: x == vertex and 1 or 2)
+
+
 def bfs(graph, key=None):
-    """breath first search.
+    """breadth first search.
 
     Args:
         graph(MixedGraph): a mixed graph
@@ -75,6 +87,19 @@ def bfs(graph, key=None):
                     fifo.appendleft(w)
 
     return bfs_order
+
+
+def bfs_from_vertex(graph, vertex):
+    """breadth first search from a chosen vertex.
+
+   Args:
+       graph(MixedGraph): a mixed graph
+       vertex: the vertex from which to begin the search
+
+   Returns(list): bfs order.
+   """
+
+    return bfs(graph, key=lambda x: x == vertex and 1 or 2)
 
 
 def topological_sort(dag, key=None):

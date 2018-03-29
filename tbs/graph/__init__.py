@@ -47,7 +47,7 @@ from ._graph import Graph
 from ._directed_graph import DirectedGraph
 
 from ._connected_parts import mst_from_set, connected_parts
-from ._order import dfs, bfs, topological_sort, \
+from ._order import dfs, bfs, topological_sort, dfs_from_vertex, bfs_from_vertex, \
     direct_acyclic_graph_to_direct_comparability_graph, direct_comparability_graph_to_hase_diagram
 from ._creation import random_tree, tree_from_prufer, prufer_from_tree
 
@@ -57,7 +57,7 @@ __all__ = ["Graph",
            "DirectedGraph",
            "mst_from_set", "connected_parts",
            "MixedGraph", "UNDIRECTED_EDGE", "DIRECTED_EDGE",
-           "mst_from_set", "dfs", "bfs", "topological_sort",
+           "mst_from_set", "dfs", "bfs", "topological_sort", "dfs_from_vertex", "bfs_from_vertex",
            "direct_acyclic_graph_to_direct_comparability_graph", "direct_comparability_graph_to_hase_diagram",
            "random_tree", "tree_from_prufer", "prufer_from_tree"]
 

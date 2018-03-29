@@ -2,7 +2,7 @@ __author__ = "cchatel", "fbrucker"
 
 from matplotlib import collections
 import math
-from ..graph import bfs
+from ..graph import bfs_from_vertex
 from ..gamma_free import GammaFree
 
 
@@ -63,7 +63,7 @@ def get_radial_tree_coordinates(binary_mixed_tree, root=None, order=None):
     if not root:
         root = binary_mixed_tree.find_root_as_undirected()
     if not order:
-        order = list(bfs(tree, lambda x: x == root and 1 or 2))
+        order = list(bfs_from_vertex(tree, root))
     angles = {}
     leaves = [vertex for vertex in order if len(tree(vertex)) == 1 and vertex != root]
     for index, leaf in enumerate(leaves):
