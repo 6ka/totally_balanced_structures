@@ -3,7 +3,7 @@ __author__ = "cchatel", "fbrucker"
 from matplotlib import collections
 import math
 from ..graph import bfs
-
+from ..gamma_free import GammaFree
 
 
 def draw_binary_mixed_tree_to_pyplot(binary_mixed_tree, pyplot, highlighted_edge=set(), highlighted_node=set()):
@@ -34,11 +34,12 @@ def draw_binary_mixed_tree_to_pyplot(binary_mixed_tree, pyplot, highlighted_edge
     for i, vertex in enumerate(coordinates):
         pyplot.annotate(vertex, (coordinates[vertex][0], coordinates[vertex][1]))
 
-#
-# def draw_dismantlable_lattice_to_pyplot(dismantlable_lattice, pyplot, color_scheme):
-#     context_matrix = GammaFree.from_lattice(dismantlable_lattice)
-#     context_matrix.reorder_doubly_lexical()
-#     draw_to_pyplot(context_matrix, pyplot, color_scheme)
+
+def draw_dismantlable_lattice_to_pyplot(dismantlable_lattice, pyplot, color_scheme):
+    from tbs.gamma_free._draw_pyplot import draw_to_pyplot
+    context_matrix = GammaFree.from_lattice(dismantlable_lattice)
+    context_matrix.reorder_doubly_lexical()
+    draw_to_pyplot(context_matrix, pyplot, color_scheme)
 
 
 def draw_tree_decomposition_to_pyplot(tree_decomposition, tree_index, pyplot):
