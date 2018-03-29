@@ -165,7 +165,6 @@ class DismantlableLattice(Lattice):
             element: a non binary vertex of the lattice.
             new_attribute(lattice, x, y -> new): return the new element in lattice sup of x and y.
         """
-
         while len(self.under(element)) > 2:
             predecessors = list(self.under(element))
             x = predecessors[0]
@@ -192,7 +191,7 @@ class DismantlableLattice(Lattice):
             self._order.update((z, new) for z in self._order(x, begin=False, end=True))
             self._order.update((z, new) for z in self._order(y, begin=False, end=True))
 
-            return self
+        return self
 
     def binarize_element(self, element,
                          new_object=lambda lattice, x, y: len(lattice),
@@ -243,7 +242,9 @@ class DismantlableLattice(Lattice):
         is_seen = {self.top}
 
         while fifo:
+            # print("\n", fifo)
             vertex = fifo.pop()
+            # print("element ", vertex)
             if len(self.under(vertex)) > 2 and vertex not in ignored_elements:
                 self.binarization_element_under(vertex)
             visit_list = self.under(vertex)
