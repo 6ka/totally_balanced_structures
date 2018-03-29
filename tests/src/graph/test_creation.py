@@ -1,7 +1,7 @@
 import unittest
 
 
-from tbs.graph import Graph, random_tree, tree_from_prufer, prufer_from_tree
+from tbs.graph import Graph, random_tree, tree_from_prufer, prufer_from_tree, connected_parts
 
 
 class TestCreation(unittest.TestCase):
@@ -38,3 +38,15 @@ class TestPrufer(unittest.TestCase):
                                                                           (3, 4),
                                                                           (4, 5), (5, 6)]),
                                                         [1, 2, 3, 4, 5, 6]))
+
+    def test_random_tree_one_vertex(self):
+        self.assertEqual(Graph([1]), random_tree([1]))
+
+    def test_random_tree_two_vertex(self):
+        self.assertEqual(Graph([1, 2], ([1, 2], )), random_tree([1, 2]))
+
+    def test_random_tree(self):
+        tree = random_tree([1, 2, 3, 4, 5, 6])
+        self.assertEqual(frozenset([1, 2, 3, 4, 5, 6]), tree.vertices)
+        self.assertEqual(5, len(tree.edges))
+        self.assertTrue(1, len(connected_parts(tree)))

@@ -10,9 +10,12 @@ def random_tree(vertices):
 
     Returns(Graph): A tree on the set of vertices.
     """
-    tree_prufer = [random.randint(0, len(vertices) - 1) for x in range(len(vertices))]
 
-    return tree_from_prufer(tree_prufer, vertices)
+    if len(vertices) <= 2:
+        return tree_from_prufer([], vertices)
+    else:
+
+        return tree_from_prufer([random.randint(0, len(vertices) - 1) for x in range(len(vertices) - 2)], vertices)
 
 
 def tree_from_prufer(prufer_list, vertices):
