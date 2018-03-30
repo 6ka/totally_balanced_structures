@@ -35,6 +35,11 @@ class DirectedGraph(MixedGraph):
         return cls(vertices, directed)
 
     @classmethod
+    def from_json(cls, json_graph):
+        vertices, undirected, directed = cls._graph_parts_from_json(json_graph)
+        return cls(vertices, directed)
+
+    @classmethod
     def from_neighborhoods(cls, neighbors):
         """Create graph from a neighborhood.
 

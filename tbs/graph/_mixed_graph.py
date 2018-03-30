@@ -1,3 +1,5 @@
+import json
+
 __author__ = 'fbrucker'
 
 UNDIRECTED_EDGE = "UNDIRECTED_EDGE"
@@ -49,6 +51,35 @@ class MixedGraph(object):
 
         return cls(vertices, undirected, directed)
 
+    @staticmethod
+    def _graph_parts_from_json(json_graph):
+        g_son = json_graph["graph"]
+        vertices = [json.loads(x["id"]) for x in g_son["nodes"]]
+
+        undirected = []
+        directed = []
+
+        for edge in g_son["edges"]:
+            x = json.loads(edge["source"])
+            y = json.loads(edge["target"])
+
+            if "directed" in edge:
+                if edge["directed"]:
+                    directed.append((x, y))
+                else:
+                    undirected.append((x, y))
+            elif "directed" in g_son:
+                if g_son["directed"]:
+                    directed.append((x, y))
+                else:
+                    undirected.append((x, y))
+        return vertices, undirected, directed
+
+    @classmethod
+    def from_json(cls, json_graph):
+        vertices, undirected, directed = cls._graph_parts_from_json(json_graph)
+        return cls(vertices, undirected, directed)
+
     def __repr__(self):
         undirected, directed = self.edges
         return "".join(["MixedGraph(",
@@ -56,6 +87,47 @@ class MixedGraph(object):
                         ", ", repr(undirected),
                         ", ", repr(directed),
                         ")"])
+
+    def jsongraph(self):
+        """Jsongraph format.
+
+        https://github.com/jsongraph
+
+        returns(dict): jsongraph format of the graph
+        """
+
+        vertices = list(self)
+        index = {vertices[i]: i for i in range(len(vertices))}
+
+        json_graph = {
+            "nodes": [
+                {
+                    "id": json.dumps(x)
+                }
+                for x in self
+            ],
+            "edges": [
+                         {
+                             "source": json.dumps(x),
+
+                             "target": json.dumps(y),
+                             "directed": True,
+                         }
+                         for x in self._directed for y in self._directed[x]
+
+                     ] + [
+                         {
+                             "source": json.dumps(x),
+
+                             "target": json.dumps(y),
+                             "directed": False,
+                         }
+                         for x in self._undirected for y in self._undirected[x] if index[y] >= index[x]
+                     ]
+
+        }
+
+        return {"graph": json_graph}
 
     @property
     def vertices(self):

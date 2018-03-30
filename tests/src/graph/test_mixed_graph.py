@@ -1,5 +1,6 @@
 import unittest
 
+import json
 from tbs.graph import MixedGraph, DIRECTED_EDGE, UNDIRECTED_EDGE
 
 
@@ -251,3 +252,41 @@ class TestPath(unittest.TestCase):
         self.g.update(DIRECTED_EDGE, [(5, 3)])
         with self.assertRaises(Exception):
             self.g.path(1, 6, lambda u, v: (u != 5 and v != 3) and 1 or -5)
+
+
+class TestJson(unittest.TestCase):
+    def test_undirected(self):
+        g = MixedGraph({1, 2}, [(1, 2)])
+        g_son = g.jsongraph()
+
+        self.assertEqual(2, len(g_son["graph"]["nodes"]))
+        self.assertEqual(1, len(g_son["graph"]["edges"]))
+        self.assertFalse(g_son["graph"]["edges"][0]["directed"])
+
+    def test_directed(self):
+        g = MixedGraph({1, 2}, [], [(1, 2)])
+        g_son = g.jsongraph()
+
+        self.assertEqual(2, len(g_son["graph"]["nodes"]))
+        self.assertEqual(1, len(g_son["graph"]["edges"]))
+        self.assertTrue(g_son["graph"]["edges"][0]["directed"])
+
+    def test_both(self):
+        g = MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)])
+
+        g_son = g.jsongraph()
+
+        self.assertEqual(3, len(g_son["graph"]["nodes"]))
+        self.assertEqual(2, len(g_son["graph"]["edges"]))
+        self.assertFalse(g_son["graph"]["edges"][1]["directed"])
+        self.assertTrue(g_son["graph"]["edges"][0]["directed"])
+
+    def test_load(self):
+        g_son = {"graph": {
+            "nodes": [{"id": "1"}, {"id": "2"}, {"id": "3"}],
+            "edges": [{"source": "2", "target": "3", "directed": True},
+                      {"source": "1", "target": "2", "directed": False}]
+        }
+        }
+
+        self.assertEqual(MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)]), MixedGraph.from_json(g_son))
