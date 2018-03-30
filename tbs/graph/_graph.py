@@ -36,6 +36,14 @@ class Graph(MixedGraph):
 
     @classmethod
     def from_json(cls, json_graph):
+        """jsgongraph to graph
+
+        node ids are json.loads() to produce vertices. Thus if the node id is "1" the associated vertex s the int 1.
+        Args:
+            json_graph(dict):  https://github.com/jsongraph format.
+        Returns(Graph): the mixed graph associated with the json
+        """
+
         vertices, undirected, directed = cls._graph_parts_from_json(json_graph)
         return cls(vertices, undirected)
 
