@@ -18,7 +18,7 @@ from ._to_string import to_string
 from ._context_matrix import ContextMatrix
 
 
-def load(f, has_elements_label=True, has_attributes_label=True, has_attribute=lambda x: x == "1", sep=None):
+def load(f, has_elements_label=True, has_attributes_label=True, has_attribute=lambda x: x == "1", sep=","):
     """Load a dissimilarity from file *f*.
 
     Empty lines, lines containing only whitespaces and lines beginig with ``'#'``
@@ -37,11 +37,12 @@ def load(f, has_elements_label=True, has_attributes_label=True, has_attribute=la
     :type has_attribute: function(str) -> bool
 
     :param sep: delimiter string
-    :type sep: :class:`str`
+    :type sep: :class:`str`. String split method arameter. If None, the string.split method is used with no parameter.
 
     :rtype: :class:`tbs.lattice.ContextMatrix`
 
     """
+
     attributes_labels = []
     elem_labels = []
     table = []
@@ -49,7 +50,7 @@ def load(f, has_elements_label=True, has_attributes_label=True, has_attribute=la
     my_split = lambda string: sep is None and string.split() or string.split(sep)
 
     if has_attributes_label:
-        attributes_labels = my_split(f.readline())
+        attributes_labels = my_split(f.readline().strip())
 
     l = f.readline()
 

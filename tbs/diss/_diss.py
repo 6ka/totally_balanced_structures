@@ -51,6 +51,47 @@ class Diss(object):
         else:
             self._d = []
 
+    @classmethod
+    def from_json(cls, json_diss):
+        """Diss from json format
+
+        Args:
+            json_diss(dict): {"elements": [,],  "matrix": [[]]}. "elements" is optional, and matrix can be either
+                             lower-triangular, upper-triangular, or square.
+
+        Returns(Diss): the context matrix associated with the json.
+        """
+        if len(json_diss["matrix"][0]) == 1:
+            kind = "lower"
+            elements = list(range(len(json_diss["matrix"][-1])))
+        elif len(json_diss["matrix"][-1]) == 1:
+            kind = "upper"
+            elements = list(range(len(json_diss["matrix"][0])))
+        else:
+            kind = "square"
+            elements = list(range(len(json_diss["matrix"][0])))
+
+        diss = Diss(json_diss.get("elements", elements))
+
+        for i, line in enumerate(json_diss["matrix"]):
+            for j, value in enumerate(line):
+                if kind == "upper":
+                    j += i
+                diss.set_by_pos(i, j, value)
+
+        return diss
+
+    def json(self):
+        """Json format.
+
+        The matrix is lower-triangular.
+
+        returns(dict): {"elements": [,], "matrix": [[]]}
+        """
+
+        return {"elements": self._vertex, "matrix": [[self.get_by_pos(i, j) for j in range(i + 1)]
+                                                     for i in range(len(self))]}
+
     def __str__(self):
         """Square matrix representation."""
 

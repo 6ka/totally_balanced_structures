@@ -6,23 +6,22 @@ from tbs.diss import Diss
 import tbs.diss
 
 
-class TestDissBase(unittest.TestCase):        
+class TestDissBase(unittest.TestCase):
     def test_init(self):
         """Initialization, setting and getting attributes."""
-        
+
         d = Diss(range(1, 6))
         d.update(lambda x, y: 5)
-        self.d = d 
+        self.d = d
         self.assertEqual(len(self.d._vertex), 5)
         self.assertEqual(len(self.d.vertex_index), 5)
-
 
         for i, x in enumerate(self.d):
             self.assertEqual(x, self.d._vertex[i])
             self.assertEqual(i, self.d.vertex_index[x])
         self.assertEqual(len(self.d), 5)
         self.assertEqual(len(self.d._d), 5)
-        
+
         for i, x in enumerate(self.d._d):
             self.assertEqual(len(x), 5 - i)
         for x in self.d:
@@ -39,18 +38,16 @@ class TestDissBase(unittest.TestCase):
         self.assertEqual(self.d(2, 3), 19)
         self.d._d[4][0] = 12
         self.assertEqual(self.d(5, 5), 12)
-        
-        
+
         d = Diss(reversed(range(5)), value=None)
-        
+
         for x in d:
             for y in d:
                 self.assertEqual(d(x, y), None)
-        
-        
+
         d = Diss(range(5))
         d.update(lambda x, y: random.randint(1, 5))
-        
+
         self.assertEqual(d._vertex, list(d))
         val = set()
         valsd = d.values()
@@ -61,8 +58,8 @@ class TestDissBase(unittest.TestCase):
                     val.add(d(x, y))
                 else:
                     self.assertFalse(d(x, y) in valsd)
-                
-        self.assertEqual(val, valsd)        
+
+        self.assertEqual(val, valsd)
         valsdzero = d.values(True)
         self.assertEqual(len(valsd) + 1, len(valsdzero))
         self.assertTrue(0 in valsdzero)
@@ -70,10 +67,10 @@ class TestDissBase(unittest.TestCase):
 
     def test_copy(self):
         """Copy and restriction"""
-        
+
         d = Diss(range(6))
         d.update(lambda x, y: 5, True)
-        
+
         dprim = d.copy()
         self.assertEqual(set(dprim), set(d))
         self.assertEqual(dprim.values(True), dprim.values(True))
@@ -84,26 +81,26 @@ class TestDissBase(unittest.TestCase):
         for x in d:
             for y in d:
                 self.assertEqual(d(x, y), dprim(x, y))
-                
+
         dprim = d.restriction([1, 3, 5])
         self.assertEqual(set(dprim), {1, 3, 5})
         for x in dprim:
             for y in dprim:
                 self.assertEqual(d(x, y), dprim(x, y))
-        
+
     def test_combine(self):
-        """Combining dissimilarities."""    
-        
+        """Combining dissimilarities."""
+
         d = Diss(range(5))
-        d.update(lambda  x, y: x + y, True)
+        d.update(lambda x, y: x + y, True)
         dprim = Diss(range(7))
-        dprim.update(lambda  x, y: x + y)
-        
+        dprim.update(lambda x, y: x + y)
+
         d2 = d + dprim
         for x in d:
             for y in d:
                 self.assertEqual(d2(x, y), d(x, y) + dprim(x, y))
-                
+
         d2 = d - dprim
         for x in d:
             for y in d:
@@ -146,7 +143,7 @@ class TestDissBase(unittest.TestCase):
                 if x == y:
                     self.assertEqual(d2(x, y), d(x, y))
                 else:
-                    self.assertEqual(d2(x, y), 4*d(x, y))
+                    self.assertEqual(d2(x, y), 4 * d(x, y))
         d2 = d.copy()
         d2 /= 1.3
         for x in d:
@@ -154,8 +151,8 @@ class TestDissBase(unittest.TestCase):
                 if x == y:
                     self.assertEqual(d2(x, y), d(x, y))
                 else:
-                    self.assertEqual(d2(x, y), d(x, y)/1.3)
-        
+                    self.assertEqual(d2(x, y), d(x, y) / 1.3)
+
         d2 = -d
         for x in d:
             for y in d:
@@ -172,6 +169,8 @@ class TestDissBase(unittest.TestCase):
             for y in d:
                 self.assertEqual(d2(x, y), abs(-d(x, y)))
 
+
+class testStringAndJson(unittest.TestCase):
     def test_to_string(self):
         """String representation."""
 
@@ -195,3 +194,30 @@ class TestDissBase(unittest.TestCase):
         self.assertEqual(tbs.diss.to_string(d, "lower"), lower)
         self.assertEqual(tbs.diss.to_string(d, "lowerl", ','), lowerl)
         self.assertEqual(tbs.diss.to_string(d, "lowerp", ','), lowerp)
+
+    def test_json(self):
+        d = Diss(range(5, 10)).update(lambda x, y: x + y, True)
+        self.assertEqual({'elements': [5, 6, 7, 8, 9],
+                          'matrix': [[10],
+                                     [11, 12],
+                                     [12, 13, 14],
+                                     [13, 14, 15, 16],
+                                     [14, 15, 16, 17, 18]]},
+                         d.json())
+        self.assertEqual(d, Diss.from_json(d.json()))
+
+        self.assertEqual(Diss(range(5)).update(lambda x, y: 10 + x + y, True),
+                         Diss.from_json({'matrix': [[10, 11, 12, 13, 14],
+                                                    [11, 12, 13, 14, 15],
+                                                    [12, 13, 14, 15, 16],
+                                                    [13, 14, 15, 16, 17],
+                                                    [14, 15, 16, 17, 18]
+                                                    ]}))
+
+        self.assertEqual(Diss(range(5)).update(lambda x, y: 10 + x + y, True),
+                         Diss.from_json({'matrix': [[10, 11, 12, 13, 14],
+                                                        [12, 13, 14, 15],
+                                                            [14, 15, 16],
+                                                                [16, 17],
+                                                                    [18]
+                                                    ]}))

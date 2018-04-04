@@ -257,7 +257,7 @@ class TestPath(unittest.TestCase):
 class TestJson(unittest.TestCase):
     def test_undirected(self):
         g = MixedGraph({1, 2}, [(1, 2)])
-        g_son = g.jsongraph()
+        g_son = g.json()
 
         self.assertEqual(2, len(g_son["graph"]["nodes"]))
         self.assertEqual(1, len(g_son["graph"]["edges"]))
@@ -265,7 +265,7 @@ class TestJson(unittest.TestCase):
 
     def test_directed(self):
         g = MixedGraph({1, 2}, [], [(1, 2)])
-        g_son = g.jsongraph()
+        g_son = g.json()
 
         self.assertEqual(2, len(g_son["graph"]["nodes"]))
         self.assertEqual(1, len(g_son["graph"]["edges"]))
@@ -274,7 +274,7 @@ class TestJson(unittest.TestCase):
     def test_both(self):
         g = MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)])
 
-        g_son = g.jsongraph()
+        g_son = g.json()
 
         self.assertEqual(3, len(g_son["graph"]["nodes"]))
         self.assertEqual(2, len(g_son["graph"]["edges"]))

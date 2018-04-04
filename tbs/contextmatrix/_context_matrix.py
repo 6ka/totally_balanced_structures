@@ -88,6 +88,26 @@ class ContextMatrix(object):
 
         return cls(matrix, elements=elements)
 
+    @classmethod
+    def from_json(cls, json_matrix):
+        """ContextMatrix from json format
+
+        Args:
+            json_matrix(dict): {"elements": [,], "attributes": [,], "matrix": [[]]}. "elements" and "attributes" are
+                               optional.
+        Returns(ContextMatrix): the context matrix associated with the json.
+        """
+
+        return cls(json_matrix["matrix"], json_matrix.get("elements", tuple()), json_matrix.get("attributes", tuple()))
+
+    def json(self):
+        """Json format.
+
+        returns(dict): {"elements": [,], "attributes": [,], "matrix": [[]]}
+        """
+
+        return {"matrix": self.matrix, "elements": self.elements, "attributes": self.attributes}
+
     def transpose(self):
         """ Return the transpose.
 
@@ -129,6 +149,14 @@ class ContextMatrix(object):
 
     def __str__(self):
         return to_string(self)
+
+    def __repr__(self):
+
+        return "".join(["ContextMatrix(",
+                        repr(self.matrix),
+                        ", ", "elements=", repr(self.elements),
+                        ", ", "attributes=", repr(self.attributes),
+                        ")"])
 
     @property
     def matrix(self):

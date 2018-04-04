@@ -1,3 +1,4 @@
+import json
 
 from ._mixed_graph import MixedGraph, DIRECTED_EDGE
 
@@ -35,15 +36,19 @@ class DirectedGraph(MixedGraph):
         return cls(vertices, directed)
 
     @classmethod
-    def from_json(cls, json_graph):
-        """jsgongraph to directed graph
+    def from_json(cls, json_graph, id_to_vertex_conversion=json.loads):
+        """jsgongraph to mixed-graph
 
-        node ids are json.loads() to produce vertices. Thus if the node id is "1" the associated vertex s the int 1.
+
         Args:
             json_graph(dict):  https://github.com/jsongraph format.
-        Returns(DirectedGraph): the mixed graph associated with the json
+            id_to_vertex_conversion(str->object): each id is converterted into a vertex = id_to_vertex_conversion(id).
+                    By defaults, node ids are json.loads() to produce vertices. Thus if the node id is "1"
+                    the associated vertex s the int 1.
+
+        Returns(DirectedGraph): the directed graph associated with the json
         """
-        vertices, undirected, directed = cls._graph_parts_from_json(json_graph)
+        vertices, undirected, directed = cls._graph_parts_from_json(json_graph, id_to_vertex_conversion)
         return cls(vertices, directed)
 
     @classmethod

@@ -58,5 +58,5 @@ class TestDifferencesWithMixedGraph(unittest.TestCase):
 class TestJson(unittest.TestCase):
     def test_json(self):
         g = DirectedGraph({1, 2, 3}, [(1, 2), (2, 3)])
-        self.assertEqual(DirectedGraph, DirectedGraph.from_json(g.jsongraph()).__class__)
-        self.assertEqual(g, DirectedGraph.from_json(g.jsongraph()))
+        self.assertEqual(DirectedGraph, DirectedGraph.from_json(g.json()).__class__)
+        self.assertEqual(g, DirectedGraph.from_json(g.json()))

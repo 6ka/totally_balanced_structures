@@ -6,7 +6,6 @@ from tbs.graph import DirectedGraph
 
 
 class TestMatrixCreate(unittest.TestCase):
-
     def setUp(self):
         self.matrix = ((1, 0, 0, 1, 0),
                        (1, 1, 1, 1, 1),
@@ -24,6 +23,62 @@ class TestMatrixCreate(unittest.TestCase):
         self.assertEqual(self.matrix, context_matrix._matrix)
         self.assertEqual((1, 2, 3, 4), context_matrix.elements)
         self.assertEqual((5, 6, 7, 8, 9), context_matrix.attributes)
+
+
+class TestStringAndJson(unittest.TestCase):
+    def setUp(self):
+        matrix = ((1, 0, 0, 1, 0),
+                  (1, 1, 1, 1, 1),
+                  (0, 1, 0, 1, 0),
+                  (0, 0, 1, 0, 1))
+
+        self.context_matrix = ContextMatrix(matrix, elements=(1, 2, 3, 4), attributes=(5, 6, 7, 8, 9))
+
+    def test_repr(self):
+        self.assertEqual(
+            "ContextMatrix(((1, 0, 0, 1, 0), (1, 1, 1, 1, 1), (0, 1, 0, 1, 0), (0, 0, 1, 0, 1)), elements=(1, 2, 3, 4), attributes=(5, 6, 7, 8, 9))",
+            repr(self.context_matrix))
+
+        new_context = eval(repr(self.context_matrix))
+        self.assertEqual(self.context_matrix.matrix, new_context.matrix)
+        self.assertEqual(self.context_matrix.elements, new_context.elements)
+        self.assertEqual(self.context_matrix.attributes, new_context.attributes)
+
+    def test_str(self):
+        str_context_matrix = """   5   6   7   8   9 
+1  X   .   .   X   . 
+2  X   X   X   X   X 
+3  .   X   .   X   . 
+4  .   .   X   .   X 
+"""
+
+        self.assertEqual(str_context_matrix, str(self.context_matrix))
+
+    def test_json(self):
+        json_matrix = {"matrix": self.context_matrix.matrix,
+                       "elements": self.context_matrix.elements,
+                       "attributes": self.context_matrix.attributes}
+        self.assertEqual(json_matrix,
+                         self.context_matrix.json())
+
+        new_context = ContextMatrix.from_json(json_matrix)
+        self.assertEqual(self.context_matrix.matrix, new_context.matrix)
+        self.assertEqual(self.context_matrix.elements, new_context.elements)
+        self.assertEqual(self.context_matrix.attributes, new_context.attributes)
+
+    def test_json_optional_parameters(self):
+        new_context = ContextMatrix.from_json({"matrix": self.context_matrix.matrix,
+                                               "attributes": self.context_matrix.attributes})
+        self.assertEqual(self.context_matrix.matrix, new_context.matrix)
+        self.assertEqual(self.context_matrix.attributes, new_context.attributes)
+
+        new_context = ContextMatrix.from_json({"matrix": self.context_matrix.matrix})
+        self.assertEqual(self.context_matrix.matrix, new_context.matrix)
+
+        new_context = ContextMatrix.from_json({"matrix": self.context_matrix.matrix,
+                                               "elements": self.context_matrix.elements})
+        self.assertEqual(self.context_matrix.matrix, new_context.matrix)
+        self.assertEqual(self.context_matrix.elements, new_context.elements)
 
 
 class TestMatrix(unittest.TestCase):
