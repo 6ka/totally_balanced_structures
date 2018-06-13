@@ -20,7 +20,7 @@ def draw_to_pyplot(doubly_lexically_ordered_gamma_free, pyplot, color_scheme):
     objects = lattice.sup_irreducible
     attributes = lattice.inf_irreducible
 
-    hierarchy_association = lattice.hierarchical_height()
+    hierarchy_association = lattice.hierarchical_decomposition()
     nb_colors = max(hierarchy_association.values()) + 1
 
     colors = color_scheme([0. + 1.0 * x / (nb_colors - 1) for x in range(nb_colors)])

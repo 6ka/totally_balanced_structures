@@ -76,3 +76,6 @@ class TestMatrixClusterAndBoxes(unittest.TestCase):
                                                           (c2, c1), (c2, c3),
                                                           (c1, t)])),
             lattice)
+
+        for e in lattice.hase_diagram.edges:
+            print(e)

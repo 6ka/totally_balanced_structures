@@ -51,7 +51,7 @@ class DismantlableLattice(Lattice):
                 classes[current_class_index] = classes[predecessors[0]].union(classes[predecessors[1]])
         return tree
 
-    def hierarchical_height(self):
+    def hierarchical_decomposition(self):
         """ Decompose the lattice into hierarchies.
 
         Every dismantlable lattice can be decomposed into hierarchy.

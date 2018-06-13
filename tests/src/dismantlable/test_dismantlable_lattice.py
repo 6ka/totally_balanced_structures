@@ -40,6 +40,26 @@ class TestDismantlableLattice(unittest.TestCase):
         self.assertTrue(tree.isa_edge(4, 2))
         self.assertTrue(tree.isa_edge('9', 2) or tree.isa_edge('9', 4))
 
-    def test_hierarchical_height(self):
+    def test_hierarchical_decomposition(self):
         self.assertEqual({1: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 'top': 0, 'bottom': 2, 2: 1},
-                         self.lattice.hierarchical_height())
+                         self.lattice.hierarchical_decomposition())
+
+    def test_hierarchical_decomposition_not_bottom(self):
+        lattice = DismantlableLattice(DirectedGraph.from_edges([("bottom", 1),
+                                                                ("bottom", 2),
+                                                                ("bottom", 3),
+                                                                ("bottom", 4),
+                                                                (1, 5),
+                                                                (2, 5),
+                                                                (2, 6),
+                                                                (3, 7),
+                                                                (3, 6),
+                                                                (4, 7),
+                                                                (5, 8),
+                                                                (6, 8),
+                                                                (7, 9),
+                                                                (8, "top"),
+                                                                (9, "top")]))
+
+        self.assertEqual({1: 0, 3: 1, 4: 0, 5: 0, 6: 1, 7: 0, 8: 0, 9: 0, 'top': 0, 'bottom': 2, 2: 1},
+                         lattice.hierarchical_decomposition())
