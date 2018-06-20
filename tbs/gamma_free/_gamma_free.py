@@ -2,6 +2,7 @@ __author__ = 'fbrucker'
 
 
 from ..contextmatrix import ContextMatrix
+from ._gamma_free_column_ordering import gamma_free_column_order
 
 
 class GammaFree(ContextMatrix):
@@ -30,6 +31,18 @@ class GammaFree(ContextMatrix):
         """
 
         return is_gamma_free_matrix(self.matrix)
+
+    def reorder_gamma_free_from_strongly_chordal_element_order(self):
+        """ Gamma free column ordering.
+
+            One assume that it is possible, thas is that the lines form a strongly chordal order.
+
+
+        """
+
+        column_order = gamma_free_column_order(self)
+        self.reorder_columns(column_order)
+        return self
 
 
 def is_gamma_free_matrix(matrix):

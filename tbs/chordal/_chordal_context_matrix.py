@@ -81,8 +81,6 @@ def chordal_clusters(d, order=None):
     return clusters
 
 
-
-
 def sort_clusters_by_order(clusters, order):
     clusters_by_length = list(clusters)
     clusters_by_length.sort(key=lambda x: len(x))
