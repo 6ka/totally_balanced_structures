@@ -10,7 +10,9 @@ def gamma_free_column_order(context_matrix):
     :return: new column ordering
     """
 
-    column_index_order = topological_sort(_column_intersection_graphs(context_matrix.matrix))
+    column_index_order = topological_sort(_column_intersection_graphs(context_matrix.matrix),
+                                          lambda key: key)
+
     return _order_refinement(context_matrix.matrix, column_index_order)
 
 
@@ -90,7 +92,7 @@ def _column_intersection_graphs(matrix):
                     break
 
             if not matrix[first_line_both_true][c1] or not matrix[first_line_both_true][c2]:
-                break
+                continue
 
             i_not_j = j_not_i = False
 
