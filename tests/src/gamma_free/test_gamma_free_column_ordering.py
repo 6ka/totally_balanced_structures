@@ -2,7 +2,7 @@ import unittest
 
 from tbs.graph import DirectedGraph
 from tbs.gamma_free._gamma_free import GammaFree
-from tbs.gamma_free._gamma_free_column_ordering import _column_intersection_graphs, _matrix_count, _order_refinement
+from tbs.gamma_free._gamma_free_column_ordering import _column_intersection_graphs, matrix_count_number_1_under, _order_refinement
 
 
 class TestStronglyChordalToGammaFree(unittest.TestCase):
@@ -35,7 +35,7 @@ class TestStronglyChordalToGammaFree(unittest.TestCase):
 
     def test_matrix_count(self):
         context_matrix = GammaFree([[1, 1, 0], [1, 0, 1], [0, 0, 1]])
-        self.assertEqual([[2, 1, 2], [1, 0, 2], [0, 0, 1]], _matrix_count(context_matrix.matrix))
+        self.assertEqual([[2, 1, 2], [1, 0, 2], [0, 0, 1]], matrix_count_number_1_under(context_matrix.matrix))
 
     def test_order_refinement_no_initial_ordering(self):
         context_matrix = GammaFree([[0, 1, 0, 0, 1, 0],

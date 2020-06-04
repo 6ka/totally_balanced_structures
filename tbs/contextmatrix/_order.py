@@ -44,21 +44,22 @@ def doubly_lexical_order(matrix, order=None):
 
     :param matrix: O/1 matrix
     :type matrix: list of list of 0/1 elements
-    :param order: prefered line order.
+    :param order: prefered line order. A list of lists
 
-    If choice between rows, the smallest one is taken first.
+    If choice between rows, the largest one is taken first.
 
     :rtype: couple of line and column permutation
     """
+
     column_partition = ColumnBlock(range(len(matrix[0])))
     row_partition = None
 
     if order is None:
-        row_partition = RowBlock(range(len(matrix)), column_partition)
+        row_partition = RowBlock(reversed(range(len(matrix))), column_partition)
     else:
         pred = None
         for x in order:
-            row_partition = RowBlock([x], column_partition)
+            row_partition = RowBlock(x, column_partition)
             if pred is None:
                 pred = row_partition
             else:
@@ -72,22 +73,22 @@ def doubly_lexical_order(matrix, order=None):
         full_one = set()
         provoque_a_column_split = False
         for row in current_row_block.rows:
-            row_has_only_1 = False
+            row_has_not_only_1 = False
             column_subblock = current_column_block
             while column_subblock != end_column_block:
                 for column in column_subblock.columns:
                     if matrix[row][column] == 0:
-                        row_has_only_1 = True
+                        row_has_not_only_1 = True
                         common_columns = set(j for j in column_subblock.columns if matrix[row][j] == 1)
                         new_column = column_subblock.split(common_columns)
-                        new_column.rows.add(row)
+                        new_column.rows.append(row)
                         if new_column != column_subblock:
                             provoque_a_column_split = True
                         column_subblock = end_column_block
                         break
                 if column_subblock != end_column_block:
                     column_subblock = column_subblock.pred
-            if not row_has_only_1:
+            if not row_has_not_only_1:
                 full_one.add(row)
 
         current_row_block.split(current_column_block, end_column_block, full_one)
@@ -146,7 +147,7 @@ class ColumnBlock(Node):
     def __init__(self, columns, rows=None):
         super().__init__()
         self.columns = set(columns)
-        self.rows = rows is not None and rows or set()
+        self.rows = rows is not None and rows or list()
 
     def split(self, columns):
         """
@@ -171,7 +172,7 @@ class ColumnBlock(Node):
 class RowBlock(Node):
     def __init__(self, rows, columns_block=None):
         super().__init__()
-        self.rows = set(rows)
+        self.rows = list(rows)
         self.columns_block = columns_block
 
     def split(self, last_column_bock, end_column_block, remaining_rows):
@@ -190,7 +191,7 @@ class RowBlock(Node):
         while current_column_block != end_column_block:
             if current_column_block.rows:
                 rows_ordering.append((current_column_block.rows, current_column_block))
-                current_column_block.rows = set()
+                current_column_block.rows = list()
             current_column_block = current_column_block.pred
         if remaining_rows:
             rows_ordering.append((remaining_rows, end_column_block))

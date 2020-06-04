@@ -11,7 +11,9 @@ def box_lattice(doubly_lexically_ordered_gamma_free):
 
     The context matrix must be gamma free (otherwise `box_lattice(gamma_free.gamma_free.reorder_doubly_lexical())`). 
     No check are performed.
-     
+
+    Complexity is O(columns * lines)
+
     Args:
         doubly_lexically_ordered_gamma_free(GammaFree): doubly lexically ordered gama free context matrix.
 

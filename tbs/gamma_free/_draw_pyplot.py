@@ -39,6 +39,7 @@ def draw_to_pyplot(doubly_lexically_ordered_gamma_free, pyplot, color_scheme):
         pyplot.text(x, -y, str(attr), ha='left', va='bottom')
 
     for elem in lattice:
+
         x, y = point_transformation(*point[elem])
         if elem in objects:
             type = "^"

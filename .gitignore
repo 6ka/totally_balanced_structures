@@ -6,3 +6,5 @@ doc/build/
 .DS_Store
 *.orig
 doc/source/generated
+
+examples/.ipynb_checkpoints

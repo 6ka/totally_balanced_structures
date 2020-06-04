@@ -48,7 +48,7 @@ class TestNode(unittest.TestCase):
 class TestColumnBlock(unittest.TestCase):
     def setUp(self):
         self.column_block = ColumnBlock(list(range(4)))
-        self.column_block.rows.add(3)
+        self.column_block.rows.append(3)
 
     def test_split_intersection(self):
         split = self.column_block.split({1, 2})
@@ -56,20 +56,20 @@ class TestColumnBlock(unittest.TestCase):
         self.assertEqual(self.column_block.pred, split)
         self.assertEqual({1, 2}, self.column_block.columns)
         self.assertEqual({0, 3}, split.columns)
-        self.assertEqual(set(), split.rows)
-        self.assertEqual({3}, self.column_block.rows)
+        self.assertEqual(list(), split.rows)
+        self.assertEqual([3], self.column_block.rows)
 
     def test_split_empty_intersection_all_elements(self):
         split = self.column_block.split({0, 1, 2, 3})
         self.assertEqual(self.column_block, split)
         self.assertEqual({0, 1, 2, 3}, self.column_block.columns)
-        self.assertEqual({3}, self.column_block.rows)
+        self.assertEqual([3], self.column_block.rows)
 
     def test_split_empty_intersection_none_elements(self):
         split = self.column_block.split(set())
         self.assertEqual(self.column_block, split)
         self.assertEqual({0, 1, 2, 3}, self.column_block.columns)
-        self.assertEqual({3}, self.column_block.rows)
+        self.assertEqual([3], self.column_block.rows)
 
 
 class TestFinalPartition(unittest.TestCase):

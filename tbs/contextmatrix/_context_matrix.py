@@ -266,8 +266,8 @@ class ContextMatrix(object):
 
         return is_doubly_lexically_ordered(self.matrix)
 
-    def reorder_doubly_lexical(self):
-        lines, columns = doubly_lexical_order(self._matrix)
+    def reorder_doubly_lexical(self, order=None):
+        lines, columns = doubly_lexical_order(self._matrix, order)
 
         self.reorder_lines(lines)
         self.reorder_columns(columns)

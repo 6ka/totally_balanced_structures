@@ -36,6 +36,17 @@ def approximation_to_totally_balanced_diss(diss_orig, order=None):
                                     for u in range(i, len(context_matrix.elements))
                                     if context_matrix.matrix[u][j])
 
+
+    #shuffle
+    import random
+    columns = list(context_matrix.attributes)
+    elements = list(context_matrix.elements)
+    random.shuffle(columns)
+    random.shuffle(elements)
+    context_matrix.reorder_columns(columns)
+    context_matrix.reorder_elements(elements)
+
+
     context_matrix.reorder_doubly_lexical()  # compatible order are not necessarily strongly compatible.
     gamma_free = GammaFree.from_approximation(context_matrix)
 

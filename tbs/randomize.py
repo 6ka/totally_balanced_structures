@@ -73,7 +73,7 @@ def random_gamma_free_01_matrix(number_lines, number_column, probability_of_1=.5
     :return:
     """
     matrix = [[random.random() < probability_of_1 and 1 or 0 for j in range(number_column)] for i in range(number_lines)]
-    context_matrix = ContextMatrix(matrix, copy_matrix=False)
+    context_matrix = ContextMatrix(matrix)
     gamma_free.context_matrix_approximation(context_matrix, in_place=True)
     shuffle_line_and_column_from_context_matrix(context_matrix)
 
@@ -91,13 +91,5 @@ def shuffle_line_and_column_from_context_matrix(context_matrix):
     random.shuffle(new_line_order)
     new_column_order = list(range(len(context_matrix.attributes)))
     random.shuffle(new_column_order)
-    context_matrix.reorder(new_line_order, new_column_order)
-    line_order = [0] * len(new_line_order)
-    for i, x in enumerate(new_line_order):
-        line_order[x] = i
-
-    column_order = [0] * len(new_column_order)
-    for j, x in enumerate(new_column_order):
-        column_order[x] = j
-
-    return line_order, column_order
+    context_matrix.reorder_lines(new_line_order)
+    context_matrix.reorder_columns(new_column_order)

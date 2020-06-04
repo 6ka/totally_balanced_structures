@@ -17,10 +17,13 @@ def gamma_free_column_order(context_matrix):
 
 
 def _order_refinement(matrix, initial_column_order):
-    matrix_number_1_under = _matrix_count(matrix)
+    matrix_number_1_under = matrix_count_number_1_under(matrix)
 
-    matrix_elem = lambda l, c: matrix[l][initial_column_order[c]]
-    matrix_count = lambda l, c: matrix_number_1_under[l][initial_column_order[c]]
+    def matrix_elem(line, column):
+        return matrix[line][initial_column_order[column]]
+
+    def matrix_count(line, column):
+        return matrix_number_1_under[line][initial_column_order[column]]
 
     position = [-1] * len(initial_column_order)
     next_1 = [len(initial_column_order) - 1] * len(matrix)
@@ -111,7 +114,7 @@ def _column_intersection_graphs(matrix):
     return DirectedGraph(range(nb_columns), edges_inclusion)
 
 
-def _matrix_count(matrix):
+def matrix_count_number_1_under(matrix):
     reverse_matrix_count = [[element and 1 or 0 for element in matrix[-1]]]
 
     for l in range(len(matrix) - 2, -1, -1):

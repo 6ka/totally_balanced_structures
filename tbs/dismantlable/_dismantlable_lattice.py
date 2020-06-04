@@ -209,7 +209,7 @@ class DismantlableLattice(Lattice):
 
         return self
 
-    def binarize_bottom_up(self, ignored_elements={'BOTTOM'}, new_object=lambda lattice, x, y: len(lattice)):
+    def binarize_bottom_up(self, ignored_elements=('BOTTOM',), new_object=lambda lattice, x, y: len(lattice)):
         """Modifies the lattice such that no element is covered by more than two elements.
 
         Args:
@@ -231,7 +231,7 @@ class DismantlableLattice(Lattice):
 
         return self
 
-    def binarize_top_down(self, ignored_elements=set()):
+    def binarize_top_down(self, ignored_elements=frozenset()):
         """Modifies the lattice such that no element covers more than two elements.
 
         :param ignored_elements: elements not to binarize
@@ -255,7 +255,7 @@ class DismantlableLattice(Lattice):
 
         return self
 
-    def binarize(self, ignored_elements={'BOTTOM'}):
+    def binarize(self, ignored_elements=('BOTTOM',)):
         """Modifies the lattice such that it is binary
 
         :param ignored_elements: elements not to binarize
