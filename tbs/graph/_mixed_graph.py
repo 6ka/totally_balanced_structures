@@ -189,6 +189,11 @@ class MixedGraph(object):
 
         return not self == g
 
+    def __contains__(self, vertex):
+        """is a vertex"""
+
+        return vertex in self.vertices
+
     def add(self, x):
         """Add vertex *x*.
 

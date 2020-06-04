@@ -36,6 +36,7 @@ def tree_from_prufer(prufer_list, vertices):
         vertices_degree[vertex_index] += 1
 
     for prufer in prufer_list:
+        leaf, degree = None, None
         for leaf, degree in enumerate(vertices_degree):
             if degree == 1:
                 break
@@ -57,6 +58,7 @@ def prufer_from_tree(tree, vertices_list):
     prufer = []
 
     while number_edges_remaining:
+        leaf, neighbors = None, None
         for leaf, neighbors in enumerate(vertices_degree):
             if len(neighbors) == 1:
                 break

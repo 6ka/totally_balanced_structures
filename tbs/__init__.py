@@ -18,8 +18,9 @@ Submodules
     chordal
     gamma_free
     randomize
+    lehelian
 
 """
 
 __all__ = ["diss", "graph", "contextmatrix", "gamma_free", "randomize", "chordal",
-           "progress_bar"]
+           "progress_bar", "lehelian"]

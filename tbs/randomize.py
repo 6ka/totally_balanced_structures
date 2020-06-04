@@ -12,6 +12,7 @@ import random
 
 from . import gamma_free
 from .contextmatrix import ContextMatrix
+from .gamma_free import GammaFree
 
 
 __author__ = 'fbrucker'
@@ -73,8 +74,7 @@ def random_gamma_free_01_matrix(number_lines, number_column, probability_of_1=.5
     :return:
     """
     matrix = [[random.random() < probability_of_1 and 1 or 0 for j in range(number_column)] for i in range(number_lines)]
-    context_matrix = ContextMatrix(matrix)
-    gamma_free.context_matrix_approximation(context_matrix, in_place=True)
+    context_matrix = GammaFree.from_approximation(ContextMatrix(matrix))
     shuffle_line_and_column_from_context_matrix(context_matrix)
 
     return context_matrix.matrix

@@ -137,6 +137,11 @@ class TestCompare(unittest.TestCase):
         self.assertEqual(MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)]),
                          eval(repr(MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)]))))
 
+    def test_in(self):
+        mixed_graph = MixedGraph({1, 2, 3}, [(1, 2)], [(2, 3)])
+        self.assertTrue(1 in mixed_graph)
+        self.assertFalse(4 in mixed_graph)
+
 
 class TestGetSet(unittest.TestCase):
     def test_iter(self):
