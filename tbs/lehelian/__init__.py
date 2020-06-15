@@ -11,8 +11,8 @@ Module content
 
 """
 
-from ._creation import random_hypergraph
+from ._creation import random_lehelian_hypergraph
 
 __author__ = 'francois, célia'
 
-__all__ = ["random_hypergraph"]
+__all__ = ["random_lehelian_hypergraph"]

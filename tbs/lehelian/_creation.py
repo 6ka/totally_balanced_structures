@@ -1,13 +1,12 @@
 from ..graph import Graph, random_tree
 
 
-def random_hypergraph(vertices):
+def random_lehelian_hypergraph(vertices):
 
     hyperedges = set(frozenset((vertex,)) for vertex in vertices)
 
     current_tree = random_tree([frozenset((vertex,)) for vertex in vertices])
 
-    print(current_tree)
     while len(current_tree) > 1:
 
         new_tree = Graph()
